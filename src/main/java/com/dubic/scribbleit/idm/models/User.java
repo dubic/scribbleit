@@ -30,7 +30,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.security.core.GrantedAuthority;
@@ -95,6 +97,7 @@ public class User implements UserDetails, Serializable {
         this.id = id;
     }
 
+    @Size(min = 4, max = 20, message = "screen name must be between 4 and 20 chars")
     @NotEmpty(message = "Empty screen name")
     @Column(unique = true, length = 20, name = "screen_name")
     public String getScreenName() {
@@ -125,7 +128,7 @@ public class User implements UserDetails, Serializable {
         this.firstname = firstname;
     }
 
-    @Column( name = "lastname", length = 50)
+    @Column(name = "lastname", length = 50)
     public String getLastname() {
         return lastname;
     }
@@ -211,6 +214,8 @@ public class User implements UserDetails, Serializable {
         this.roles = roles;
     }
 
+    @Size(max = 255, message = "secret question must not exceed 255 chars")
+    @Column(name = "secret_question", length = 255)
     public String getSecretQuestion() {
         return secretQuestion;
     }
@@ -219,6 +224,8 @@ public class User implements UserDetails, Serializable {
         this.secretQuestion = secretQuestion;
     }
 
+    @Size(max = 255, message = "secret answer must not exceed 255 chars")
+    @Column(name = "secret_answer", length = 255)
     public String getSecretAnswer() {
         return secretAnswer;
     }
@@ -274,6 +281,7 @@ public class User implements UserDetails, Serializable {
         return this.roles;
     }
 
+    @Size(min = 8, max = 255, message = "password must be between 8 - 255 chars")
     @NotEmpty(message = "User must have a password")
     @Column(name = "password")
     @Override

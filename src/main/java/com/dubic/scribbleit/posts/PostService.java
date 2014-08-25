@@ -6,9 +6,10 @@
 package com.dubic.scribbleit.posts;
 
 import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.Comment;
 import com.dubic.scribbleit.models.Post;
 import com.dubic.scribbleit.models.Tag;
-import com.dubic.scribbleit.ui.Response;
+import java.util.List;
 import javax.persistence.PersistenceException;
 
 /**
@@ -18,20 +19,25 @@ import javax.persistence.PersistenceException;
  */
 public interface PostService {
 
-    public Post savePost(String post) throws PersistenceException,PostException;
+    public Post savePost(String post) throws PersistenceException, PostException;
 
+    public Comment saveComment(String comment, Long postId) throws PersistenceException, PostException;
+
+//    public List<Comment> getComments(Long postId) throws PersistenceException, PostException;
     public Post updatePost(Post post) throws PersistenceException;
 
     public void blockPost(Long postId) throws PersistenceException;
+
+    public void reportPost(Long postId,String[] reasons) throws PersistenceException;
 
     public void watchTag(User user, Tag tag) throws PersistenceException;
 
     public void removeWatch(Long id) throws PersistenceException;
 
-    public void like(Post post) throws PersistenceException;
+    public int like(Long postId) throws PersistenceException;
 
-    public void dislike(Post post) throws PersistenceException;
-    
+    public int dislike(Long postId) throws PersistenceException;
+
     public int numOfPosts(User user);
 
 }

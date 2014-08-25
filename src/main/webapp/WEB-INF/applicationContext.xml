@@ -46,8 +46,8 @@ http://www.springframework.org/schema/task/spring-task.xsd ">
     The id becomes the default thread name prefix. -->             
     <task:scheduler id="taskScheduler" pool-size="1"/> 
   
-    <!--<context:property-placeholder location="classpath:/resources/conf.properties" />-->
-    <context:property-placeholder location="file:////usr/share/scribbles/conf.properties" />
+    <context:property-placeholder location="file:///C:/usr/share/scribbles/conf.properties" />
+    <!--<context:property-placeholder location="file:////usr/share/scribbles/conf.properties" />-->
 <!--    <bean id="application-properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="ignoreUnresolvablePlaceholders">
             <value>true</value>

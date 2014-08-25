@@ -5,6 +5,7 @@
  */
 package com.dubic.scribbleit.ui.validators;
 
+import com.dubic.scribbleit.idm.spi.IdentityService;
 import com.dubic.scribbleit.idm.spi.IdentityServiceImpl;
 import com.dubic.scribbleit.ui.validators.EmailValidator;
 import com.dubic.scribbleit.utils.IdmUtils;
@@ -59,14 +60,14 @@ public class RegistrationValidator implements Validator {
     }
 
     private void validateScreenNameExists(String value, FacesContext fc) {
-        IdentityServiceImpl id = FacesContextUtils.getRequiredWebApplicationContext(fc).getBean(IdentityServiceImpl.class);
+        IdentityService id = (IdentityService) FacesContextUtils.getRequiredWebApplicationContext(fc).getBean("identityService");
         if (id.validateScreenName(value) != null) {
             throw new ValidatorException(new FacesMessage(String.format("%s already exists", value)));
         }
     }
 
     private void validateEmailExists(String value, FacesContext fc) {
-        IdentityServiceImpl id = FacesContextUtils.getRequiredWebApplicationContext(fc).getBean(IdentityServiceImpl.class);
+        IdentityService id = (IdentityService) FacesContextUtils.getRequiredWebApplicationContext(fc).getBean("identityService");
         if (id.getUniqueEmail((String) value) != null) {
             throw new ValidatorException(new FacesMessage(String.format("%s already exists", value)));
         }

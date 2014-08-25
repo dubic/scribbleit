@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -28,13 +29,9 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 @Table(name = "jk_comment")
-public class JKComment implements Serializable {
+public class JKComment extends Comment implements Serializable {
 
-    private Long id;
-    private String text;
-    private Calendar postedTime = Calendar.getInstance();
     private Joke joke;
-    private User user;
 
     public JKComment() {
     }
@@ -61,6 +58,7 @@ public class JKComment implements Serializable {
         this.text = text;
     }
 
+    @NotNull(message = "posted time must be included")
     @Column(name = "posted")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     public Calendar getPostedTime() {
@@ -72,8 +70,9 @@ public class JKComment implements Serializable {
     }
 
     @NotNull(message = "this comment is not assigned to a joke")
+    @Valid
     @ManyToOne
-    @JoinColumn(name = "joke_id",nullable = false)
+    @JoinColumn(name = "joke_id", nullable = false)
     public Joke getJoke() {
         return joke;
     }

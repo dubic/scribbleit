@@ -6,12 +6,14 @@
 
 package com.dubic.scribbleit.rest;
 
+import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  *
  * @author dubem
  */
+@ApplicationPath("api")
 public class ApplicationConfig extends ResourceConfig {
 
     public ApplicationConfig() {

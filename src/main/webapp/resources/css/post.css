@@ -54,7 +54,7 @@ and open the template in the editor.
 }
 .link-btn-grp a{
     /*background-color: #fafafa !important;*/
-border: 1px solid #ddd;
+    border: 1px solid #ddd;
     padding: 5px 10px;
     border-radius: 5px;
     margin: 5px 5px 0 0;
@@ -139,22 +139,22 @@ h2{
 }*/
 
 textarea{
-/*    width: 100%;
-
-box-sizing: border-box;
-max-width: none;
-box-shadow: 0 1px 3px #e8e8e8 inset;
-padding: 2px 3px;*/
-overflow: hidden;
-word-wrap: break-word;
-border: 3px solid #ccc;
-padding: 5px;
-/*position: absolute;*/
-min-height: 56px;
-font-size: 12px;
-line-height: 18px;
-width: 100%;
-resize:none;
+    /*    width: 100%;
+    
+    box-sizing: border-box;
+    max-width: none;
+    box-shadow: 0 1px 3px #e8e8e8 inset;
+    padding: 2px 3px;*/
+    overflow: hidden;
+    word-wrap: break-word;
+    border: 3px solid #ccc;
+    padding: 5px;
+    /*position: absolute;*/
+    min-height: 56px;
+    font-size: 12px;
+    line-height: 18px;
+    width: 100%;
+    resize:none;
 }
 
 .poster-img{
@@ -166,7 +166,9 @@ resize:none;
 
 .post p{
     padding:5px;
-	text-align:justify
+    text-align:justify;
+    font-family: "Open Sans",Calibri,Candara,Arial,sans-serif;
+    color: #515151;
 }
 .date-grey{
     color:#999;

@@ -8,14 +8,17 @@ package com.dubic.scribbleit.posts;
 import com.dubic.scribbleit.db.Database;
 import com.dubic.scribbleit.idm.models.User;
 import com.dubic.scribbleit.idm.spi.IdentityService;
+import com.dubic.scribbleit.models.Comment;
+import com.dubic.scribbleit.models.JKComment;
 import com.dubic.scribbleit.models.Joke;
 import com.dubic.scribbleit.models.Post;
 import com.dubic.scribbleit.models.Profile;
+import com.dubic.scribbleit.models.Report;
 import com.dubic.scribbleit.models.Tag;
 import com.dubic.scribbleit.models.Watch;
 import com.dubic.scribbleit.profile.ProfileService;
-import com.dubic.scribbleit.ui.Response;
 import com.dubic.scribbleit.utils.IdmUtils;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
@@ -133,19 +136,27 @@ public class JokeService implements PostService {
     }
 
     @Override
-    public void like(Post post) throws PersistenceException {
-        Joke joke = (Joke) post;
+    public int like(Long postId) throws PersistenceException {
+        Joke joke = db.getReference(Joke.class, postId);
+        if (joke == null) {
+            throw new NullPointerException(String.format("joke with id : %s is null", postId+""));
+        }
         log.debug(String.format("like post[%s]", joke.getId()));
         joke.setLikes(joke.getLikes() + 1);
         db.merge(joke);
+        return joke.getLikes();
     }
 
     @Override
-    public void dislike(Post post) throws PersistenceException {
-        Joke joke = (Joke) post;
+    public int dislike(Long postId) throws PersistenceException {
+        Joke joke = db.getReference(Joke.class, postId);
+        if (joke == null) {
+            throw new NullPointerException(String.format("joke with id : %s is null", postId+""));
+        }
         log.debug(String.format("dislike post[%s]", joke.getId()));
-        joke.setDislikes(joke.getDislikes() + 1);
+        joke.setDislikes(joke.getDislikes()+ 1);
         db.merge(joke);
+        return joke.getDislikes();
     }
 
     @Override
@@ -161,6 +172,49 @@ public class JokeService implements PostService {
     public List<Object[]> getLatestPosts(int start, int amount) {
         return db.createQuery("SELECT j.id,j.post,j.likes,j.dislikes,j.editedDate,u.screenName,u.profile.picture FROM Joke j,User u WHERE j.blocked != TRUE AND j.user.id = u.id ORDER BY j.editedDate DESC", Object[].class)
                 .setFirstResult(start).setMaxResults(amount).getResultList();
+    }
+
+    @Override
+    public Comment saveComment(String commentStr, Long postId) throws PersistenceException, PostException {
+        //make sure user is logged in
+        User userLoggedIn = id.getUserLoggedIn();
+        if (userLoggedIn == null) {
+            throw new PostException("No user in session");
+        }
+        //find joke
+        Joke joke = db.find(Joke.class, postId);
+        //include comment and save
+        if (joke == null) {
+            throw new PostException("Joke with id not found : "+postId);
+        }
+        //create comment
+        JKComment comment = new JKComment();
+        comment.setJoke(joke);
+        comment.setText(commentStr);
+        comment.setUser(userLoggedIn);
+        db.persist(comment);
+        log.debug(String.format("comment saved to joke : %s", postId+""));
+        return comment;
+    }
+
+    
+    public List<Object[]> getComments(Long postId) throws PersistenceException, PostException {
+        if(postId == null){
+            throw new PostException("post id cannot be null");
+        }
+        return db.createQuery("SELECT c.id,c.postedTime,c.text,c.user FROM JKComment c WHERE c.joke.id = :postId", Object[].class)
+                .setParameter("postId", postId).getResultList();
+    }
+
+    @Override
+    public void reportPost(Long postId,String[] reasons) throws PersistenceException {
+        log.debug(String.format("reportPost(%s,%s)", postId+"",Arrays.toString(reasons)));
+        Report r = new Report();
+        r.setPostClass(Joke.class.getName());
+        r.setPostId(postId);
+        r.setReasons(Arrays.toString(reasons));
+        r.setReporter(id.getUserLoggedIn());
+        db.persist(r);
     }
 
 }

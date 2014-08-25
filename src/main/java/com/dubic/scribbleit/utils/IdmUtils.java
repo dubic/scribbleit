@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -189,8 +190,14 @@ public class IdmUtils {
             throw new ConstraintViolationException("Failed to validate Object of class " + t.getClass().getName(), results);
         }
     }
+    
+    public static String join(String[] sa){
+        String joined = Arrays.toString(sa);
+        return joined.substring(1, joined.lastIndexOf("]"));
+    }
 
     public static void main(String[] arrrgh) {
+       
 //        try {
 //            System.out.println("token - " + generateTimeToken());
 //            Thread.sleep(1000);

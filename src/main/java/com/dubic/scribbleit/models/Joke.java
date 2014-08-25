@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,7 +38,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class Joke extends Post implements Serializable {
 
     private List<MediaItem> mediaItems = new ArrayList<MediaItem>();
-//    private List<JKComment> comments = new ArrayList<JKComment>();
+    private List<JKComment> comments = new ArrayList<JKComment>();
 
     public Joke() {
     }
@@ -151,5 +152,16 @@ public class Joke extends Post implements Serializable {
     public void setEditedDate(Date editedDate) {
         this.editedDate = editedDate;
     }
+
+    
+    @OneToMany(mappedBy = "joke",cascade = CascadeType.ALL,orphanRemoval = true)
+    public List<JKComment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<JKComment> comments) {
+        this.comments = comments;
+    }
+    
 
 }

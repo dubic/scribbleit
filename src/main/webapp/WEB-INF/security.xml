@@ -40,7 +40,7 @@
       
     </http>
 
-<!--    
+    
     <beans:bean id="encoder" class="org.springframework.security.crypto.password.StandardPasswordEncoder"/>
     <beans:bean id="customAuthenticationProvider" class="com.dubic.scribbleit.idm.auth.CustomAuthenticationProvider"/>
     <beans:bean id="userDetailsService" class="com.dubic.scribbleit.idm.auth.CustomUserDetailsService"/>
@@ -49,9 +49,9 @@
 
     <authentication-manager alias="authManager">
         <authentication-provider ref="customAuthenticationProvider">
-            <password-encoder ref="encoder"/>
+            <!--<password-encoder ref="encoder"/>-->
             
         </authentication-provider>
-    </authentication-manager>-->
+    </authentication-manager>
 
 </beans:beans>

@@ -5,21 +5,27 @@
  */
 package com.dubic.scribbleit.rest;
 
-import com.dubic.scribbleit.dto.JokeData;
+import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.JKComment;
 import com.dubic.scribbleit.posts.JokeService;
+import com.dubic.scribbleit.posts.PostException;
 import com.dubic.scribbleit.utils.IdmUtils;
 import com.google.gson.GsonBuilder;
-import java.util.ArrayList;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.PersistenceException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,6 +42,9 @@ public class PostsResource {
     @Autowired
     private JokeService jokeService;
     private final Logger log = Logger.getLogger(getClass());
+    @PathParam("postId")
+    private Long postId;
+    private GsonBuilder gb = new GsonBuilder();
 
     /**
      * Creates a new instance of PostsResource
@@ -54,38 +63,116 @@ public class PostsResource {
     @Path("/jokes/{start}/{amount}")
     @Produces("application/json")
     public String getJokes(@PathParam("start") int start, @PathParam("amount") int amount) {
-        List<JokeData> jokeDatas = new ArrayList<JokeData>();
+        JsonArray ja = new JsonArray();
         try {
             List<Object[]> latestJokes = jokeService.getLatestPosts(start, amount);
-            jokeDatas = new ArrayList<JokeData>();
             for (Object[] res : latestJokes) {
-                JokeData jokeData = new JokeData();
-                jokeData.setDislikes((Integer) res[3]);
-                jokeData.setLikes((Integer) res[2]);
-                jokeData.setDuration(IdmUtils.formatDate((Date) res[4]));
-                jokeData.setId((Long) res[0]);
-                jokeData.setPost((String) res[1]);
-                jokeData.setPoster((String) res[5]);
-                jokeData.setImageURL("p/" + res[6]);
-                jokeDatas.add(jokeData);
+                JsonObject jo = new JsonObject();
+                jo.addProperty("id", (Long) res[0]);
+                jo.addProperty("dislikes", (Integer) res[3]);
+                jo.addProperty("likes", (Integer) res[2]);
+                jo.addProperty("duration", IdmUtils.formatDate((Date) res[4]));
+                jo.addProperty("post", (String) res[1]);
+                jo.addProperty("poster", (String) res[5]);
+                jo.addProperty("imageURL", "p/" + res[6]);
+                List<Object[]> comments = jokeService.getComments((Long) res[0]);
+                log.info(String.format("[[%s]]", gb.create().toJson(comments)));
+                JsonArray ca = new JsonArray();
+                for (Object[] object : comments) {
+                    JsonObject co = new JsonObject();
+                    co.addProperty("id", (Long) object[0]);
+                    co.addProperty("text", (String) object[2]);
+                    co.addProperty("duration", IdmUtils.convertPostedTime(((Calendar) object[1]).getTimeInMillis()));
+                    User u = (User) object[3];
+                    co.addProperty("imageURL", "p/" + u.getProfile().getPicture());
+                    co.addProperty("poster", u.getScreenName());
+                    ca.add(co);
+                }
+                jo.add("comments", ca);
+                ja.add(jo);
             }
         } catch (Exception e) {
             log.fatal(e.getMessage(), e);
         }
-        GsonBuilder gb = new GsonBuilder();
-        gb.disableHtmlEscaping();
-        return gb.create().toJson(jokeDatas);
 
+        gb.disableHtmlEscaping();
+        return gb.create().toJson(ja);
     }
 
-    /**
-     * PUT method for updating or creating an instance of PostsResource
-     *
-     * @param content representation for the resource
-     * @return an HTTP response with content of the updated or created resource.
-     */
-    @PUT
+    @POST
+    @Path("/jokes/comment/{postId}")
     @Consumes("application/json")
-    public void putJson(String content) {
+    @Produces("application/json")
+    public String commentJoke(@QueryParam("comment") String comment) {
+        if (postId == null || IdmUtils.isEmpty(comment)) {
+            log.error("Post id null");
+            throw new NullPointerException("post id is null");
+        }
+        try {
+            JKComment savedComment = (JKComment) jokeService.saveComment(comment, postId);
+            JsonObject jo = new JsonObject();
+            jo.addProperty("id", savedComment.getId());
+            jo.addProperty("text", savedComment.getText());
+            jo.addProperty("duration", IdmUtils.convertPostedTime(savedComment.getPostedTime().getTimeInMillis()));
+            jo.addProperty("imageURL", "p/" + savedComment.getUser().getProfile().getPicture());
+            jo.addProperty("poster", savedComment.getUser().getScreenName());
+
+            return gb.create().toJson(jo);
+        } catch (PersistenceException ex) {
+            log.fatal("could not save comment", ex);
+        } catch (PostException ex) {
+            log.error("could not save comment", ex);
+        }
+        return gb.create().toJson("");
+    }
+
+    @POST
+    @Path("/jokes/like/{postId}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String likeJoke() {
+        if (postId == null) {
+            log.error("Post id null");
+            throw new NullPointerException("post id is null");
+        }
+        try {
+            int likes = jokeService.like(postId);
+
+            JsonObject jo = new JsonObject();
+            jo.addProperty("likes", likes);
+            return gb.create().toJson(jo);
+        } catch (PersistenceException ex) {
+            log.fatal("could not save joke", ex);
+        } catch (NullPointerException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        JsonObject jo = new JsonObject();
+        jo.addProperty("likes", -1);
+        return gb.create().toJson(jo);
+    }
+    
+    @POST
+    @Path("/jokes/dislike/{postId}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String dislikeJoke() {
+        if (postId == null) {
+            log.error("Post id null");
+            throw new NullPointerException("post id is null");
+        }
+        try {
+            int dislikes = jokeService.dislike(postId);
+
+            JsonObject jo = new JsonObject();
+            jo.addProperty("dislikes", dislikes);
+            return gb.create().toJson(jo);
+        } catch (PersistenceException ex) {
+            log.fatal("could not save joke", ex);
+        } catch (NullPointerException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        JsonObject jo = new JsonObject();
+        jo.addProperty("dislikes", -1);
+        return gb.create().toJson(jo);
     }
 }

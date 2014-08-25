@@ -8,6 +8,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -35,9 +36,9 @@ public class IdmCrypt {
         }
         return DigestUtils.md5Hex(salt + constant + data);
     }
-
+ 
     public static void main(String[] atyty) {
-//        System.out.println("enc - " + encodeMD5("dubic", null));
-        System.out.println("enc - " + testname);
+ String[] r = new String[]{"salacious","vulgar","offensive"};
+//        System.out.println(join(r));
     }
 }

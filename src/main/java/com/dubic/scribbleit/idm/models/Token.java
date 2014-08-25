@@ -100,6 +100,7 @@ public class Token implements Serializable {
         this.usedDt = usedDt;
     }
 
+    @Column(name = "type")
     public String getType() {
         return type;
     }
@@ -108,6 +109,7 @@ public class Token implements Serializable {
         this.type = type;
     }
 
+    @Column(name = "active")
     public boolean isActive() {
         return active;
     }

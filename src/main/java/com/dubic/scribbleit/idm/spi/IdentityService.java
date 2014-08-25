@@ -65,6 +65,10 @@ public interface IdentityService {
 
     public void activateUser(String ua) throws LinkExpiredException, Exception;
 
+    /**get user currently signed in
+     *
+     * @return user in session or null
+     */
     public User getUserLoggedIn();
 
     public void assignRole(Long roleId, Long userId) throws EntityNotFoundException, PersistenceException;
