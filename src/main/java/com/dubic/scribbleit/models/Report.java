@@ -36,7 +36,8 @@ public class Report implements Serializable {
     private String reasons;//comma separated
     private User reporter;
     private Date createDate = new Date();
-    private Date handledDate = new Date();
+    private Date handledDate;
+    private String ip;
     private Action action;
 
     public enum Action {
@@ -123,6 +124,15 @@ public class Report implements Serializable {
 
     public void setAction(Action action) {
         this.action = action;
+    }
+
+    @Column(name = "ip",length = 20)
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
 }

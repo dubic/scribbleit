@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans    
+http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+http://www.springframework.org/schema/task
+http://www.springframework.org/schema/task/spring-task-4.0.xsd
+http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+http://www.springframework.org/schema/context
+	        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+    <context:component-scan base-package="com.dubic.module.el"/>
+    <context:component-scan base-package="com.dubic.scribbleit"/>
+   <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="com.dubic.scribbleit.application.GsonMessageConverter"/>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    
+    <mvc:resources mapping="/assets/**" location="/assets/" cache-period="31556926"/>
+    <mvc:resources mapping="/resources/**" location="/resources/" cache-period="31556926"/>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+    
+    <!--//////////////////////////////////////////////////////////////////////////////////////-->
+    <!--    database configuration-->
+    <aop:aspectj-autoproxy />
+    <task:annotation-driven executor="springExecutorService" scheduler="taskScheduler"/>
+  
+    <!--
+    The 'executor' element:
+    When a task is submitted, the executor will first
+    try to use a free thread if the number of active threads is currently less than
+    the core size. If the core size has been reached, then the task will be added
+    to the queue as long as its capacity has not yet been reached. Only then,
+    if the queue's capacity has been reached, will the executor create a new
+    thread beyond the core size. If the max size has also been reached, then
+    the executor will reject the task
+    See: 25.4.2 The 'executor' element -->
+    <!-- Defines a ThreadPoolTaskExecutor instance with configurable pool size, queue-capacity, keep-alive,
+    and rejection-policy values. The id becomes the default thread name prefix -->
+    <task:executor id="springExecutorService"
+                   pool-size="5-25"
+                   queue-capacity="100"/>
+   
+    <!-- Defines a ThreadPoolTaskScheduler instance with configurable pool size.
+    The id becomes the default thread name prefix. -->             
+    <task:scheduler id="taskScheduler" pool-size="1"/> 
+  
+    <context:property-placeholder location="file:///C:/usr/share/scribbles/conf.properties" />
+    <!--<context:property-placeholder location="file:////usr/share/scribbles/conf.properties" />-->
+    
+    
+    <!--    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="smtp.gmail.com" />
+        <property name="port" value="465" />
+        <property name="username" value="udubic@gmail.com" />
+        <property name="password" value="dcamic4602" />
+    </bean>-->
+    
+    <bean id="mailService" class="com.dubic.scribbleit.email.MailServiceImpl">
+        <property name="host" value="${mail.host}"/>
+        <property name="port" value="${mail.port}"/>
+        <property name="username" value="${mail.username}"/>
+        <property name="password" value="${mail.password}"/>
+        <property name="sender" value="${mail.sender}"/>
+        <!--<property name="senderName" value="${mail.sender.name}"/>-->
+        <property name="velocityEngine" ref="velocityEngine"/>
+        <property name="sslOnConnect" value="${mail.sslonconect}"/>
+        <!--<property name="sslCheckServer" value="${mail.ssl.check}"/>-->
+        <!--<property name="startTlsEnabled" value="${mail.ssl.tls.enabled}"/>-->
+        <!--<property name="templatePath" value="${mail.template.path}"/>-->
+        <!--<property name="sslOnConnect" value="true"/>-->
+    </bean>
+    
+    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+        <property name="velocityProperties">
+            <value>
+                resource.loader=class
+                class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+            </value>
+        </property>
+    </bean>
+    
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+    <!--//////////////////////////////////////////////////////////////////////////////-->
+    <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor">
+        <property name="defaultPersistenceUnitName" value="scribbleitPU" />
+    </bean>
+
+
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="persistenceUnitName" value="scribbleitPU" />
+        <property name="dataSource" ref="dataSource" />
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+                <property name="database" value="${eclipselink.database}" />
+                <property name="showSql" value="${eclipselink.showSql}" />
+            </bean>
+        </property>
+        <property name="jpaPropertyMap">
+            <map>
+                <entry key="eclipselink.ddl-generation" value="${eclipselink.ddl-generation}" />
+                <entry key="eclipselink.ddl-generation.output-mode" value="${eclipselink.ddl-generation.output-mode}" />
+                <entry key="eclipselink.target-database" value="${eclipselink.target-database}" />
+                <entry key="eclipselink.weaving" value="${eclipselink.weaving}"/>
+                <entry key="eclipselink.query-results-cache" value="${eclipselink.query-results-cache}"/>
+                <entry key="eclipselink.refresh" value="${eclipselink.refresh}"/>
+                <entry key="eclipselink.cache.shared.default" value="${eclipselink.cache.shared.default}"/>
+            </map>
+        </property>
+    </bean>
+    <bean id="poolProperties" class="org.apache.tomcat.jdbc.pool.PoolProperties">
+        <property name="driverClassName" value="${database.driver}"/>
+        <property name="url" value="${database.url}"/>
+        <property name="username" value="${database.username}" />
+        <property name="password" value="${database.password}" />
+        <property name="initialSize" value="10"/>
+        <!--<property name="initSQL" value="select 1"/>-->
+        <property name="minIdle" value="5"/>
+        <property name="maxIdle" value="100"/>
+        <property name="maxActive" value="100"/>
+        <property name="maxWait" value="6000"/>
+        <property name="jmxEnabled" value="true"/>
+        <property name="jdbcInterceptors" value="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"/>
+        <property name="removeAbandoned" value="true"/>
+        <property name="removeAbandonedTimeout" value="60"/>
+        <property name="logAbandoned" value="true"/>
+        <property name="testOnBorrow" value="true"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="testWhileIdle" value="false"/>
+        <property name="useEquals" value="false"/>
+        <property name="fairQueue" value="false"/>
+        <property name="timeBetweenEvictionRunsMillis" value="5000"/>
+        <property name="minEvictableIdleTimeMillis" value="5000"/>
+        <property name="validationInterval" value="1800000"/>
+        <property name="validationQuery" value="SELECT 1"/>
+    </bean>
+    <bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
+        <property name="poolProperties" ref="poolProperties"/>
+    </bean>	
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+        <qualifier value="dbtrans"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <!--////////////////////////////////////////////////////////////////////-->
+    <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://localhost:61616" />
+    </bean>
+    <bean id="mailDestination" class="org.apache.activemq.command.ActiveMQQueue" scope="prototype">
+        <constructor-arg value="mail.queue" />
+    </bean>
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory" />
+    </bean>
+   
+    
+<!--    <bean id="mailListener" class="com.dubic.scribbleit.jms.Listener" />
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory" />
+        <property name="destinationName" value="mail.queue" />
+        <property name="messageListener" ref="mailListener" />
+        <property name="transactionManager" ref="jsmTransactionManager" /> 
+    </bean>-->
+    
+    <bean id="jsmTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <qualifier value="jmstrans"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="jsmTransactionManager" />
+</beans>

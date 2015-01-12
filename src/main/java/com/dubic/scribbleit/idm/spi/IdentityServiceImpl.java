@@ -5,8 +5,11 @@
 package com.dubic.scribbleit.idm.spi;
 
 import com.dubic.scribbleit.db.Database;
+import com.dubic.scribbleit.dto.Registration;
 import com.dubic.scribbleit.dto.UserActivation;
 import com.dubic.scribbleit.dto.UserData;
+import com.dubic.scribbleit.email.MailServiceImpl;
+import com.dubic.scribbleit.email.SimpleMailEvent;
 import com.dubic.scribbleit.idm.models.Group;
 import com.dubic.scribbleit.idm.models.Role;
 import com.dubic.scribbleit.idm.models.Token;
@@ -16,14 +19,16 @@ import com.dubic.scribbleit.utils.IdmCrypt;
 import com.dubic.scribbleit.utils.IdmUtils;
 import com.google.gson.Gson;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.xml.bind.JAXB;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
@@ -33,6 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 /**performs all identity management ops.
  *<br>config properties
@@ -48,8 +54,13 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
     
     @Inject
     private Database db;
+    @Inject
+    private MailServiceImpl mailService;
+    
     @Value("${default.profile.picture}")
     private String avatar;
+    @Value("${activation.url}")
+    private String activationURL;
     
     @PostConstruct
     public void inited(){
@@ -65,7 +76,7 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
      * @since idm 1.0.0
      */
     @Override
-//    @Transactional
+//    @Transactional("dbtrans")
     public User userRegistration(UserData userData) throws PersistenceException ,ConstraintViolationException{
         log.info("userRegistration - " + userData.toString());
         User user = new User(userData);
@@ -80,13 +91,22 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
         
         //SAVE USER,USER ACTIVATION TOKEN
         db.persist(user);
+        //CREATE AND SOFT VALIDATE ACTIVATION TOKEN
+        Token token = createActivationToken(user);
         try {
-            saveToken(createActivationToken(user));
-        } catch (PersistenceException pe) {
-            log.error(pe.getMessage(), pe);
+            IdmUtils.validate(token, Token.class);
+        } catch (ConstraintViolationException cve) {
+            log.fatal(IdmUtils.printValidationMsg(cve.getConstraintViolations()));
+            throw new IdentityServiceException("service unavailaible.Try again later");
         }
+        db.persist(token);
+        //SEND MAIL
+        SimpleMailEvent mail = new SimpleMailEvent(user.getEmail());
+        Map model = new HashMap();
+        model.put("name", user.getScreenName());
+        model.put("url", activationURL+token.getToken());
+        mailService.sendMail(mail, "reg.vm", model);
         log.info(String.format("User registration initiated successfullly...[%s]", user.getScreenName()));
-        //SAVE 
         return user;
     }
 
@@ -145,7 +165,7 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
         token.setExpiryDt(IdmUtils.getPwordResetTokenExpiryDt());
         token.setType(Token.PASSWORD_RESET_TOKEN);
         //SAVE TOKEN
-        saveToken(token);
+        db.persist(token);
         
         //send mail
     }
@@ -186,7 +206,7 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
         return IdmUtils.getFirstOrNull(ulist);
     }
     
-    @Secured({"SUPER_ADMIN"})
+    
     @Override
     public User findUserByEmail(String email) {
         log.debug(String.format("find User By Email [%s]" , email));
@@ -247,11 +267,12 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
         return createGroup(g);
     }
 
-    /**creates and returns an encrypted activation json token
+    /**creates,activates and returns an encrypted activation json token based on UserActivation class using user id,email,current date
      *
      * @param user user details to use for activation token
      * @return the activation token
      * @throws NullPointerException if user id is null
+     * @see UserActivation
      */
     @Override
     public Token createActivationToken(User user) {
@@ -274,23 +295,15 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
      * <br><ul><li>activation params - email and user id</li><li>if activation link has expired</li>
      *
      * @param tokenStr
+     * @return 
      * @throws NullPointerException if user was not found with activation params
      * @throws LinkExpiredException if link has expired
+     * @throws com.dubic.scribbleit.idm.spi.InvalidTokenException
      */
     @Override
-    public void activateUser(String tokenStr) throws LinkExpiredException, PersistenceException{
+    public User activateUser(String tokenStr) throws LinkExpiredException, PersistenceException, InvalidTokenException{
         log.info(String.format("activateUser(%s)", tokenStr));
-        //get user from token
-        Token token = getActiveToken(tokenStr);
-        if (token == null) {
-            throw new NullPointerException(String.format("token [%s] not found", tokenStr));
-        }
-        //if token has expired, deactivate and update
-        if(new Date().after(token.getExpiryDt())){
-            token.setActive(false);
-            db.merge(token);
-            throw new  LinkExpiredException("Activation link has expired");
-        }
+        Token token = getToken(tokenStr);
         //continue and activate user
         User user = token.getUser();
         user.setActivated(true);
@@ -298,6 +311,7 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
         useToken(token);
         db.merge(user,token);
         log.info(String.format("user activated [%s]", user.getScreenName()));
+        return user;
     }
 
     @Override
@@ -360,20 +374,20 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
         return user;
     }
 
-    private void saveToken(Token token) throws PersistenceException{
-        try {
-            IdmUtils.validate(token, Token.class);
-            db.persist(token);
-            log.info(String.format("token saved [%s] for %s", token.getToken(), token.getUser().getEmail()));
-        } catch (ConstraintViolationException cve) {
-            StringBuilder sb = new StringBuilder();
-            for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
-                sb.append(violation.getMessage()).append(",");
-            }
-//            log.error(sb.toString());
-            throw new PersistenceException(sb.toString());
-        }
-    }
+//    private void saveToken(Token token) throws PersistenceException{
+//        try {
+//            IdmUtils.validate(token, Token.class);
+//            db.persist(token);
+//            log.info(String.format("token saved [%s] for %s", token.getToken(), token.getUser().getEmail()));
+//        } catch (ConstraintViolationException cve) {
+//            StringBuilder sb = new StringBuilder();
+//            for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
+//                sb.append(violation.getMessage()).append(",");
+//            }
+////            log.error(sb.toString());
+//            throw new PersistenceException(sb.toString());
+//        }
+//    }
 
     private Token getActiveToken(String tokenStr) throws PersistenceException{
         List<Token> resultList = db.createQuery("SELECT t FROM Token t WHERE t.token = :token AND t.active = TRUE", Token.class)
@@ -384,5 +398,33 @@ public class IdentityServiceImpl implements IdentityService,UserDetailsService{
     private void useToken(Token token) {
         token.setActive(false);
         token.setUsedDt(new Date());
+    }
+
+    /**get token by token string and performs the following checks
+     * <ul><li>if token exists</li>
+     * <li>if token has not expired</li></ul>
+     *
+     * @param tokenStr
+     * @return token or throws exception
+     */
+    public Token getToken(String tokenStr) {
+        //get user from token
+        Token token = getActiveToken(tokenStr);
+        if (token == null) {
+            throw new InvalidTokenException(String.format("token [%s] not found", tokenStr));
+        }
+        //if token has expired, deactivate and update
+        if(new Date().after(token.getExpiryDt())){
+            token.setActive(false);
+            JAXB.marshal(token, System.out);
+            db.merge(token);
+            throw new  LinkExpiredException("Activation link has expired");
+        }
+        return token;
+    }
+
+    @Override
+    public User deactivateUser(String ua) throws LinkExpiredException, PersistenceException, InvalidTokenException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -175,16 +175,42 @@ function createCommentBlock(comment) {
 }
 ///////////////////CREATE COMMENT BLOCK//////////////////
 function createReportPop(postid) {
-//    $('<div class="dpopover"><div class="pop-head"><span>Report Post</span><i class="icon-remove" title="close"></i></div><div class="pop-body"><ul class="list-unstyled"><li><input type="checkbox" value="rep_off">Offensive</li><li><input type="checkbox" value="rep_vul">Vulgar</li><li><input type="checkbox" value="rep_sal">Salacious</li></ul><button class="btn btn-small report-submit">submit</button></div></div>');
+    var reportBtn = $('<button class="btn btn-info report-submit pull-right">submit</button>').click(function() {
+//        alert('post '+postid +" reported");
+        var ul = $(this).closest('.post-container').find('ul.rep-checklist');
+        var reasons = [];
+        ul.find('input[type="checkbox"]:checked').each(function() {
+            reasons.push($(this).val());
+        });
+        if (reasons.length > 0) {
+//            $.ajax({
+//                type: "post",
+//                url: '/scribbleit/api/posts/jokes/report/' + postid,
+//                dataType: "json",
+//                data: {"reasons": JSON.stringify(["vulgar","salacious"])},
+//                success: function(r) {
+//                    alert(r.dislikes);
+//                },
+//                error: function(r) {
+//                    alert(r.statusText);
+//                }
+//            });
+            $.post('/scribbleit/api/posts/jokes/report/' + postid+"?reasons="+reasons.join(","), function(data){
+                alert(data.dislikes);
+            },'json');
+        }
+    });
     var rpop = $('<div class="dpopover"></div>')
             .append($('<div class="pop-head"><span>Report Post</span><i class="icon-remove" title="close"></i></div>'))
             .append($('<div class="pop-body"></div>')
-                    .append($('<ul class="list-unstyled"></ul>')
+                    .append($('<ul class="list-unstyled rep-checklist"></ul>')
                             .append('<li><input type="checkbox" value="Offensive">Offensive</li>')
-                            .append('<li><input type="checkbox" value="Vulgar">Vulgar</li>'))
+                            .append('<li><input type="checkbox" value="Vulgar">Vulgar</li>')
+                            .append('<li><input type="checkbox" value="Salacious">Salacious</li>'))
+                    .append($('<div class="row"></div>').append(reportBtn))
                     );
 
-   
+
     return rpop;
 }
 //////////////////CALLBACK FOR POSTED JOKE///////////////////////////////

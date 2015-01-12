@@ -44,11 +44,7 @@ and open the template in the editor.
 .icon-edit{
     cursor:pointer;
 }
-.row{
-    margin-right: 0;
-    margin-left: 0;
-    margin-top: 2px
-}
+
 .control-inline{
     width:auto !important;
     display:inline !important;
@@ -103,9 +99,24 @@ and open the template in the editor.
     text-decoration: none;
     border-bottom: 3px solid #004080;
 }
+.post-container > .title{
+    border-bottom: 1px solid #D4D0D0;
+    margin: 5px 10px;
+}
 .container{
     margin-top:   10px;
     padding:0px;
+}
+.pop{
+    position: absolute;
+    background: #E0E0E0;
+    left:auto;
+    top:auto;
+    z-index:10001;
+    padding:10px;
+}
+.inline-block{
+    display: inline-block;
 }
 .dpopover{
     border: 1px solid #F1F1F1;
@@ -116,7 +127,6 @@ and open the template in the editor.
     background: #E0E0E0;
     left:auto;
     top:auto;
-    display:none;
     z-index:10001;
 
 }
@@ -181,4 +191,28 @@ and open the template in the editor.
 }
 .ajax-loader{
     display:none;
+}
+
+.error-msg{
+    color: #B94A48;
+}
+input.ng-invalid.ng-dirty{
+    border: 1px solid #CC0D0D;
+}
+textarea.ng-invalid.ng-dirty{
+    border: 1px solid #CC0D0D;
+}
+.vc.ng-valid{
+    border-color: #0C860C !important;
+}
+.center{
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+}
+#page-notif{
+    pointer-events: none;
+    width: 100%;
+    z-index: 1111;
+    position: fixed;
 }

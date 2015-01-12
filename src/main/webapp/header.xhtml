@@ -12,8 +12,9 @@
             color:#FFF !important;
         }
     </style>
+    <f:view transient="true">
     <header>
-
+        
         <div class="header navbar navbar-inverse navbar-fixed-top">
             <!-- BEGIN TOP NAVIGATION BAR -->
             <div class="header-inner">
@@ -50,6 +51,7 @@
             <!-- END TOP NAVIGATION BAR -->
         </div>
         <div class="clearfix"></div>
+        
     </header>
 
 
@@ -63,6 +65,9 @@
                         <h:form prependId="false">
                             <h3 class="form-title">Login to your account</h3>
                             <d:message/>
+                            <h:panelGroup binding="#{usersRequest.activationPanel}" rendered="false">
+                                <p>Click here to resend activation mail</p>
+                            </h:panelGroup>
                             <div class="form-group">
                                 <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
                                 <label class="control-label visible-ie8 visible-ie9">Username</label>
@@ -91,8 +96,7 @@
                             </div>
                             <div class="forget-password">
                                 <h4>Forgot your password ?</h4>
-                                <p>
-                                    no worries, click <a href="javascript:;"  id="forget-password">here</a>
+                                <p>no worries, click <a href="javascript:;"  id="forget-password">here</a>
                                     to reset your password.
                                 </p>
                             </div>
@@ -245,5 +249,6 @@
         </div>
     </div>
     <!--END OF LOGIN MODAL BOX-->
+    </f:view>
 </html>
 

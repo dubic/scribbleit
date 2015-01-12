@@ -1,0 +1,7 @@
+<html>
+    <div style="border: 1px solid #D1D1E8;padding: 20px;border-radius: 5px;margin: 20px;background: none repeat scroll 0px 0px #E6E6FC;">
+        <p><b>Welcome to Scribbles ${name},</b></p>
+        <p style="color: #3C3C3C;">Your account has been successfully created.To complete your registration, you need to <a href="${url}" style="color: #07C;text-decoration: none;">Activate</a> your account</p>
+       
+    </div>
+</html>

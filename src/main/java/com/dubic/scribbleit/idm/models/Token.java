@@ -59,7 +59,7 @@ public class Token implements Serializable {
         this.id = id;
     }
 
-    @NotNull(message = "no user assigned to token")
+//    @NotNull(message = "no user assigned to token")
     @JoinColumn(name = "user_id", nullable = false)
     @OneToOne
     public User getUser() {

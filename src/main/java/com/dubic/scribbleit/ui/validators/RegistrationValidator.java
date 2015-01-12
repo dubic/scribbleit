@@ -6,14 +6,11 @@
 package com.dubic.scribbleit.ui.validators;
 
 import com.dubic.scribbleit.idm.spi.IdentityService;
-import com.dubic.scribbleit.idm.spi.IdentityServiceImpl;
-import com.dubic.scribbleit.ui.validators.EmailValidator;
 import com.dubic.scribbleit.utils.IdmUtils;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.FacesValidator;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 import org.springframework.web.jsf.FacesContextUtils;
@@ -22,7 +19,7 @@ import org.springframework.web.jsf.FacesContextUtils;
  *
  * @author dubem
  */
-@FacesValidator("regValidator")
+//@FacesValidator("regValidator")
 public class RegistrationValidator implements Validator {
 
     @Override

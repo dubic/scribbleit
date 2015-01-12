@@ -29,6 +29,10 @@ public class UserData {
     private String secretQuestion;
     private String secretAnswer;
 
+    public UserData() {
+    }
+
+    
     public UserData(String screenName, String email, String password) {
         this.screenName = screenName;
         this.email = email;

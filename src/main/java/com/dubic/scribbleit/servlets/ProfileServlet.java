@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author dubem
  */
-@WebServlet(name = "ProfileServlet", urlPatterns = {"/user/*"})
+//@WebServlet(name = "ProfileServlet", urlPatterns = {"/user/*"})
 public class ProfileServlet extends HttpServlet {
 
     /**

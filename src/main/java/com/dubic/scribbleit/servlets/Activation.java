@@ -3,21 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.dubic.scribbleit.servlets;
 
+import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.idm.spi.IdentityService;
 import com.dubic.scribbleit.idm.spi.IdentityServiceImpl;
-import com.dubic.scribbleit.utils.IdmUtils;
+import com.dubic.scribbleit.idm.spi.InvalidTokenException;
+import com.dubic.scribbleit.idm.spi.LinkExpiredException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.persistence.PersistenceException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -25,8 +26,10 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  *
  * @author dubem
  */
-@WebServlet(name = "Activation", urlPatterns = {"/jXalwTGq/*"})
+@WebServlet(name = "Activation", urlPatterns = {"/activate"})
 public class Activation extends HttpServlet {
+
+    private final Logger log = Logger.getLogger(getClass());
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,18 +42,32 @@ public class Activation extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        String pathInfo = request.getPathInfo();
-        System.out.println("path - "+pathInfo);
-        StringTokenizer t = new StringTokenizer(pathInfo, "/");
-        String token = t.nextToken();
-        WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-        IdentityServiceImpl identityService = applicationContext.getBean(IdentityServiceImpl.class);
+        String token = request.getParameter("t");
+
+        WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+//        for (String name : appContext.getBeanDefinitionNames()) {
+//            System.out.println("bean def name = "+name);
+//        }
+        IdentityService identityService = (IdentityService) appContext.getBean("identityService");
         try {
-            identityService.activateUser(token);
+            User activatedUser = identityService.activateUser(token);
+            //redirect to success activation
+            request.setAttribute("error", false);
+        } catch (InvalidTokenException ex) {
+            request.setAttribute("error", true);
+            request.setAttribute("linkError", Boolean.TRUE);
+            log.error(ex.getMessage());
+        } catch (LinkExpiredException ex) {
+            request.setAttribute("error", true);
+            request.setAttribute("linkExpired", Boolean.TRUE);
+            log.error(ex.getMessage());
         } catch (Exception ex) {
-            Logger.getLogger(Activation.class.getName()).log(Level.SEVERE, null, ex);
+            request.setAttribute("error", true);
+            request.setAttribute("Service error, Try some time later", Boolean.TRUE);
+            log.error(ex.getMessage());
         }
+        request.setAttribute("text", "testing to see");
+            request.getRequestDispatcher("activation.jsf").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

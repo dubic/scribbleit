@@ -15,16 +15,7 @@ and open the template in the editor.
     margin: 0px;
     padding: 0px;
 }
-.left{
-    float: left;
-    margin: 0px 10px 0px 0px;
-}
-.right{
-    float: right;
-}
-.clear{
-    clear: both;
-}
+
 .horizontal{
     list-style: none;
 }
@@ -145,7 +136,7 @@ textarea{
     max-width: none;
     box-shadow: 0 1px 3px #e8e8e8 inset;
     padding: 2px 3px;*/
-    overflow: hidden;
+    overflow: auto;
     word-wrap: break-word;
     border: 3px solid #ccc;
     padding: 5px;
@@ -155,6 +146,8 @@ textarea{
     line-height: 18px;
     width: 100%;
     resize:none;
+    color: #404040 !important;
+    font-size: 13px !important;
 }
 
 .poster-img{
@@ -162,6 +155,13 @@ textarea{
     background:#C0C0C0;
     border :3px solid #C0C0C0;
     cursor:pointer;
+}
+.poster-img:hover{
+    transition: border 1s;
+    -moz-transition: border 1s;
+    -webkit-transition: border 1s;
+    border :3px solid #B93D3D;
+    
 }
 
 .post p{
@@ -195,4 +195,8 @@ textarea{
 
 body{
     background: url('../images/background.gif')
+}
+.divtest{
+    width:350px;
+    display: inline-block;
 }

@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.PersistenceException;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.PathParam;
@@ -26,6 +27,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,6 +41,8 @@ public class PostsResource {
 
     @Context
     private UriInfo context;
+    @Context
+    private HttpServletRequest request;
     @Autowired
     private JokeService jokeService;
     private final Logger log = Logger.getLogger(getClass());
@@ -126,53 +130,28 @@ public class PostsResource {
         return gb.create().toJson("");
     }
 
-    @POST
-    @Path("/jokes/like/{postId}")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public String likeJoke() {
-        if (postId == null) {
-            log.error("Post id null");
-            throw new NullPointerException("post id is null");
-        }
-        try {
-            int likes = jokeService.like(postId);
-
-            JsonObject jo = new JsonObject();
-            jo.addProperty("likes", likes);
-            return gb.create().toJson(jo);
-        } catch (PersistenceException ex) {
-            log.fatal("could not save joke", ex);
-        } catch (NullPointerException ex) {
-            log.error(ex.getMessage(), ex);
-        }
-        JsonObject jo = new JsonObject();
-        jo.addProperty("likes", -1);
-        return gb.create().toJson(jo);
-    }
     
+
+
     @POST
-    @Path("/jokes/dislike/{postId}")
+    @Path("/jokes/report/{postId}")
     @Consumes("application/json")
     @Produces("application/json")
-    public String dislikeJoke() {
+    public Response reportJoke(@QueryParam("reasons") String reasons) {
         if (postId == null) {
             log.error("Post id null");
             throw new NullPointerException("post id is null");
         }
-        try {
-            int dislikes = jokeService.dislike(postId);
+//        log.debug("reasons - "+Arrays.toString(reasons.toArray()));
 
-            JsonObject jo = new JsonObject();
-            jo.addProperty("dislikes", dislikes);
-            return gb.create().toJson(jo);
+        try {
+            jokeService.reportPost(postId, reasons,request.getRemoteAddr());
+            return Response.ok().build();
         } catch (PersistenceException ex) {
             log.fatal("could not save joke", ex);
         } catch (NullPointerException ex) {
             log.error(ex.getMessage(), ex);
         }
-        JsonObject jo = new JsonObject();
-        jo.addProperty("dislikes", -1);
-        return gb.create().toJson(jo);
+        return Response.serverError().build();
     }
 }

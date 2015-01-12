@@ -80,6 +80,19 @@ public class IdmUtils {
         return cal.getTime();
     }
 
+    /**creates a string of ; separated violation messages for easy viewing
+     *
+     * @param constraintViolations
+     * @return
+     */
+    public static String printValidationMsg(Set<ConstraintViolation<?>> constraintViolations) {
+        StringBuffer buf = new StringBuffer();
+        for (ConstraintViolation<?> violation : constraintViolations) {
+            buf.append(violation.getMessage()).append(";");
+        }
+        return buf.toString();
+    }
+
     private final Logger log = Logger.getLogger(getClass());
     public static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -196,6 +209,9 @@ public class IdmUtils {
         return joined.substring(1, joined.lastIndexOf("]"));
     }
 
+    public static Validate validate(Object test){
+        return new Validate(test);
+    }
     public static void main(String[] arrrgh) {
        
 //        try {

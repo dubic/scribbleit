@@ -27,16 +27,14 @@ import javax.persistence.Temporal;
 @Table(name = "log_model")
 @NamedQueries({
     @NamedQuery(name = "log.exists", query = "SELECT l FROM LogModel l WHERE l.className = :cls AND l.method = :mtd AND l.lineNo = :lnum")
-    })
+})
 public class LogModel implements Serializable {
 
     private Long id;
-    private String loggerName;
     private String level;
     private String message;
     private String threadName;
     private Date logdate = new Date();
-    private Date logtime = new Date();
     private String username;
     private String className;
     private String method;
@@ -53,7 +51,6 @@ public class LogModel implements Serializable {
         this.level = log.getLevel();
         this.lineNo = log.getLineNo();
         this.logdate = log.getDate();
-        this.loggerName = log.getLoggerName();
         this.message = log.getMessage();
         this.method = log.getMethod();
         this.threadName = log.getThreadName();
@@ -69,15 +66,6 @@ public class LogModel implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    @Column(name = "logger_name")
-    public String getLoggerName() {
-        return loggerName;
-    }
-
-    public void setLoggerName(String loggerName) {
-        this.loggerName = loggerName;
     }
 
     @Column(name = "log_level")
@@ -98,6 +86,7 @@ public class LogModel implements Serializable {
         this.message = message;
     }
 
+    @Column(name = "thread")
     public String getThreadName() {
         return threadName;
     }
@@ -106,7 +95,8 @@ public class LogModel implements Serializable {
         this.threadName = threadName;
     }
 
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Column(name = "log_dt")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     public Date getLogdate() {
         return logdate;
     }
@@ -115,16 +105,7 @@ public class LogModel implements Serializable {
         this.logdate = logdate;
     }
 
-    @Temporal(javax.persistence.TemporalType.TIME)
-    public Date getLogtime() {
-        return logtime;
-    }
-
-    public void setLogtime(Date logtime) {
-        this.logtime = logtime;
-    }
-    
-
+    @Column(name = "username")
     public String getUsername() {
         return username;
     }
@@ -133,6 +114,7 @@ public class LogModel implements Serializable {
         this.username = username;
     }
 
+    @Column(name = "class_name")
     public String getClassName() {
         return className;
     }
@@ -141,14 +123,7 @@ public class LogModel implements Serializable {
         this.className = className;
     }
 
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
+    @Column(name = "line")
     public String getLineNo() {
         return lineNo;
     }
@@ -157,8 +132,17 @@ public class LogModel implements Serializable {
         this.lineNo = lineNo;
     }
 
+    @Column(name = "method")
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
     @Lob
-    @Column(length = 300000000)
+    @Column(length = 300000000, name = "stacktrace")
     public String getExceptionTrace() {
         return exceptionTrace;
     }
@@ -167,6 +151,7 @@ public class LogModel implements Serializable {
         this.exceptionTrace = exceptionTrace;
     }
 
+    @Column(name = "occurrence")
     public int getOccurrence() {
         return occurrence;
     }

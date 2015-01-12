@@ -26,6 +26,7 @@ import javax.inject.Named;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonNode;
 
 /**
  *
@@ -136,7 +137,7 @@ public class JokeService implements PostService {
     }
 
     @Override
-    public int like(Long postId) throws PersistenceException {
+    public Joke like(Long postId) throws PersistenceException {
         Joke joke = db.getReference(Joke.class, postId);
         if (joke == null) {
             throw new NullPointerException(String.format("joke with id : %s is null", postId+""));
@@ -144,11 +145,11 @@ public class JokeService implements PostService {
         log.debug(String.format("like post[%s]", joke.getId()));
         joke.setLikes(joke.getLikes() + 1);
         db.merge(joke);
-        return joke.getLikes();
+        return joke;
     }
 
     @Override
-    public int dislike(Long postId) throws PersistenceException {
+    public Joke dislike(Long postId) throws PersistenceException {
         Joke joke = db.getReference(Joke.class, postId);
         if (joke == null) {
             throw new NullPointerException(String.format("joke with id : %s is null", postId+""));
@@ -156,7 +157,7 @@ public class JokeService implements PostService {
         log.debug(String.format("dislike post[%s]", joke.getId()));
         joke.setDislikes(joke.getDislikes()+ 1);
         db.merge(joke);
-        return joke.getDislikes();
+        return joke;
     }
 
     @Override
@@ -207,14 +208,20 @@ public class JokeService implements PostService {
     }
 
     @Override
-    public void reportPost(Long postId,String[] reasons) throws PersistenceException {
-        log.debug(String.format("reportPost(%s,%s)", postId+"",Arrays.toString(reasons)));
+    public void reportPost(Long postId,String reasons,String ip) throws PersistenceException {
+        log.debug(String.format("reportPost(%s,%s)", postId+"",reasons));
         Report r = new Report();
         r.setPostClass(Joke.class.getName());
         r.setPostId(postId);
-        r.setReasons(Arrays.toString(reasons));
+        r.setReasons(reasons);
         r.setReporter(id.getUserLoggedIn());
+        r.setIp(ip);
         db.persist(r);
+    }
+
+    public long countComments(Long id) {
+        return (Long)db.createQuery("SELECT COUNT(c.id) FROM JKComment c WHERE c.joke.id = :jid")
+                .setParameter("jid", id).getSingleResult();
     }
 
 }

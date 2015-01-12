@@ -20,8 +20,24 @@ public interface IdentityService {
 
     public User userRegistration(UserData userData) throws PersistenceException;
 
+   /**
+     * queries the db for the existence of an email address
+     *
+     * @param email the email to query
+     * @return the email address if exists or null
+     * @throws PersistenceException if db error
+     * @since idm 1.0.0
+     */
     public String getUniqueEmail(String email) throws PersistenceException;
 
+    /**
+     * queries the db for the existence of a screen name
+     *
+     * @param screenName
+     * @return the screen name if exists or null
+     * @throws PersistenceException
+     * @since idm 1.0.0
+     */
     public String validateScreenName(String screenName) throws PersistenceException;
 
     public void updateUser(User user) throws PersistenceException;
@@ -63,7 +79,9 @@ public interface IdentityService {
 
     public Token createActivationToken(User user);
 
-    public void activateUser(String ua) throws LinkExpiredException, Exception;
+    public User activateUser(String ua) throws LinkExpiredException, PersistenceException, InvalidTokenException;
+    
+    public User deactivateUser(String ua) throws LinkExpiredException, PersistenceException, InvalidTokenException;
 
     /**get user currently signed in
      *
