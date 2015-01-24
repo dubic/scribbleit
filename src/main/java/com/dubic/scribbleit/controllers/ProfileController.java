@@ -25,4 +25,12 @@ public class ProfileController {
     public String profileActivity() {
         return "users/activity";
     }
+    @RequestMapping("/account")
+    public String profileAccount() {
+        return "users/account";
+    }
+    @RequestMapping("/pword")
+    public String profileChangePassword() {
+        return "users/change-password";
+    }
 }

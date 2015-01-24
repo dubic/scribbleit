@@ -12,7 +12,7 @@
         <jsp:include page="include/head.jsp"/>
     </head>
     <body>
-        <jsp:include page="include/header.jsp"/>
+        <jsp:include page="include/new-header.jsp"/>
         
         <div id="page-notif" style="top:142px" >
             

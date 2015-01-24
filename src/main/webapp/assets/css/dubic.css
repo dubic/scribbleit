@@ -79,6 +79,10 @@ and open the template in the editor.
     width: 65%;
     margin:auto;
 }
+.middle-page-2{
+    width: 75%;
+    margin:auto;
+}
 .circle{
     border-radius:999px;
     background:#C0C0C0;
@@ -109,7 +113,7 @@ and open the template in the editor.
 }
 .pop{
     position: absolute;
-    background: #E0E0E0;
+    background: #fefefe;
     left:auto;
     top:auto;
     z-index:10001;
@@ -117,6 +121,9 @@ and open the template in the editor.
 }
 .inline-block{
     display: inline-block;
+}
+.full-width{
+    width:100%;
 }
 .dpopover{
     border: 1px solid #F1F1F1;

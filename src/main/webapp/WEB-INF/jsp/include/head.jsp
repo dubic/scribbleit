@@ -27,6 +27,8 @@
         <link href="/scribbleit/assets/plugins/gritter/css/jquery.gritter.css" rel="stylesheet" type="text/css"/>
         <!-- END PAGE LEVEL PLUGIN STYLES -->
         <!-- BEGIN THEME STYLES --> 
+        <link href="/scribbleit/resources/css/header.css" rel="stylesheet" type="text/css"/>
+        <link href="/scribbleit/assets/css/dubic.css" rel="stylesheet" type="text/css"/>
         <link href="/scribbleit/assets/css/style-metronic.css" rel="stylesheet" type="text/css"/>
         <link href="/scribbleit/assets/css/style.css" rel="stylesheet" type="text/css"/>
         <link href="/scribbleit/assets/css/style-responsive.css" rel="stylesheet" type="text/css"/>
@@ -34,7 +36,6 @@
         <link href="/scribbleit/assets/css/pages/tasks.css" rel="stylesheet" type="text/css"/>
         <link href="/scribbleit/assets/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color"/>
         <link href="/scribbleit/assets/css/custom.css" rel="stylesheet" type="text/css"/>
-        <link href="/scribbleit/assets/css/dubic.css" rel="stylesheet" type="text/css"/>
         <link href="/scribbleit/assets/css/pages/login.css" rel="stylesheet" type="text/css"/>
 
         <!-- END THEME STYLES -->

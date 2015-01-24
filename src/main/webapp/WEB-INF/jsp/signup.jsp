@@ -15,7 +15,8 @@
                 <span class="error-msg" ng-show="regfrm.name.$dirty && regfrm.name.$error.minlength">Must be more than 3 characters</span>
                 <span class="error-msg" ng-show="regfrm.name.$dirty && regfrm.name.$error.maxlength">Must not be more than 20 characters</span>
                 <span class="error-msg" ng-show="regfrm.name.$dirty && regfrm.name.$error.ngRemoteValidate">Screen name already used</span>
-                <input class="form-control" ng-class="{'spinner':regfrm.name.$pending}" name="name" placeholder="Screen Name" type="text"
+                <span class="error-msg" ng-show="regfrm.name.$dirty && regfrm.name.$error.pattern">Alphanumeric characters only</span>
+                <input class="form-control" ng-class="{'spinner':regfrm.name.$pending}" name="name" placeholder="Screen Name" type="text" ng-pattern="/^[a-z0-9]+$/i"
                        ng-model="user.screenName" required ng-minlength="4" ng-maxlength="20" ng-remote-validate="/scribbleit/users/name-unique" ng-remote-throttle="1000"/>
             </div>
 

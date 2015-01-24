@@ -1,0 +1,12 @@
+header {
+    background-color: #fefefe;
+    padding: 10px;
+}
+
+.span{
+    /*margin-right: 15px;*/
+}
+header .search-bar{
+    /*display: inline;*/
+    /*margin: 10px 100px;*/ 
+}

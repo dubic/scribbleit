@@ -5,10 +5,31 @@
  */
 
 
-ctrls.controller('headerCtrl', ['$scope', '$http', function($scope, $http) {
+ctrls.controller('headerCtrl', ['$scope', '$http','$timeout', function($scope, $http,$timeout) {
         $scope.fullname = 'dubic uzuegbu';
         $scope.pop = false;
         $scope.testDialog = function() {
             $scope.dopen = true;
         };
+
+        $scope.search = function() {
+            $scope.searching = true;
+            $timeout(function(){
+                $scope.searching = false;
+                $scope.searched = $scope.groups;
+            },1000);
+        };
+
+        $scope.groups = [
+            {
+                name: 'Jokes',
+                count: 28,
+                lists: ['welcome to nigeria 99', 'the end of all things is at hand']
+            },
+            {
+                name: 'Proverbs',
+                count: 7,
+                lists: ['Oh bother', 'why do yiu disturb me']
+            }
+        ];
     }]);

@@ -8,30 +8,24 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="b" uri="/WEB-INF/tlds/dubic.tld"%>
 
-<div style="margin-top: 42px;">
+<div>
     <div class="middle-page" ng-controller="mainCtrl">
         <!--<button class="btn btn-danger" ng-click="dialog()">open</button>-->
         <div class="row">
-            <ul class="horizontal post-links" style="margin: auto;display: table">
-                <li><a href="" ng-click="testDialog()" class="active">Jokes</a></li>
-                <li><a href="" ng-click="switchView(1)">Quotes</a></li>
-                <li><a href="" ng-click="switchView(2)">Proverbs</a></li>
-            </ul>
+            <div class="col-md-12 post-bar">
+                <ul class="horizontal post-links" style="margin: auto;display: table">
+                    <li><a href="" ng-click="testDialog()" class="active">Jokes</a></li>
+                    <li><a href="" ng-click="switchView(1)">Quotes</a></li>
+                    <li><a href="" ng-click="switchView(2)">Proverbs</a></li>
+                </ul>
+            </div>
         </div>
 
-        <section class="container row">
-            <div class="col-lg-8" style="margin: auto">   
-                <input placeholder="Search..." class="form-control" type="text"/>
-            </div>
-            <div class="col-md-4">
-                <button type="button" class="btn btn-default">Search</button>
-                <button class="btn btn-default" ng-click="openpost = !openpost">share a joke</button>
-            </div>
-        </section>
+        <button class="btn btn-default" ng-click="openpost = !openpost">share a joke</button>
         <!--POST TEXTAREA-->
         <div collapse="!openpost" style="border: 1px #ddd solid;padding: 10px;">
             <div style="max-width: 70%">
-                <div ng-repeat="a in alerts" class="alert {{a.class}}">{{a.msg}}</div>
+
                 <div class="row">
                     <div class="col-md-12"><input class="form-control" ng-model="Post.title" placeholder="Title"/></div>
                 </div>
@@ -48,7 +42,7 @@
                     <div class="col-md-12">
                         <button type="button" ng-disabled="newposting" ng-click="Post.msg = '';
                                 openpost = !openpost;" class="btn btn-sm btn-warning">cancel</button>
-                        <button type="submit" ng-click="newpost()" ng-disabled="frm.$invalid || newposting" class="btn btn-sm btn-info">
+                            <button type="submit" ng-show="Post.msg" ng-click="newpost()" ng-disabled="frm.$invalid || newposting" class="btn btn-sm btn-info">
                             <span ng-show="!newposting">post</span><span ng-show="newposting">saving</span>
                         </button>
                     </div>

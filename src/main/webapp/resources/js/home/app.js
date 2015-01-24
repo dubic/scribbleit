@@ -53,11 +53,23 @@ app.config(function($stateProvider, $urlRouterProvider) {
             state('profile.activity', {
 //                url: '/profile/activity',
                 templateUrl: '/scribbleit/profile/activity',
-                controller: 'profileCtrl',
+                controller: 'activityCtrl',
                 data:{displayName:'profile activity'}
+            }).
+            state('profile.account', {
+//                url: '/profile/activity',
+                templateUrl: '/scribbleit/profile/account',
+                controller: 'accountCtrl',
+                data:{displayName:'profile account'}
+            }).
+            state('profile.pword', {
+//                url: '/profile/activity',
+                templateUrl: '/scribbleit/profile/pword',
+                controller: 'pwordCtrl',
+                data:{displayName:'change password'}
             });
 
-//    $urlRouterProvider.when('','/home/jokes');
+//    $urlRouterProvider.when('/profile','/home/jokes');
     $urlRouterProvider.otherwise('/home/jokes');
 
 //      $locationProvider.html5Mode(true);
@@ -69,8 +81,8 @@ app.run(function($rootScope, $state, $window) {
     $rootScope.transition = function(state) {
         $state.transitionTo(state);
     };
-    $rootScope.navigate = function(state) {
-        $state.go(state, null, {location: false});
+    $rootScope.navigate = function(state,params) {
+        $state.go(state, params, {location: false});
     };
     $rootScope.route = function(state) {
         $state.go(state);

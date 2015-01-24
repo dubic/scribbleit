@@ -4,8 +4,8 @@
     Author     : dubem
 --%>
 
-<div style="margin-top: 42px;">
-    <div class="middle-page">
+<div>
+    <div class="middle-page-2">
         <div class="page-container profile" style="padding:20px">
             <div id="top-profile" class="row margin-bottom-10">
                 <div class="col-md-3">
@@ -60,14 +60,14 @@
                 <div id="about_div" class="col-md-3">
                     <ul class="ver-inline-menu tabbable margin-bottom-10">
                         <li class="active">
-                            <a data-toggle="tab" href="#tab_1-1">
+                            <a data-toggle="tab" href="" ng-click="navigate('profile.activity')">
                                 <i class="icon-cog"></i> 
                                 Activity
                             </a> 
                             <span class="after"></span>                                    
                         </li>
-                        <li class=""><a data-toggle="tab" href="#tab_2-2"><i class="icon-picture"></i> Account</a></li>
-                        <li class=""><a data-toggle="tab" href="#tab_3-3"><i class="icon-lock"></i> Change Password</a></li>
+                        <li class=""><a data-toggle="tab" href="" ng-click="navigate('profile.account')"><i class="icon-picture"></i> Account</a></li>
+                        <li class=""><a data-toggle="tab" href="" ng-click="navigate('profile.pword')"><i class="icon-lock"></i> Change Password</a></li>
                     </ul>
                 </div>
                 <!--TAB CONTENTS-->

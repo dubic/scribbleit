@@ -12,7 +12,7 @@
         <!-- BEGIN TOP NAVIGATION BAR -->
         <div class="header-inner">
             <!-- BEGIN LOGO -->  
-            <a class="navbar-brand" href="home.jsf">
+            <a class="navbar-brand" href="/scribbleit">
                 <!--<img src="assets/img/logo.png" alt="Scribbles" class="img-responsive">-->
                 Scribbles
             </a>
