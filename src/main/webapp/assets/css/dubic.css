@@ -16,6 +16,34 @@ and open the template in the editor.
     background: #169ef4;
 }
 
+.menulist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    /*width: 720px;*/
+    /*float: left;*/
+    /*background: #FAA819 url(images/mainNavBg.gif) repeat-x;*/
+}
+
+.menulist li {
+    float: left;
+}
+
+.menulist a,.menu a {
+    display: block;
+    padding: 0 2em;
+    line-height: 2.1em;
+    text-decoration: none;
+    color: green;
+}
+
+.menulist a:hover ,.menu a:hover{
+    color: #333;
+    background: #C0C0C0;
+    transition: background 1s;
+}
+
+
 .list-text li a{
     color: #557386;
     display: block;
@@ -89,7 +117,7 @@ and open the template in the editor.
     border :3px solid #C0C0C0;
     cursor:pointer;
 }
-.post-links li {
+/*.post-links li {
     color:#9A9A9A;
     margin: 5px 20px 5px 0px;
     font-size: 20px;
@@ -102,7 +130,7 @@ and open the template in the editor.
     color:#435DA9;
     text-decoration: none;
     border-bottom: 3px solid #004080;
-}
+}*/
 .post-container > .title{
     border-bottom: 1px solid #D4D0D0;
     margin: 5px 10px;
@@ -222,4 +250,8 @@ textarea.ng-invalid.ng-dirty{
     width: 100%;
     z-index: 1111;
     position: fixed;
+}
+.post-bar{
+    background: none repeat scroll 0% 0% #FFF;
+    border-radius: 7px;
 }

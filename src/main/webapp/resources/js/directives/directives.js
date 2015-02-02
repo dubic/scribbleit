@@ -81,7 +81,7 @@ angular.module('Scribbles', [])
                 },
                 link: function(scope, element, attr, ngModel) {
                     element.select2({
-                        tags:true
+                        tags: true
                     });
 
                     if (attr.select2Sync) {

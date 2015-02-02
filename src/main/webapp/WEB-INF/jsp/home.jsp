@@ -12,16 +12,23 @@
     <div class="middle-page" ng-controller="mainCtrl">
         <!--<button class="btn btn-danger" ng-click="dialog()">open</button>-->
         <div class="row">
-            <div class="col-md-12 post-bar">
-                <ul class="horizontal post-links" style="margin: auto;display: table">
-                    <li><a href="" ng-click="testDialog()" class="active">Jokes</a></li>
-                    <li><a href="" ng-click="switchView(1)">Quotes</a></li>
-                    <li><a href="" ng-click="switchView(2)">Proverbs</a></li>
-                </ul>
+            <div class="col-md-12 margin-top-10">
+                <section class="post-bar">
+                    <ul class="nav nav-pills">
+                        <li role="presentation" class="bold active"><a href="" ng-click="testDialog()">Jokes</a></li>
+                        <li role="presentation" class="bold"><a href="" ng-click="switchView(1)">Quotes</a></li>
+                        <li role="presentation" class="bold"><a href="" ng-click="switchView(2)">Proverbs</a></li>
+                        <li class="navbar-right bold"><a href="" style="margin-right: 10px" ng-click="openpost = !openpost">post new</a></li>
+                    </ul>
+                    
+                    
+                </section>
+
+
             </div>
         </div>
 
-        <button class="btn btn-default" ng-click="openpost = !openpost">share a joke</button>
+        
         <!--POST TEXTAREA-->
         <div collapse="!openpost" style="border: 1px #ddd solid;padding: 10px;">
             <div style="max-width: 70%">
@@ -42,7 +49,7 @@
                     <div class="col-md-12">
                         <button type="button" ng-disabled="newposting" ng-click="Post.msg = '';
                                 openpost = !openpost;" class="btn btn-sm btn-warning">cancel</button>
-                            <button type="submit" ng-show="Post.msg" ng-click="newpost()" ng-disabled="frm.$invalid || newposting" class="btn btn-sm btn-info">
+                        <button type="submit" ng-show="Post.msg" ng-click="newpost()" ng-disabled="frm.$invalid || newposting" class="btn btn-sm btn-info">
                             <span ng-show="!newposting">post</span><span ng-show="newposting">saving</span>
                         </button>
                     </div>

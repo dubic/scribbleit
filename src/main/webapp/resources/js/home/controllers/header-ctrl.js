@@ -5,20 +5,32 @@
  */
 
 
-ctrls.controller('headerCtrl', ['$scope', '$http','$timeout', function($scope, $http,$timeout) {
+ctrls.controller('headerCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
         $scope.fullname = 'dubic uzuegbu';
         $scope.pop = false;
+        $scope.insearch = false;
+
         $scope.testDialog = function() {
-            $scope.dopen = true;
+            $scope.insearch = false;
         };
 
         $scope.search = function() {
+            if(angular.isUndefined($scope.Search.keyword)) return;
             $scope.searching = true;
-            $timeout(function(){
+            $timeout(function() {
+//                $scope.insearch = true;
+                $('.pop').slideDown();
                 $scope.searching = false;
                 $scope.searched = $scope.groups;
-            },1000);
+            }, 1000);
         };
+
+//        $scope.$watch(function( ) {
+//            return $scope.insearch;
+//        }, function(value) {
+//            console.log('select values = ' + value);
+//
+//        });
 
         $scope.groups = [
             {

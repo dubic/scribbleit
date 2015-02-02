@@ -158,6 +158,10 @@ textarea{
 .stats span{
     margin-right: 15px;
 }
+.stats [class^="icon-"],
+.stats [class*=" icon-"]{
+    color: #4F4F4F;
+}
 
 body{
     background: url('../images/background.gif')
