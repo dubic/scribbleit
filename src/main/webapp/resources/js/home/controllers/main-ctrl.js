@@ -9,6 +9,8 @@ ctrls.controller('mainCtrl', ['$scope', '$http', '$rootScope', '$timeout', 'serv
 //        $timeout(function() {
 //            $rootScope.$broadcast('$testBroadcast', 'next');
 //        }, 2000);
+//        $scope.activePage = $rootScope.activePage;
+        
         $scope.dialog = function() {
 //            alert('ok');
             BootstrapDialog.alert('I want banana!');
@@ -17,13 +19,13 @@ ctrls.controller('mainCtrl', ['$scope', '$http', '$rootScope', '$timeout', 'serv
         $scope.newtag = false;
         $scope.tagcloud = ['akpos', 'politics', 'football'];
 
-        
+
         $scope.newpost = function() {
             if (angular.isUndefined($scope.Post.msg))
                 return;
             $scope.newposting = true;
             $timeout(function() {
-                $rootScope.$broadcast('newJokeBroadcast', {
+                $rootScope.$broadcast('newPostBroadcast', {
                     title: $scope.Post.title,
                     id: 3,
                     dislikes: 0,
@@ -39,7 +41,8 @@ ctrls.controller('mainCtrl', ['$scope', '$http', '$rootScope', '$timeout', 'serv
                 $scope.newposting = false;
                 $scope.Post = {};
                 $scope.openpost = !$scope.openpost;
-                services.notify("post saved successfully",$rootScope);
+                services.notify("post saved successfully", $rootScope);
             }, 1000);
         };
+
     }]);

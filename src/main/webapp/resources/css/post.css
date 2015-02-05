@@ -33,7 +33,7 @@ post-bar{
     position: absolute;
 }
 
-.btn.green:hover, 
+/*.btn.green:hover, 
 .btn.green:focus, 
 .btn.green:active, 
 .btn.green.active,
@@ -41,8 +41,8 @@ post-bar{
 .btn.green[disabled]{ 
     background-color: #1d943b !important;
     color: #fff !important;
-    outline: none !important;
-}
+    outline: none !important;*/
+/*}*/
 
 .container{
     /*    margin: 5px 0px;
@@ -85,15 +85,6 @@ h2{
     background: transparent;
 }
 
-/*html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
-    margin: 0;
-    padding: 0;
-    font-size: 100%;
-    vertical-align: baseline;
-    border: 0;
-    outline: 0;
-    background: transparent;
-}*/
 
 textarea{
     /*    width: 100%;
@@ -151,6 +142,14 @@ textarea{
     color: #4083a9;
     outline: none;
     text-decoration: none
+}
+.post-container .quote-person{
+    border-bottom: 1px solid #C0C0C0;
+    margin-bottom: 10px;
+}
+.post-container blockquote{
+    padding: 1px 15px;
+    border-left: 3px solid rgb(238, 238, 238);
 }
 .comments-body{
     display: none;

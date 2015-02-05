@@ -36,6 +36,8 @@
         <script src="/scribbleit/resources/js/home/controllers/main-ctrl.js" type="text/javascript"></script> 
         <script src="/scribbleit/resources/js/home/controllers/jokes-ctrl.js" type="text/javascript"></script> 
         <script src="/scribbleit/resources/js/home/controllers/profile-ctrl.js" type="text/javascript"></script> 
+        <script src="/scribbleit/resources/js/home/controllers/prov-ctrl.js" type="text/javascript"></script> 
+        <script src="/scribbleit/resources/js/home/controllers/quotes-ctrl.js" type="text/javascript"></script> 
         <script src="/scribbleit/resources/js/home/controllers.js" type="text/javascript"></script> 
 
         <!--<script src="/scribbleit/resources/js/home.js" type="text/javascript"></script>--> 

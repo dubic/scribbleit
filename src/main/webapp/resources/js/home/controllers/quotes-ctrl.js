@@ -4,61 +4,63 @@
  * and open the template in the editor.
  */
 
-ctrls.controller('provCtrl', function($scope, $http, services, $rootScope, $timeout, spinner) {
+
+ctrls.controller('quotesCtrl', function($scope, $http, services, $rootScope, $timeout, spinner) {
     $scope.$on('newPostBroadcast', function(e, j) {
 //        console.log(j);
-        $scope.proverbs.unshift(j);
+        $scope.quotes.unshift(j);
     });
     
     $scope.spinner = spinner;
-    $scope.proverbs = [];
+    $scope.quotes = [];
 
     $scope.like = function(index) {
-        var proverb = $scope.proverbs[index];
-        proverb.liking = true;
+        var quote = $scope.quotes[index];
+        quote.liking = true;
         $timeout(function() {
-            proverb.liked = true;
-            proverb.likes++;
-            proverb.liking = false;
+            quote.liked = true;
+            quote.likes++;
+            quote.liking = false;
         }, 1000);
     };
     
     $scope.unlike = function(index) {
-        var proverb = $scope.jokes[index];
-        proverb.liking = true;
+        var quote = $scope.quotes[index];
+        quote.liking = true;
         $timeout(function() {
-            proverb.liked = false;
-            proverb.likes--;
-            proverb.liking = false;
+            quote.liked = false;
+            quote.likes--;
+            quote.liking = false;
         }, 1000);
     };
 
+
     $scope.loadComments = function(index) {
-        var proverb = $scope.proverbs[index];
-        proverb.showComments = true;
+        var quote = $scope.quotes[index];
+        quote.showComments = true;
     };
     $scope.hideComments = function(index) {
-        var proverb = $scope.proverbs[index];
-        proverb.showComments = false;
+        var quote = $scope.quotes[index];
+        quote.showComments = false;
     };
     $scope.comment = function(index) {
-        var proverb = $scope.proverbs[index];
-        if (angular.isUndefined(proverb.myComment))
+        var quote = $scope.quotes[index];
+        if (angular.isUndefined(quote.myComment))
             return;
-        proverb.oncomment = true;
+        quote.oncomment = true;
         $timeout(function() {
-            proverb.oncomment = false;
+            quote.oncomment = false;
             var c = {
-                text: proverb.myComment,
+                text: quote.myComment,
                 poster: 'jack bauer',
                 duration: '3 jan 2015',
                 imageURL: '/scribbleit/posts/img/male.jpg'
             };
-            proverb.comments.push(c);
-            proverb.commentsLength++;
-            proverb.myComment = '';
-            proverb.showComments = true;
-            proverb.makeComment = !proverb.makeComment;
+            quote.comments.push(c);
+            quote.commentsLength++;
+            quote.myComment = '';
+            quote.showComments = true;
+            quote.makeComment = !quote.makeComment;
         }, 1000);
     };
 
@@ -66,10 +68,10 @@ ctrls.controller('provCtrl', function($scope, $http, services, $rootScope, $time
     $scope.reports = {};
     $scope.report = function() {
         console.log($scope.reports);
-        $scope.selectedProverb.reporting = true;
+        $scope.selectedQuote.reporting = true;
         $timeout(function() {
-            $scope.selectedProverb.reported = true;
-            $scope.selectedProverb.reporting = false;
+            $scope.selectedQuote.reported = true;
+            $scope.selectedQuote.reporting = false;
             $scope.reports = {};
             services.closeDialog('reportModal');
             services.notify("post reported successfully",$rootScope);
@@ -84,42 +86,41 @@ ctrls.controller('provCtrl', function($scope, $http, services, $rootScope, $time
 ///////////////////////////
     function loadPosts() {
         $rootScope.loading = true;
-//        it('should be true',function(){
-//            expect(view).toEqual(0); 
-//        });
+
 //        $timeout(function() {
 
             var r = [{
                     id: 1,
                     likes: 6,
                     duration: '31 dec 2014',
-                    post: 'A tree that does not know how to dance will be taught by the wind',
+                    post: 'it is one thing to take a method and try it,if it fails, then try another. But above all try something',
                     poster: 'dubine uzuegbu',
+                    source: 'Nyquist',
                     imageURL: '/scribbleit/posts/img/male.jpg',
                     commentsLength: 5,
                     comments: [],
-                    tags: ['Africa', 'akpos', 'politics']
+                    tags: ['customs', 'akpos', 'politics']
                 }, {
                     id: 2,
-                    title: 'Ay the comedian',
                     likes: 3,
                     duration: '30 dec 2014',
-                    post: 'One does not cut off his nose to spite his face',
+                    post: 'to be trusted is a better compliment than to be loved',
                     poster: 'remy martin',
+                    source: 'van ludwig',
                     imageURL: '/scribbleit/posts/img/male.jpg',
                     commentsLength: 0,
                     comments: [],
                     tags: []
                 }];
             $rootScope.loading = false;//hide loading..
-            $scope.proverbs = r;//display jokes
+            $scope.quotes = r;//display jokes
 
 //        }, 1000);
     }
 
     $scope.openReport = function(index) {
 
-        $scope.selectedProverb = $scope.proverbs[index];
+        $scope.selectedQuote = $scope.quotes[index];
         $scope.reportAlerts = [];
 //            $scope.selectedJoke
         services.openDialog('reportModal');

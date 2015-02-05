@@ -34,6 +34,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -48,10 +49,11 @@ public class PostController {
     @Autowired
     private JokeService jokeService;
     
-    @RequestMapping("/jokes/load")
-    public String loadjokes(){
-        return "posts/jokes";
+    @RequestMapping("/load")
+    public String loadjokes(@RequestParam("page") String page){
+        return "posts/"+page;
     }
+    
 
     @RequestMapping(value = {"/img/{pic}"})
     public void processImage(HttpServletRequest request, HttpServletResponse response, @PathVariable("pic") String picId) {

@@ -6,7 +6,7 @@
 
 
 ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $timeout, spinner) {
-    $scope.$on('newJokeBroadcast', function(e, j) {
+    $scope.$on('newPostBroadcast', function(e, j) {
         console.log(j);
         $scope.jokes.unshift(j);
     });
@@ -23,7 +23,7 @@ ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $tim
             joke.liking = false;
         }, 1000);
     };
-
+    
     $scope.unlike = function(index) {
         var joke = $scope.jokes[index];
         joke.liking = true;
@@ -33,6 +33,7 @@ ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $tim
             joke.liking = false;
         }, 1000);
     };
+
 
     $scope.loadComments = function(index) {
         var joke = $scope.jokes[index];
@@ -59,6 +60,7 @@ ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $tim
             joke.commentsLength++;
             joke.myComment = '';
             joke.showComments = true;
+            joke.makeComment = !joke.makeComment;
         }, 1000);
     };
 
@@ -80,14 +82,12 @@ ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $tim
 
 
     ///////INIT FUNCTIONS///////////
-    loadPosts(0);
+    loadPosts();
 ///////////////////////////
-    function loadPosts(view) {
+    function loadPosts() {
         $rootScope.loading = true;
-//        it('should be true',function(){
-//            expect(view).toEqual(0); 
-//        });
-        $timeout(function() {
+
+//        $timeout(function() {
 
             var r = [{
                     id: 1,
@@ -115,7 +115,7 @@ ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $tim
             $rootScope.loading = false;//hide loading..
             $scope.jokes = r;//display jokes
 
-        }, 1000);
+//        }, 1000);
     }
 
     $scope.openReport = function(index) {

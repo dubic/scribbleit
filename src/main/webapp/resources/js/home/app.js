@@ -40,9 +40,21 @@ app.config(function($stateProvider, $urlRouterProvider) {
             }).
             state('home.jokes', {
                 url: '/jokes',
-                templateUrl: '/scribbleit/posts/jokes/load',
+                templateUrl: '/scribbleit/posts/load?page=jokes',
                 controller: 'jokesCtrl',
                 data:{displayName:'Jokes'}
+            }).            
+            state('home.proverbs', {
+                url: '/proverbs',
+                templateUrl: '/scribbleit/posts/load?page=proverbs',
+                controller: 'provCtrl',
+                data:{displayName:'Proverbs'}
+            }).            
+            state('home.quotes', {
+                url: '/quotes',
+                templateUrl: '/scribbleit/posts/load?page=quotes',
+                controller: 'quotesCtrl',
+                data:{displayName:'Quotes'}
             }).            
             state('profile', {
                 url: '/profile/{user}',
@@ -57,13 +69,11 @@ app.config(function($stateProvider, $urlRouterProvider) {
                 data:{displayName:'profile activity'}
             }).
             state('profile.account', {
-//                url: '/profile/activity',
                 templateUrl: '/scribbleit/profile/account',
                 controller: 'accountCtrl',
                 data:{displayName:'profile account'}
             }).
             state('profile.pword', {
-//                url: '/profile/activity',
                 templateUrl: '/scribbleit/profile/pword',
                 controller: 'pwordCtrl',
                 data:{displayName:'change password'}
@@ -99,6 +109,7 @@ app.run(function($rootScope, $state, $window) {
     });
     $rootScope.$on('$stateChangeSuccess', function(e, to) {
         $rootScope.loading = false;
+        $rootScope.activePage = to.name;
     });
 });
 
