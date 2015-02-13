@@ -27,22 +27,17 @@ public class AuthFailureHandler implements AuthenticationFailureHandler {
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest hsr, HttpServletResponse hsr1, AuthenticationException ae) throws IOException, ServletException {
-        log.info("AUTH failed redirecting : " + ae.getClass());
+        log.info("AUTH failed : " + ae.getClass());
         if (ae instanceof ProviderNotFoundException) {
-            hsr.setAttribute("error", "Email or Password wrong. Check letter casing");
-            hsr.getRequestDispatcher("login.jsp").forward(hsr, hsr1);
+            hsr1.setStatus(HttpServletResponse.SC_NOT_FOUND);//404
         } else if (ae instanceof DisabledException) {
-            hsr.setAttribute("error", "Account not active.Please contact a ");
-            hsr.getRequestDispatcher("login.jsp").forward(hsr, hsr1);
+            hsr1.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);//501
         } else if (ae instanceof LockedException) {
-            hsr.setAttribute("error", "Account locked");
-            hsr.getRequestDispatcher("login.jsp").forward(hsr, hsr1);
+           hsr1.setStatus(HttpServletResponse.SC_UNAUTHORIZED);//401
         } else if (ae instanceof SessionAuthenticationException) {
-            hsr.setAttribute("error", "Session Invalid");
-//            SecurityContextHolder.getContext().
-            hsr.getRequestDispatcher("login.jsp").forward(hsr, hsr1);
+            hsr1.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);//408
         } else {
-            hsr.getRequestDispatcher("login.jsp").forward(hsr, hsr1);
+            hsr1.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);//500
         }
     }
 

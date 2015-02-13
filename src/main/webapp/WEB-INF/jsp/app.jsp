@@ -8,6 +8,7 @@
 <!DOCTYPE html>
 <html ng-app="AppHome">
     <head>
+        <title>Scribbles</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <jsp:include page="include/head.jsp"/>
     </head>

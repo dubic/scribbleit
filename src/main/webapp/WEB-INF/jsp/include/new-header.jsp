@@ -9,7 +9,10 @@
     <div class="middle-page" >
         <div class="row">
             <div class="col-md-3">
-                <a class="" href="/scribbleit">Scribbles</a>
+                <a class="" href="/scribbleit">
+                    <img src="/scribbleit/resources/images/logo_hollow.png" style="height: 54px;margin-top: -15px;" alt="Scribbles"/>
+                </a>
+
             </div>
             <div class="col-md-6 pop-container">
                 <div class="">
@@ -36,7 +39,7 @@
             </div>
 
         </div>
-        
+
 
     </div>
 </header>

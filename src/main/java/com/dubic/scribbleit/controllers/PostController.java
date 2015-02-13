@@ -5,7 +5,7 @@
  */
 package com.dubic.scribbleit.controllers;
 
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.models.Joke;
 import com.dubic.scribbleit.posts.JokeService;
 import com.dubic.scribbleit.posts.PostException;
@@ -30,6 +30,7 @@ import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-/**
+/**usr/share/apache-tomcat-7.0.54/webapps/scribbleit/WEB-INF/classes/com/dubic/scribbleit/controllers
  *
  * @author dubem
  */
@@ -48,6 +49,8 @@ public class PostController {
     private final Logger log = Logger.getLogger(getClass());
     @Autowired
     private JokeService jokeService;
+    @Value("${picture.location}")
+    private String picturePath;
     
     @RequestMapping("/load")
     public String loadjokes(@RequestParam("page") String page){
@@ -63,10 +66,10 @@ public class PostController {
             responseStream = response.getOutputStream();
 
             if (!picId.equalsIgnoreCase("male")) {
-                IOUtils.copy(new FileInputStream("C:/temp/" + picId), responseStream);
+                IOUtils.copy(new FileInputStream(picturePath + picId), responseStream);
             } else {
                 //send avatar
-                IOUtils.copy(new FileInputStream("C:/temp/male.jpg"), responseStream);
+                IOUtils.copy(new FileInputStream(picturePath+"male.jpg"), responseStream);
             }
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
@@ -221,7 +224,7 @@ public class PostController {
         ob.put("duration", IdmUtils.formatDate(j.getEditedDate()));
         ob.put("post", j.getPost());
         ob.put("poster", j.getUser().getScreenName());
-        ob.put("imageURL", "/scribbleit/posts/img/" + j.getUser().getProfile().getPicture());
+        ob.put("imageURL", "/scribbleit/posts/img/" + j.getUser().getPicture());
     }
 
     private void createCommentsArray(List<Object[]> comments, ArrayNode arr) {
@@ -232,7 +235,7 @@ public class PostController {
             ob.put("text", (String) res[2]);
             ob.put("duration", IdmUtils.convertPostedTime(((Calendar) res[1]).getTimeInMillis()));
             User u = (User) res[3];
-            ob.put("imageURL", "/scribbleit/posts/img/" + u.getProfile().getPicture());
+            ob.put("imageURL", "/scribbleit/posts/img/" + u.getPicture());
             ob.put("poster", u.getScreenName());
             arr.add(ob);
         }

@@ -5,7 +5,7 @@
  */
 package com.dubic.scribbleit.posts;
 
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.models.Comment;
 import com.dubic.scribbleit.models.Post;
 import com.dubic.scribbleit.models.Tag;

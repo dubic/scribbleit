@@ -6,7 +6,7 @@
 package com.dubic.scribbleit.profile;
 
 import com.dubic.scribbleit.db.Database;
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.models.Profile;
 import com.dubic.scribbleit.utils.IdmUtils;
 import java.util.Date;

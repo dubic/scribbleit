@@ -8,7 +8,7 @@
     <aside class="content">
         <h3>Sign Up</h3>
         <div class="alert {{a.class}}" ng-repeat="a in alerts" ng-click="alerts.splice($index, 1)">{{a.msg}}</div>
-        <form name="regfrm" ng-submit="register()">
+        <form name="regfrm" ng-submit="signup()">
 
             <div class="form-group">
                 <span class="error-msg" ng-show="regfrm.name.$dirty && regfrm.name.$error.required">A Screen name is required</span>

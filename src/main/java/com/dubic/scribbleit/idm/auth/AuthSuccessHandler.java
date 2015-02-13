@@ -25,7 +25,7 @@ public class AuthSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest hsr, HttpServletResponse hsr1, Authentication a) throws IOException, ServletException {
         log.info(String.format("[%s] successfully authenticated", (String) a.getPrincipal()));
         log.info(String.format("coming from [%s]", hsr.getRequestURI()));
-        hsr1.sendRedirect("index/dashboard.jsp");
+        hsr1.setStatus(HttpServletResponse.SC_OK);
     }
 
 }

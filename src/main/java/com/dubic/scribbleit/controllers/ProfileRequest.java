@@ -5,7 +5,7 @@
  */
 package com.dubic.scribbleit.controllers;
 
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.idm.spi.IdentityService;
 import com.dubic.scribbleit.profile.ProfileService;
 import com.dubic.scribbleit.utils.IdmCrypt;
@@ -129,7 +129,7 @@ public class ProfileRequest {
         Image scaledImage = image.getScaledInstance(180, 200, Image.SCALE_DEFAULT);
         ImageIO.write(toBufferedImage(scaledImage), "jpg", fileOutputStream);
         IOUtils.closeQuietly(fileOutputStream);
-        this.user.getProfile().setPicture(pixName);
+        this.user.setPicture(pixName);
         profileService.updateProfile(this.user.getProfile());
 
     }

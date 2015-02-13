@@ -24,7 +24,7 @@ public class CommentData {
         this.id = c.getId();
         this.text = c.getText();
         this.duration = IdmUtils.convertPostedTime(c.getPostedTime().getTimeInMillis());
-        this.imageURL = "p/"+c.getUser().getProfile().getPicture();
+        this.imageURL = "p/"+c.getUser().getPicture();
         this.poster = c.getUser().getScreenName();
     }
 

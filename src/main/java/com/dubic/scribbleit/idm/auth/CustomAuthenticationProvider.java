@@ -5,18 +5,15 @@
  */
 package com.dubic.scribbleit.idm.auth;
 
-import com.dubic.scribbleit.idm.models.Role;
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.idm.spi.IdentityService;
 import com.dubic.scribbleit.utils.IdmCrypt;
-import com.dubic.scribbleit.utils.IdmUtils;
 import java.util.Date;
 import javax.inject.Inject;
-import javax.inject.Named;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.ProviderNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,21 +28,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final Logger log = Logger.getLogger(getClass());
-    @Inject
+    @Autowired
     private IdentityService userService;
 
     @Override
     public Authentication authenticate(Authentication a) throws AuthenticationException {
         log.debug(String.format("authenticating...[%s]",a.getName().toLowerCase()));
         String userId = a.getName().toLowerCase();
-        User user = userService.findUserByEmailandPasword(userId, IdmCrypt.encodeMD5(a.getCredentials().toString(), userId));
+        User user = userService.findUserByEmailandPasword(userId, IdmCrypt.encodeMD5(a.getCredentials().toString().trim(), userId.toLowerCase().trim()));
         if (user != null) {
             if (!user.isActivated()) {
                 throw new DisabledException("User account is not activated - " + userId);
             }
-            if (user.isLocked()) {
-                throw new LockedException("User accountis locked - " + userId);
-            }
+//            if (user.isLocked()) {
+//                throw new LockedException("User accountis locked - " + userId);
+//            }
             
            
             Authentication auth = new UsernamePasswordAuthenticationToken(user.getEmail(), a.getCredentials().toString(), user.getRoles());

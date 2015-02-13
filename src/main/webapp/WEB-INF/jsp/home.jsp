@@ -36,6 +36,9 @@
                 <div class="row" ng-show="activePage === 'home.jokes'">
                     <div class="col-md-12"><input class="form-control" ng-model="Post.title" placeholder="Title"/></div>
                 </div>
+                
+                
+                
                 <div class="row margin-top-10">
                     <div class="col-md-12"><textarea name="postxt" class="form-control" ng-model="Post.msg" placeholder="Post Message" style="height: 130px"></textarea></div>
                 </div>

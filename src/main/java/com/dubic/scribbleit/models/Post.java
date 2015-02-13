@@ -6,7 +6,6 @@
 
 package com.dubic.scribbleit.models;
 
-import com.dubic.scribbleit.idm.models.User;
 import java.util.Calendar;
 import java.util.Date;
 

@@ -17,6 +17,7 @@ public class UserData {
     private String screenName;
     private String email;
     private String password;
+    private String passcode;
     private String firstname;
     private String lastname;
     private Date lastLoginDate;
@@ -77,6 +78,14 @@ public class UserData {
 
     public void setFirstname(String firstname) {
         this.firstname = firstname;
+    }
+
+    public String getPasscode() {
+        return passcode;
+    }
+
+    public void setPasscode(String passcode) {
+        this.passcode = passcode;
     }
 
     public String getLastname() {

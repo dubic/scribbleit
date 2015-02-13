@@ -5,7 +5,6 @@
  */
 package com.dubic.scribbleit.models;
 
-import com.dubic.scribbleit.idm.models.User;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;

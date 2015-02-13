@@ -19,16 +19,15 @@
 
     <http use-expressions="true">
         
-<!--        <intercept-url pattern="/resources/**" access="permitAll" />
-        <intercept-url pattern="/rest/charts/validate" access="permitAll" />-->
+        <intercept-url pattern="/**" access="permitAll" />
         
 <!--        <intercept-url pattern="/home.jsf" access="permitAll" />
         <intercept-url pattern="/**/*.css" access="permitAll" />
         <intercept-url pattern="/**/*.js" access="permitAll" />
 
 -->        <form-login login-page="/home.jsf" login-processing-url="/login" 
-                    authentication-failure-handler-ref="authFailure" authentication-success-handler-ref="authSuccess" username-parameter="lemail" password-parameter="lpassword"/>
-        <logout logout-url="/logout" logout-success-url="/login.jsp" delete-cookies="JSESSIONID"/><!--
+                    authentication-failure-handler-ref="authFailure" authentication-success-handler-ref="authSuccess" username-parameter="email" password-parameter="password"/>
+        <!--<logout logout-url="/logout" logout-success-url="/login.jsp" delete-cookies="JSESSIONID"/>
         <session-management>
             <concurrency-control max-sessions="1"/>
         </session-management>-->

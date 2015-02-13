@@ -24,7 +24,6 @@ import javax.persistence.Temporal;
 public class Profile implements Serializable {
 
     private Long id;
-    private String picture;
     private Long jokes = 0L;//post stats
     private Long proverbs = 0L;//post stats
     private Long quotes = 0L;//post stats
@@ -43,15 +42,6 @@ public class Profile implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    @Column(name = "pix")
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
     }
 
     @Column(name = "jokes")

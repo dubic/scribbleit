@@ -5,12 +5,11 @@
 package com.dubic.scribbleit.idm.spi;
 
 import com.dubic.scribbleit.dto.UserData;
-import com.dubic.scribbleit.idm.models.Group;
 import com.dubic.scribbleit.idm.models.Role;
-import com.dubic.scribbleit.idm.models.Token;
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolationException;
 
 /**
  *
@@ -18,7 +17,7 @@ import javax.persistence.PersistenceException;
  */
 public interface IdentityService {
 
-    public User userRegistration(UserData userData) throws PersistenceException;
+    public User userRegistration(UserData userData) throws PersistenceException,ConstraintViolationException;
 
    /**
      * queries the db for the existence of an email address
@@ -73,12 +72,6 @@ public interface IdentityService {
 
     public Role createRole(String name, String desc) throws PersistenceException;
 
-    public Group createGroup(Group grp) throws PersistenceException;
-
-    public Group createGroup(String name, String desc, User creator, Long parent) throws PersistenceException;
-
-    public Token createActivationToken(User user);
-
     public User activateUser(String ua) throws LinkExpiredException, PersistenceException, InvalidTokenException;
     
     public User deactivateUser(String ua) throws LinkExpiredException, PersistenceException, InvalidTokenException;
@@ -91,5 +84,5 @@ public interface IdentityService {
 
     public void assignRole(Long roleId, Long userId) throws EntityNotFoundException, PersistenceException;
 
-    public void addUserToGroup(Long userId, Long grpId) throws EntityNotFoundException, PersistenceException;
+    public void resetPassword(User user);
 }

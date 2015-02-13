@@ -6,7 +6,7 @@
 
 package com.dubic.scribbleit.dto;
 
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.models.Joke;
 import com.dubic.scribbleit.utils.IdmUtils;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class JokeData {
         this.likes = joke.getLikes();
         this.dislikes = joke.getDislikes();
         this.poster = joke.getUser().getScreenName();
-        this.imageURL = "p/"+joke.getUser().getProfile().getPicture();
+        this.imageURL = "p/"+joke.getUser().getPicture();
         this.duration = IdmUtils.formatDate(joke.getEditedDate());
     }
 

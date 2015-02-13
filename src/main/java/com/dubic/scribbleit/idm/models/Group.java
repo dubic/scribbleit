@@ -4,6 +4,7 @@
  */
 package com.dubic.scribbleit.idm.models;
 
+import com.dubic.scribbleit.models.User;
 import com.google.gson.Gson;
 import java.io.Serializable;
 import java.util.Date;

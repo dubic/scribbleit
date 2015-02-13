@@ -5,7 +5,7 @@
 package com.dubic.scribbleit.utils;
 
 import com.dubic.scribbleit.idm.models.Role;
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -213,7 +213,7 @@ public class IdmUtils {
         return new Validate(test);
     }
     public static void main(String[] arrrgh) {
-       
+        System.out.println(generateTimeToken());
 //        try {
 //            System.out.println("token - " + generateTimeToken());
 //            Thread.sleep(1000);

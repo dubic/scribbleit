@@ -6,7 +6,7 @@
 
 package com.dubic.scribbleit.profile;
 
-import com.dubic.scribbleit.idm.models.User;
+import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.models.Profile;
 import javax.persistence.PersistenceException;
 
