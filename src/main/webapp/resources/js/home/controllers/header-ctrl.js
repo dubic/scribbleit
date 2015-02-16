@@ -5,13 +5,20 @@
  */
 
 
-ctrls.controller('headerCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+ctrls.controller('headerCtrl', function($scope, $http, $timeout,$rootScope) {
         $scope.fullname = 'dubic uzuegbu';
         $scope.pop = false;
         $scope.insearch = false;
+        
 
         $scope.testDialog = function() {
             $scope.insearch = false;
+        };
+        
+        $scope.logout = function() {
+            $http.get('logout').success(function(){
+                $rootScope.getCurrentUser();
+            });
         };
 
         $scope.search = function() {
@@ -44,4 +51,4 @@ ctrls.controller('headerCtrl', ['$scope', '$http', '$timeout', function($scope, 
                 lists: ['Oh bother', 'why do yiu disturb me']
             }
         ];
-    }]);
+    });

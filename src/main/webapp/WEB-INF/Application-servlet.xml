@@ -190,4 +190,6 @@ http://www.springframework.org/schema/context
         <qualifier value="jmstrans"/>
     </bean>
     <tx:annotation-driven transaction-manager="jsmTransactionManager" />
+    
+    <import resource="security.xml"/>
 </beans>

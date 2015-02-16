@@ -18,7 +18,7 @@
                         <li role="presentation" ng-class="{active : activePage === 'home.jokes'}" class="bold"><a href="" ng-click="route('home.jokes')">Jokes</a></li>
                         <li role="presentation" ng-class="{active : activePage === 'home.quotes'}" class="bold"><a href="" ng-click="route('home.quotes')">Quotes</a></li>
                         <li role="presentation" ng-class="{active : activePage === 'home.proverbs'}" class="bold"><a href=""  ng-click="route('home.proverbs')">Proverbs</a></li>
-                        <li class="navbar-right bold"><a href="" style="margin-right: 10px" ng-click="openpost = !openpost">post new</a></li>
+                        <li class="navbar-right bold"><a href="" style="margin-right: 10px" ng-click="startNewPost()">post new</a></li>
                     </ul>
                     
                     

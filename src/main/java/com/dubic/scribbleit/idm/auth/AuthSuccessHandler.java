@@ -5,11 +5,13 @@
  */
 package com.dubic.scribbleit.idm.auth;
 
+import com.dubic.scribbleit.idm.spi.IdentityService;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
@@ -20,12 +22,14 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class AuthSuccessHandler implements AuthenticationSuccessHandler {
 
     private final Logger log = Logger.getLogger(getClass());
+    @Autowired private IdentityService idmService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest hsr, HttpServletResponse hsr1, Authentication a) throws IOException, ServletException {
         log.info(String.format("[%s] successfully authenticated", (String) a.getPrincipal()));
-        log.info(String.format("coming from [%s]", hsr.getRequestURI()));
+        hsr1.setContentType("application/json");
         hsr1.setStatus(HttpServletResponse.SC_OK);
+        
     }
 
 }

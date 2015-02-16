@@ -9,6 +9,8 @@ import com.dubic.scribbleit.dto.UniqueValidation;
 import com.dubic.scribbleit.dto.UserData;
 import com.dubic.scribbleit.email.MailServiceImpl;
 import com.dubic.scribbleit.idm.spi.IdentityService;
+import com.dubic.scribbleit.models.User;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javax.inject.Inject;
 import org.apache.log4j.Logger;
@@ -56,5 +58,21 @@ public class UserController {
         return resp;
     }
 
-    
+    @RequestMapping(value = "/current")
+    public @ResponseBody
+    JsonObject currentUser() {
+        JsonObject resp = new JsonObject();
+        User user = idmService.getUserLoggedIn();
+        if(user == null){
+            resp.addProperty("code", 404);
+            return resp;
+        }
+        resp.addProperty("code", 0);
+        resp.addProperty("id", user.getId());
+        resp.addProperty("email", user.getEmail());
+        resp.addProperty("picture", user.getPicture());
+        resp.addProperty("screenName", user.getScreenName());
+        resp.add("profile", new Gson().toJsonTree(user.getProfile()));
+        return resp;
+    }
 }

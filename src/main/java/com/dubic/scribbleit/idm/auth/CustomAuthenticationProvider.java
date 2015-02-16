@@ -8,6 +8,7 @@ package com.dubic.scribbleit.idm.auth;
 import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.idm.spi.IdentityService;
 import com.dubic.scribbleit.utils.IdmCrypt;
+import com.google.gson.Gson;
 import java.util.Date;
 import javax.inject.Inject;
 import org.apache.log4j.Logger;
@@ -33,6 +34,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication a) throws AuthenticationException {
+        log.info(new Gson().toJson(a));
         log.debug(String.format("authenticating...[%s]",a.getName().toLowerCase()));
         String userId = a.getName().toLowerCase();
         User user = userService.findUserByEmailandPasword(userId, IdmCrypt.encodeMD5(a.getCredentials().toString().trim(), userId.toLowerCase().trim()));

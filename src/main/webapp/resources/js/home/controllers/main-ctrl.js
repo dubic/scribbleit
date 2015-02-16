@@ -6,15 +6,17 @@
 
 
 ctrls.controller('mainCtrl', ['$scope', '$http', '$rootScope', '$timeout', 'services', function($scope, $http, $rootScope, $timeout, services) {
-//        $timeout(function() {
-//            $rootScope.$broadcast('$testBroadcast', 'next');
-//        }, 2000);
-//        $scope.activePage = $rootScope.activePage;
         
         $scope.dialog = function() {
 //            alert('ok');
             BootstrapDialog.alert('I want banana!');
         };
+        
+        $scope.startNewPost = function(){
+            if($rootScope.isAuthenticated) $scope.openpost = !$scope.openpost;
+            else $rootScope.route('login');
+        };
+        
         $scope.Post = {};
         $scope.newtag = false;
         $scope.tagcloud = ['akpos', 'politics', 'football'];

@@ -22,7 +22,7 @@
             <td><span style="font-family:arial;color:#666666;font-size:16px">Welcome to Scribbles.</span></td>
         </tr>
         <tr>
-            <td><span style="font-family:arial;color:#666666;font-size:16px">You need to <a href="http://localhost:7070/scribbleit/registration/activate/6b39447c1a6f9cd00e1643c41828b1ec">activate</a> your account in order to login and share posts.</span></td>
+            <td><span style="font-family:arial;color:#666666;font-size:16px">You need to <a href="http://localhost:7070/scribbleit/registration/activate/dbba688919b686b5873167d8688a1582">activate</a> your account in order to login and share posts.</span></td>
         </tr>
         <!--                <tr>
                             <td>You need to <a href="">activate</a> your account in order to login and share posts.</td>

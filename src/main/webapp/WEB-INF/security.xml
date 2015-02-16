@@ -17,7 +17,7 @@
     
     <global-method-security secured-annotations="enabled"/>
 
-    <http use-expressions="true">
+    <http use-expressions="true" entry-point-ref="entryPointRef">
         
         <intercept-url pattern="/**" access="permitAll" />
         
@@ -25,17 +25,18 @@
         <intercept-url pattern="/**/*.css" access="permitAll" />
         <intercept-url pattern="/**/*.js" access="permitAll" />
 
--->        <form-login login-page="/home.jsf" login-processing-url="/login" 
-                    authentication-failure-handler-ref="authFailure" authentication-success-handler-ref="authSuccess" username-parameter="email" password-parameter="password"/>
-        <!--<logout logout-url="/logout" logout-success-url="/login.jsp" delete-cookies="JSESSIONID"/>
+        -->        
+        <form-login login-page="/home.jsf" login-processing-url="/login" 
+                       authentication-failure-handler-ref="authFailure" authentication-success-handler-ref="authSuccess" username-parameter="email" password-parameter="password"/>
+        <logout logout-url="/logout" success-handler-ref="logoutRef" delete-cookies="JSESSIONID"/>
         <session-management>
             <concurrency-control max-sessions="1"/>
-        </session-management>-->
+        </session-management>
         <!--<remember-me />-->
-<!--
-    Uncomment to enable X509 client authentication support
-        <x509 />
--->
+        <!--
+            Uncomment to enable X509 client authentication support
+                <x509 />
+        -->
       
     </http>
 

@@ -8,7 +8,7 @@ var app = angular.module('AppHome', ['ui.router', 'ngAnimate', 'remoteValidation
 app.constant("usersPath", "/scribbleit/users");
 app.constant("regPath", "/scribbleit/registration");
 app.constant("spinner", "/scribbleit/resources/images/spinner.gif");
-app.constant("imagePath", "/scribbleit/posts/img/");
+app.constant("imagePath", "/scribbleit/posts/img");
 
 var ctrls = angular.module('controllers', []);
 //app.controller('headerCtrl',headerCtrl);
@@ -19,6 +19,12 @@ app.config(function($stateProvider, $urlRouterProvider) {
                 url: '/login',
                 templateUrl: '/scribbleit/registration/load?p=login',
                 controller: 'loginCtrl',
+//                resolve: {
+//                    permission: function() {
+//                        console.log('resloving...');
+//                         return authorizationService.permissionCheck([roles.superUser]);
+//                     }
+//                },
                 data: {displayName: ''}
             }).
             state('signup', {
@@ -29,9 +35,9 @@ app.config(function($stateProvider, $urlRouterProvider) {
             }).
             state('signup-complete', {
                 template: '<div class="login" style="min-width: 40%;margin-top: 42px;">'
-                            + '<aside class="content">'
-                                + '<div class="well well-sm">your account has been created. An email will be sent to you shortly to activate your account</div>'
-                            + '</aside>'
+                        + '<aside class="content">'
+                        + '<div class="well well-sm">your account has been created. An email will be sent to you shortly to activate your account</div>'
+                        + '</aside>'
                         + '</div>',
                 controller: 'signupCtrl',
                 data: {displayName: ''}
@@ -95,12 +101,10 @@ app.config(function($stateProvider, $urlRouterProvider) {
 //      $locationProvider.html5Mode(true);
 });
 
-app.run(function($rootScope, $state, $window) {
+app.run(function($rootScope, $state, $window, imagePath, $http, usersPath) {
 
+    $rootScope.imagePath = imagePath;
 
-    $rootScope.transition = function(state) {
-        $state.transitionTo(state);
-    };
     $rootScope.navigate = function(state, params) {
         $state.go(state, params, {location: false});
     };
@@ -115,12 +119,27 @@ app.run(function($rootScope, $state, $window) {
     $rootScope.$on('$stateChangeStart', function(e, to) {
         $rootScope.loading = true;
         $rootScope.loadingMsg = 'Loading ' + to.data.displayName + '...';
-        console.log('name - ' + to.name);
+        $rootScope.previous = $state.current.name;
+//        console.log();
+
     });
     $rootScope.$on('$stateChangeSuccess', function(e, to) {
         $rootScope.loading = false;
         $rootScope.activePage = to.name;
     });
+
+    $rootScope.getCurrentUser = function() {
+        $http.get(usersPath + '/current').success(function(resp) {
+            if (resp.code === 0) {
+                $rootScope.userDetails = resp;
+                $rootScope.isAuthenticated = true;
+            }else{
+                $rootScope.isAuthenticated = false;
+            }
+        });
+    };
+    
+    $rootScope.getCurrentUser();
 });
 
 console.log("angular configured");

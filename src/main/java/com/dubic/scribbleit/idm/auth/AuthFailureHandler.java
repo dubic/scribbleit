@@ -29,7 +29,7 @@ public class AuthFailureHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest hsr, HttpServletResponse hsr1, AuthenticationException ae) throws IOException, ServletException {
         log.info("AUTH failed : " + ae.getClass());
         if (ae instanceof ProviderNotFoundException) {
-            hsr1.setStatus(HttpServletResponse.SC_NOT_FOUND);//404
+            hsr1.sendError(HttpServletResponse.SC_NOT_FOUND,"provider not found");//404
         } else if (ae instanceof DisabledException) {
             hsr1.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);//501
         } else if (ae instanceof LockedException) {

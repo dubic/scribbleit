@@ -14,15 +14,14 @@
                 <label class="control-label visible-ie8 visible-ie9">Username</label>
                 <div class="input-icon">
                     <i class="icon-user"></i>
-                    <!--<input class="form-control placeholder-no-fix" type="text" autocomplete="off" placeholder="Username" name="username"/>-->
-                    <input type="email" class="form-control" placeholder="email" name="lemail" autocomplete="off"/>
+                    <input type="email" class="form-control" placeholder="email" name="email" autocomplete="off"  ng-model="user.email"/>
                 </div>
             </div>
             <div class="form-group">
                 <label class="control-label visible-ie8 visible-ie9">Password</label>
                 <div class="input-icon">
                     <i class="icon-lock"></i>
-                    <input type="password" class="form-control" placeholder="password" name="lpassword" />
+                    <input type="password" class="form-control" placeholder="password" name="password" ng-model="user.password"/>
                 </div>
             </div>
             <div class="form-actions">

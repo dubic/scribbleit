@@ -5,7 +5,14 @@
 --%>
 
 <header ng-controller="headerCtrl">
-
+    <style>
+        .username{
+            margin: 0px 5px;
+        }
+        .label-link:hover{
+            text-decoration: none;
+        }
+    </style>
     <div class="middle-page" >
         <div class="row">
             <div class="col-md-3">
@@ -32,9 +39,21 @@
             </div>
             <div class="col-md-3">
                 <!--<button class="btn" ng-click="testDialog()">close</button>-->
-                <div class="pull-right">
-                    <a href="#/login" class="margin-right-10">login</a>
-                    <a href="#/signup">sign up</a>
+                <div class="pull-right" ng-hide="isAuthenticated">
+                    <a href="#/login" class="margin-right-10 badge badge-primary">sign in</a>
+                    <a href="#/signup" class="badge badge-primary">sign up</a>
+                </div>
+                <div class="pull-right" ng-show="isAuthenticated">
+                    <a href="#" class="dropdown-toggle label-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                        <img alt="" class="circle" width="30" height="30" src="{{imagePath}}/{{userDetails.picture}}">
+                        <span class="username" ng-bind="userDetails.screenName"></span>
+                        <i class="icon-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#/profile"><i class="icon-user"></i> My Account</a></li>
+                        <li class="divider"></li>
+                        <li><a href="" ng-click="logout()"><i class="icon-key"></i> Log Out</a></li>
+                    </ul>
                 </div>
             </div>
 

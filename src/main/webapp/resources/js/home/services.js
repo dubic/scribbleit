@@ -15,6 +15,7 @@ app.factory('services', function($http,$timeout) {
     
     var views = ['jokes', 'quotes', 'proverbs'];
     
+    
     factory.notify = function(msg,scope) {
         scope.notif = msg;
         $timeout(function() {
@@ -31,6 +32,9 @@ app.factory('services', function($http,$timeout) {
         });
         return a;
     };
+    
+    factory.isAuthenticated = false;
+    
 
     factory.table = function(callback) {
         var table = {
