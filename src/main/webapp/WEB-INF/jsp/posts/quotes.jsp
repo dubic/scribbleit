@@ -7,7 +7,7 @@
 <section class="post-container" ng-repeat="quote in quotes">
     <div class="row">
         <div class="col-md-1">
-            <img src="{{quote.imageURL}}" class="poster-img" width="60" height="60"/>
+            <img src="{{imagePath}}/{{quote.imageURL}}" class="poster-img" width="60" height="60"/>
         </div>
         <div  class="col-md-11">
             

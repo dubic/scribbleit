@@ -6,7 +6,7 @@
 <section class="post-container" ng-repeat="prov in proverbs">
     <div class="row">
         <div class="col-md-1">
-            <img src="{{prov.imageURL}}" class="poster-img" width="60" height="60"/>
+            <img src="{{imagePath}}/{{prov.imageURL}}" class="poster-img" width="60" height="60"/>
         </div>
         <div  class="col-md-10">
             <div><a href="#/profile/{{prov.poster}}" class="person" ng-bind="prov.poster"></a></div>

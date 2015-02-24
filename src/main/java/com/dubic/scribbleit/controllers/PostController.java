@@ -5,11 +5,14 @@
  */
 package com.dubic.scribbleit.controllers;
 
+import com.dubic.scribbleit.dto.PostData;
+import com.dubic.scribbleit.models.Post;
 import com.dubic.scribbleit.models.User;
-import com.dubic.scribbleit.models.Joke;
 import com.dubic.scribbleit.posts.JokeService;
 import com.dubic.scribbleit.posts.PostException;
+import com.dubic.scribbleit.posts.PostService;
 import com.dubic.scribbleit.utils.IdmUtils;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.io.FileInputStream;
@@ -38,7 +41,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-/**usr/share/apache-tomcat-7.0.54/webapps/scribbleit/WEB-INF/classes/com/dubic/scribbleit/controllers
+/**
+ * usr/share/apache-tomcat-7.0.54/webapps/scribbleit/WEB-INF/classes/com/dubic/scribbleit/controllers
  *
  * @author dubem
  */
@@ -48,15 +52,14 @@ public class PostController {
 
     private final Logger log = Logger.getLogger(getClass());
     @Autowired
-    private JokeService jokeService;
+    private PostService postService;
     @Value("${picture.location}")
     private String picturePath;
-    
-    @RequestMapping("/load")
-    public String loadjokes(@RequestParam("page") String page){
-        return "posts/"+page;
+
+    @RequestMapping("/view")
+    public String loadjokes(@RequestParam("page") String page) {
+        return "posts/" + page;
     }
-    
 
     @RequestMapping(value = {"/img/{pic}"})
     public void processImage(HttpServletRequest request, HttpServletResponse response, @PathVariable("pic") String picId) {
@@ -69,7 +72,7 @@ public class PostController {
                 IOUtils.copy(new FileInputStream(picturePath + picId), responseStream);
             } else {
                 //send avatar
-                IOUtils.copy(new FileInputStream(picturePath+"male.jpg"), responseStream);
+                IOUtils.copy(new FileInputStream(picturePath + "male.jpg"), responseStream);
             }
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
@@ -82,72 +85,65 @@ public class PostController {
         }
     }
 
-    @RequestMapping("/jokes/{start}/{size}")
+    @RequestMapping("/new/{type}")
     public @ResponseBody
-    JsonArray loadJokes(@PathVariable("start") int start, @PathVariable("size") int size) {
-        JsonArray array = new JsonArray();
+    JsonObject newpost(@RequestBody PostData postData,@PathVariable("type") String type) {
+        JsonObject resp = new JsonObject();
         try {
-            List<Object[]> latestJokes = jokeService.getLatestPosts(start, size);
-            for (Object[] res : latestJokes) {
-                JsonObject ob = new JsonObject();
-
-                ob.addProperty("id", (Long) res[0]);
-                ob.addProperty("dislikes", (Integer) res[3]);
-                ob.addProperty("likes", (Integer) res[2]);
-                ob.addProperty("duration", IdmUtils.formatDate((Date) res[4]));
-                ob.addProperty("post", (String) res[1]);
-                ob.addProperty("poster", (String) res[5]);
-                ob.addProperty("imageURL", "/scribbleit/posts/img/" + res[6]);
-                ob.addProperty("commentsLength", jokeService.countComments((Long) res[0]));
-//                ob.put("commentsLoaded", false);
-                array.add(ob);
-            }
-        } catch (Exception e) {
-            log.fatal(e.getMessage(), e);
-        }
-        return array;
-    }
-
-    @RequestMapping("/jokes/like/{id}")
-    public @ResponseBody
-    ObjectNode likeJoke(@PathVariable("id") Long id) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
+            Post p = postService.savePost(postData,type);
+            JsonObject job = new JsonObject();
+            job.addProperty("id", p.getId());
+            job.addProperty("title", p.getTitle());
+            job.addProperty("post", p.getText());
+            job.addProperty("source", p.getSource());
+            job.add("tags", new Gson().toJsonTree(p.getTags().split(",")));
+            job.addProperty("duration", IdmUtils.formatDate(p.getPostedDate().getTime()));
+            job.addProperty("poster", p.getUser().getScreenName());
+            job.addProperty("imageURL", p.getUser().getPicture());
+            job.addProperty("likes", 0);
+            job.addProperty("commentsLength", 0);
+            job.add("comments", new Gson().toJsonTree(new Object[]{}));
+            
+            resp.addProperty("code", 0);
+            resp.add("post", job);
+            
+        } catch (PersistenceException ex) {
+            log.fatal(ex);
+            resp.addProperty("code", 500);
+        } catch (PostException ex) {
             log.warn(ex.getMessage());
+            resp.addProperty("code", 403);
         }
-        ObjectMapper m = new ObjectMapper();
-        ObjectNode ob = m.createObjectNode();
-        try {
-            Joke j = jokeService.like(id);
-            updateJoke(j, ob);
-
-        } catch (Exception e) {
-            log.fatal(e.getMessage(), e);
-        }
-        return ob;
+        return resp;
     }
 
-    @RequestMapping("/jokes/dislike/{id}")
+    @RequestMapping("/load/{type}")
     public @ResponseBody
-    ObjectNode dislikeJoke(@PathVariable("id") Long id) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            log.warn(ex.getMessage());
-        }
-        ObjectMapper m = new ObjectMapper();
-        ObjectNode ob = m.createObjectNode();
-        try {
-            Joke j = jokeService.dislike(id);
-            updateJoke(j, ob);
-
-        } catch (Exception e) {
-            log.fatal(e.getMessage(), e);
-        }
-        return ob;
+    JsonArray loadPostsByType(@PathVariable("type") String type,
+            @RequestParam(value = "start", defaultValue = "0") int start,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return postService.queryLatestPosts(type, start, size);
     }
 
+//    @RequestMapping("/jokes/like/{id}")
+//    public @ResponseBody
+//    ObjectNode likeJoke(@PathVariable("id") Long id) {
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException ex) {
+//            log.warn(ex.getMessage());
+//        }
+//        ObjectMapper m = new ObjectMapper();
+//        ObjectNode ob = m.createObjectNode();
+//        try {
+//            Joke j = jokeService.like(id);
+//            updateJoke(j, ob);
+//
+//        } catch (Exception e) {
+//            log.fatal(e.getMessage(), e);
+//        }
+//        return ob;
+//    }
     @RequestMapping("/jokes/comments/{id}")
     public @ResponseBody
     ArrayNode loadComments(@PathVariable("id") Long id) {
@@ -159,7 +155,7 @@ public class PostController {
         ArrayNode arr = new ObjectMapper().createArrayNode();
 
         try {
-            List<Object[]> comments = jokeService.getComments(id);
+            List<Object[]> comments = postService.getComments(id);
             createCommentsArray(comments, arr);
 
         } catch (Exception e) {
@@ -178,8 +174,8 @@ public class PostController {
         }
         ArrayNode arr = new ObjectMapper().createArrayNode();
         try {
-            jokeService.saveComment(text, id);
-            createCommentsArray(jokeService.getComments(id), arr);
+            postService.saveComment(text, id);
+            createCommentsArray(postService.getComments(id), arr);
         } catch (PersistenceException ex) {
 
         } catch (PostException ex) {
@@ -188,7 +184,7 @@ public class PostController {
         log.debug("posted comment >> " + text);
         return arr;
     }
-    
+
     @RequestMapping("/jokes/report/{id}")
     public @ResponseBody
     ArrayNode comment(@PathVariable("id") Long id, @RequestBody String[] faults) {
@@ -198,33 +194,9 @@ public class PostController {
             log.warn(ex.getMessage());
         }
         ArrayNode arr = new ObjectMapper().createArrayNode();
-        
+
         log.debug("posted faults >> " + Arrays.toString(faults));
         return arr;
-    }
-    
-    @RequestMapping("/jokes/new")
-    public @ResponseBody
-    ArrayNode newpost(@RequestBody String text) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            log.warn(ex.getMessage());
-        }
-        ArrayNode arr = new ObjectMapper().createArrayNode();
-        
-        log.debug("posted >> " + text);
-        return arr;
-    }
-
-    private void updateJoke(Joke j, ObjectNode ob) {
-        ob.put("id", j.getId());
-        ob.put("dislikes", (Integer) j.getDislikes());
-        ob.put("likes", (Integer) j.getLikes());
-        ob.put("duration", IdmUtils.formatDate(j.getEditedDate()));
-        ob.put("post", j.getPost());
-        ob.put("poster", j.getUser().getScreenName());
-        ob.put("imageURL", "/scribbleit/posts/img/" + j.getUser().getPicture());
     }
 
     private void createCommentsArray(List<Object[]> comments, ArrayNode arr) {

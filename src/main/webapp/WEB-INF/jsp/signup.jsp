@@ -34,7 +34,7 @@
             </div>
             <div class="form-group">
                 <span class="error-msg" ng-show="regfrm.vpword.$dirty && regfrm.vpword.$error.match">Passwords do not match</span>
-                <input class="form-control" name="vpword" placeholder="Retype password" type="password" ng-model="user.vpword" match="user.password" ng-focus="alert('welcome')"/>
+                <input class="form-control" name="vpword" placeholder="Retype password" type="password" ng-model="user.vpword" match="user.password"/>
             </div>
 
             <div class="form-actions">

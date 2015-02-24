@@ -5,7 +5,7 @@
 package com.dubic.scribbleit.idm.spi;
 
 import com.dubic.scribbleit.dto.UserData;
-import com.dubic.scribbleit.idm.models.Role;
+import com.dubic.scribbleit.models.Role;
 import com.dubic.scribbleit.models.User;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;

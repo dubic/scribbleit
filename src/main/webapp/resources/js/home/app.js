@@ -9,6 +9,7 @@ app.constant("usersPath", "/scribbleit/users");
 app.constant("regPath", "/scribbleit/registration");
 app.constant("spinner", "/scribbleit/resources/images/spinner.gif");
 app.constant("imagePath", "/scribbleit/posts/img");
+app.constant("postsPath", "/scribbleit/posts");
 
 var ctrls = angular.module('controllers', []);
 //app.controller('headerCtrl',headerCtrl);
@@ -56,19 +57,19 @@ app.config(function($stateProvider, $urlRouterProvider) {
             }).
             state('home.jokes', {
                 url: '/jokes',
-                templateUrl: '/scribbleit/posts/load?page=jokes',
+                templateUrl: '/scribbleit/posts/view?page=jokes',
                 controller: 'jokesCtrl',
                 data: {displayName: 'Jokes'}
             }).
             state('home.proverbs', {
                 url: '/proverbs',
-                templateUrl: '/scribbleit/posts/load?page=proverbs',
+                templateUrl: '/scribbleit/posts/view?page=proverbs',
                 controller: 'provCtrl',
                 data: {displayName: 'Proverbs'}
             }).
             state('home.quotes', {
                 url: '/quotes',
-                templateUrl: '/scribbleit/posts/load?page=quotes',
+                templateUrl: '/scribbleit/posts/view?page=quotes',
                 controller: 'quotesCtrl',
                 data: {displayName: 'Quotes'}
             }).

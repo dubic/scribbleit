@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.dubic.scribbleit.idm.models;
+package com.dubic.scribbleit.models;
 
 import com.google.gson.Gson;
 import java.io.Serializable;
@@ -24,7 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @since idm 1.0.0
  */
 @Entity
-@Table(name = "idm_role")
+@Table(name = "roles")
 @NamedQueries({
     @NamedQuery(name = "role.Find.name", query = "SELECT r FROM Role r WHERE r.name = :name")})
 public class Role implements GrantedAuthority,Serializable {

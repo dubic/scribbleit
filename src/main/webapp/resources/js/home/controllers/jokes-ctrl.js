@@ -5,7 +5,7 @@
  */
 
 
-ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $timeout, spinner) {
+ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $timeout, spinner,postsPath) {
     $scope.$on('newPostBroadcast', function(e, j) {
         console.log(j);
         $scope.jokes.unshift(j);
@@ -87,35 +87,13 @@ ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $tim
     function loadPosts() {
         $rootScope.loading = true;
 
-//        $timeout(function() {
-
-            var r = [{
-                    id: 1,
-                    title: 'Akpos in school',
-                    likes: 6,
-                    duration: '31 dec 2014',
-                    post: 'just another great post',
-                    poster: 'dubine uzuegbu',
-                    imageURL: '/scribbleit/posts/img/male.jpg',
-                    commentsLength: 5,
-                    comments: [],
-                    tags: ['customs', 'akpos', 'politics']
-                }, {
-                    id: 2,
-                    title: 'Ay the comedian',
-                    likes: 3,
-                    duration: '30 dec 2014',
-                    post: 'making sure the posts which are jokes are two in number',
-                    poster: 'remy martin',
-                    imageURL: '/scribbleit/posts/img/male.jpg',
-                    commentsLength: 0,
-                    comments: [],
-                    tags: []
-                }];
+        $http.get(postsPath+'/load/joke?start=0&size=10').success(function(resp) {
             $rootScope.loading = false;//hide loading..
-            $scope.jokes = r;//display jokes
+            $scope.jokes = resp;//display jokes
 
-//        }, 1000);
+        }).error(function(r){
+            $rootScope.loading = false;
+        });
     }
 
     $scope.openReport = function(index) {

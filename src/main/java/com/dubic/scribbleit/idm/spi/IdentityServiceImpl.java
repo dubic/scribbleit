@@ -8,7 +8,7 @@ import com.dubic.scribbleit.db.Database;
 import com.dubic.scribbleit.dto.UserData;
 import com.dubic.scribbleit.email.MailServiceImpl;
 import com.dubic.scribbleit.email.SimpleMailEvent;
-import com.dubic.scribbleit.idm.models.Role;
+import com.dubic.scribbleit.models.Role;
 import com.dubic.scribbleit.models.Token;
 import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.models.Profile;

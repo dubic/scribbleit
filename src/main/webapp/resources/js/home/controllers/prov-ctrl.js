@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-ctrls.controller('provCtrl', function($scope, $http, services, $rootScope, $timeout, spinner) {
+ctrls.controller('provCtrl', function($scope, $http, services, $rootScope, $timeout, spinner,postsPath) {
     $scope.$on('newPostBroadcast', function(e, j) {
 //        console.log(j);
         $scope.proverbs.unshift(j);
@@ -84,37 +84,13 @@ ctrls.controller('provCtrl', function($scope, $http, services, $rootScope, $time
 ///////////////////////////
     function loadPosts() {
         $rootScope.loading = true;
-//        it('should be true',function(){
-//            expect(view).toEqual(0); 
-//        });
-//        $timeout(function() {
-
-            var r = [{
-                    id: 1,
-                    likes: 6,
-                    duration: '31 dec 2014',
-                    post: 'A tree that does not know how to dance will be taught by the wind',
-                    poster: 'dubine uzuegbu',
-                    imageURL: '/scribbleit/posts/img/male.jpg',
-                    commentsLength: 5,
-                    comments: [],
-                    tags: ['Africa', 'akpos', 'politics']
-                }, {
-                    id: 2,
-                    title: 'Ay the comedian',
-                    likes: 3,
-                    duration: '30 dec 2014',
-                    post: 'One does not cut off his nose to spite his face',
-                    poster: 'remy martin',
-                    imageURL: '/scribbleit/posts/img/male.jpg',
-                    commentsLength: 0,
-                    comments: [],
-                    tags: []
-                }];
+            $http.get(postsPath+'/load/proverb?start=0&size=10').success(function(resp) {
             $rootScope.loading = false;//hide loading..
-            $scope.proverbs = r;//display jokes
+            $scope.proverbs = resp;//display jokes
 
-//        }, 1000);
+        }).error(function(r){
+            $rootScope.loading = false;
+        });
     }
 
     $scope.openReport = function(index) {

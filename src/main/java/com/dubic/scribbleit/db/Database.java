@@ -146,12 +146,11 @@ public class Database {
      *
      * @param <T>
      * @param nativeQuery the native query
-     * @param tClass
      * @return a created typed named query
      * @since dubic-database 0.0.2
      */
-    public <T> Query createNativeQuery(String nativeQuery, Class<T> tClass) {
-        return em.createNativeQuery(nativeQuery, tClass);
+    public <T> Query createNativeQuery(String nativeQuery) {
+        return em.createNativeQuery(nativeQuery);
     }
 
     /**

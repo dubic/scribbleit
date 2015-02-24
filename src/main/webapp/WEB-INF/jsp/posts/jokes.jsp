@@ -10,7 +10,7 @@
     </div>
     <div class="row">
         <div class="col-md-1">
-            <img src="{{joke.imageURL}}" class="poster-img" width="60" height="60"/>
+            <img src="{{imagePath}}/{{joke.imageURL}}" class="poster-img" width="60" height="60"/>
         </div>
         <div  class="col-md-10">
             <div><a href="#/profile/{{joke.poster}}" class="person" ng-bind="joke.poster"></a></div>

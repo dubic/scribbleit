@@ -5,8 +5,6 @@
 package com.dubic.scribbleit.models;
 
 import com.dubic.scribbleit.dto.UserData;
-import com.dubic.scribbleit.idm.models.Role;
-import com.dubic.scribbleit.models.Profile;
 import com.dubic.scribbleit.utils.IdmUtils;
 import com.google.gson.Gson;
 import java.io.Serializable;
@@ -169,8 +167,10 @@ public class User implements UserDetails, Serializable {
     }
 
     @OneToMany
-    @JoinTable(name = "idm_user_roles", joinColumns = {
-        @JoinColumn()})
+    @JoinTable(
+      name="user_roles",
+      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+      inverseJoinColumns={@JoinColumn(name="role_id", referencedColumnName="id")})
     public List<Role> getRoles() {
         return roles;
     }

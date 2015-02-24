@@ -6,7 +6,7 @@
 
 package com.dubic.scribbleit.dto;
 
-import com.dubic.scribbleit.models.JKComment;
+import com.dubic.scribbleit.models.Comment;
 import com.dubic.scribbleit.utils.IdmUtils;
 
 /**
@@ -20,7 +20,7 @@ public class CommentData {
     private String imageURL;
     private String poster;
     
-    public CommentData(JKComment c) {
+    public CommentData(Comment c) {
         this.id = c.getId();
         this.text = c.getText();
         this.duration = IdmUtils.convertPostedTime(c.getPostedTime().getTimeInMillis());

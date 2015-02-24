@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -19,38 +21,18 @@ import javax.persistence.Table;
  * @author dubem
  */
 @Entity
-@Table(name="tref")
-public class TRef implements Serializable {
+@Table(name = "likes")
+public class Like implements Serializable{
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id = 1;
+    private Long id;
     
-    @Column(name = "tref",unique = true)
-    private Long ref = 100L;
-
-    public TRef() {
-    }
-
-    public TRef(Long ref) {
-        this.ref = ref;
-    }
-
+    @OneToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
     
-    public Long getRef() {
-        return ref;
-    }
-
-    public void setRef(Long ref) {
-        this.ref = ref;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

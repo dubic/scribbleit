@@ -4,7 +4,7 @@
  */
 package com.dubic.scribbleit.utils;
 
-import com.dubic.scribbleit.idm.models.Role;
+import com.dubic.scribbleit.models.Role;
 import com.dubic.scribbleit.models.User;
 import java.text.DecimalFormat;
 import java.text.ParseException;

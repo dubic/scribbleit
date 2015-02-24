@@ -14,6 +14,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
@@ -29,6 +31,7 @@ public class MediaItem implements Serializable {
     private Long id;
     private String title;
     private String duration;
+    private Post post;
     private String filesize;
     private MediaItem.MIME_TYPE mimeType;
     private int views;
@@ -80,6 +83,17 @@ public class MediaItem implements Serializable {
         this.filesize = filesize;
     }
 
+    @ManyToOne
+    @JoinColumn(name = "post_id",nullable = false)
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "mime_type")
     public MIME_TYPE getMimeType() {
