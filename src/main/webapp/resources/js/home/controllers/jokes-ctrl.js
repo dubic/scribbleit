@@ -37,31 +37,42 @@ ctrls.controller('jokesCtrl', function($scope, $http, services, $rootScope, $tim
 
     $scope.loadComments = function(index) {
         var joke = $scope.jokes[index];
+        joke.loadingComments = true;
+        $http.get(postsPath+'/comments/'+joke.id).success(function(comments) {
+            joke.loadingComments = false;
+            joke.comments = comments;
+            joke.commentsLength = comments.length;
+        }).error(function(r){
+            joke.loadingComments = false;
+        });
         joke.showComments = true;
     };
     $scope.hideComments = function(index) {
         var joke = $scope.jokes[index];
         joke.showComments = false;
     };
+    
     $scope.comment = function(index) {
         var joke = $scope.jokes[index];
         if (angular.isUndefined(joke.myComment))
             return;
         joke.oncomment = true;
-        $timeout(function() {
+        $http.post(postsPath+'/comment/'+joke.id,JSON.stringify(joke.myComment)).success(function(resp) {
+            if(resp.code === 403) {
+                services.notify("Login to continue", $rootScope);
+                $rootScope.route('login');
+                return;
+            }
+            
             joke.oncomment = false;
-            var c = {
-                text: joke.myComment,
-                poster: 'jack bauer',
-                duration: '3 jan 2015',
-                imageURL: '/scribbleit/posts/img/male.jpg'
-            };
-            joke.comments.push(c);
-            joke.commentsLength++;
+            joke.comments = resp.comments;
+            joke.commentsLength = resp.comments.length;
             joke.myComment = '';
             joke.showComments = true;
             joke.makeComment = !joke.makeComment;
-        }, 1000);
+        }).error(function(r){
+            joke.oncomment = false;
+        });
     };
 
 

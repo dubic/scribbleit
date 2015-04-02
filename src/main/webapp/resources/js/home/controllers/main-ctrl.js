@@ -44,9 +44,12 @@ ctrls.controller('mainCtrl', function($scope, $http, $rootScope, $timeout, servi
             tags: $scope.Post.tags ? $scope.Post.tags.split(",") : []
         };
         var TYPE;
-        if ($rootScope.activePage === 'home.jokes') TYPE = 'JOKE';
-        else if ($rootScope.activePage === 'home.proverbs') TYPE = 'PROVERB';
-        else if ($rootScope.activePage === 'home.quotes') TYPE = 'QUOTE';
+        if ($rootScope.activePage === 'home.jokes')
+            TYPE = 'JOKE';
+        else if ($rootScope.activePage === 'home.proverbs')
+            TYPE = 'PROVERB';
+        else if ($rootScope.activePage === 'home.quotes')
+            TYPE = 'QUOTE';
         $http.post(postsPath + '/new/' + TYPE, p).success(function(resp) {
             $scope.newposting = false;
             if (resp.code === 0) {
@@ -57,8 +60,10 @@ ctrls.controller('mainCtrl', function($scope, $http, $rootScope, $timeout, servi
             }
             else if (resp.code === 500)
                 services.notify("Unexpected Error", $rootScope);
-            else if (resp.code === 403)
+            else if (resp.code === 403){
                 services.notify("Login to continue", $rootScope);
+                $rootScope.route('login');
+            }
         }).error(function(r) {
             $scope.newposting = false;
             services.notify("Service unavailable", $rootScope);

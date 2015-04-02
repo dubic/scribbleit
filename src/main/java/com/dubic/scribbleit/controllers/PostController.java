@@ -6,6 +6,7 @@
 package com.dubic.scribbleit.controllers;
 
 import com.dubic.scribbleit.dto.PostData;
+import com.dubic.scribbleit.models.Comment;
 import com.dubic.scribbleit.models.Post;
 import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.posts.JokeService;
@@ -22,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +40,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -87,10 +90,10 @@ public class PostController {
 
     @RequestMapping("/new/{type}")
     public @ResponseBody
-    JsonObject newpost(@RequestBody PostData postData,@PathVariable("type") String type) {
+    JsonObject newpost(@RequestBody PostData postData, @PathVariable("type") String type) {
         JsonObject resp = new JsonObject();
         try {
-            Post p = postService.savePost(postData,type);
+            Post p = postService.savePost(postData, type);
             JsonObject job = new JsonObject();
             job.addProperty("id", p.getId());
             job.addProperty("title", p.getTitle());
@@ -103,16 +106,19 @@ public class PostController {
             job.addProperty("likes", 0);
             job.addProperty("commentsLength", 0);
             job.add("comments", new Gson().toJsonTree(new Object[]{}));
-            
+
             resp.addProperty("code", 0);
             resp.add("post", job);
-            
+
         } catch (PersistenceException ex) {
             log.fatal(ex);
             resp.addProperty("code", 500);
         } catch (PostException ex) {
             log.warn(ex.getMessage());
             resp.addProperty("code", 403);
+        } catch (Exception ex) {
+            log.fatal(ex.getMessage(), ex);
+            resp.addProperty("code", 500);
         }
         return resp;
     }
@@ -144,50 +150,34 @@ public class PostController {
 //        }
 //        return ob;
 //    }
-    @RequestMapping("/jokes/comments/{id}")
+    @RequestMapping(value = "/comments/{id}",method = RequestMethod.GET)
     public @ResponseBody
-    ArrayNode loadComments(@PathVariable("id") Long id) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            log.warn(ex.getMessage());
-        }
-        ArrayNode arr = new ObjectMapper().createArrayNode();
-
-        try {
-            List<Object[]> comments = postService.getComments(id);
-            createCommentsArray(comments, arr);
-
-        } catch (Exception e) {
-            log.fatal(e.getMessage(), e);
-        }
-        return arr;
+    JsonArray loadComments(@PathVariable("id") Long id) {
+       return postService.getComments(id);
     }
 
-    @RequestMapping("/jokes/comment/{id}")
+    @RequestMapping("/comment/{id}")
     public @ResponseBody
-    ArrayNode comment(@PathVariable("id") Long id, @RequestBody String text) {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            log.warn(ex.getMessage());
-        }
-        ArrayNode arr = new ObjectMapper().createArrayNode();
+    JsonObject comment(@PathVariable("id") Long id, @RequestBody String text) {
+        JsonObject resp = new JsonObject();
         try {
             postService.saveComment(text, id);
-            createCommentsArray(postService.getComments(id), arr);
-        } catch (PersistenceException ex) {
 
+            resp.addProperty("code", 0);
+            resp.add("comments", postService.getComments(id));
         } catch (PostException ex) {
-
+            log.warn(ex.getMessage());
+            resp.addProperty("code", 403);
+        } catch (EntityNotFoundException ex) {
+            log.warn(ex.getMessage());
+            resp.addProperty("code", 404);
         }
-        log.debug("posted comment >> " + text);
-        return arr;
+        return resp;
     }
 
     @RequestMapping("/jokes/report/{id}")
     public @ResponseBody
-    ArrayNode comment(@PathVariable("id") Long id, @RequestBody String[] faults) {
+    ArrayNode report(@PathVariable("id") Long id, @RequestBody String[] faults) {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ex) {

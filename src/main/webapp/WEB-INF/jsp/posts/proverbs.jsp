@@ -45,10 +45,10 @@
             <a href="" ng-click="hideComments($index)" ng-hide="!prov.showComments">hide comments</a>
             <img ng-show="prov.loadingComments" src="{{spinner}}"/>
         </span>
-        <div ng-cloak ng-show="prov.showComments">
+        <div class="col-md-10 col-lg-offset-1" ng-cloak ng-show="prov.showComments">
             <div class="row comment" ng-repeat="comment in prov.comments">
                 <div class="col-md-1">
-                    <img src="{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
+                    <img src="{{imagePath}}/{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
                 </div>
                 <div class="col-md-9">
                     <div class="row">
@@ -64,13 +64,16 @@
     </div>
     <!--COMMENT TEXT BLOCK-->
     <div class="my-comment" collapse="!prov.makeComment">
-        <div class="row"><div class="col-md-12"><textarea ng-model="prov.myComment" style="width: 100%" placeholder="comment on this joke"></textarea></div></div>
-        <div class="pull-right margin-top-10">
-            <button class="btn btn-warning btn-sm" ng-click="prov.makeComment = !prov.makeComment" ng-hide="prov.oncomment">cancel</button>
-            <button class="btn btn-info btn-sm" ng-click="comment($index)" ng-hide="prov.oncomment">comment</button>
-            <span ng-show="prov.oncomment"><img src="{{spinner}}"/> saving comment...</span>
+        <div class="row">
+            <div class="col-md-10 col-lg-offset-1"><textarea ng-model="prov.myComment" style="width: 100%" placeholder="comment on this joke"></textarea></div>
         </div>
-        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-10 col-lg-offset-1 margin-top-10">
+                <button class="btn btn-warning btn-sm" ng-click="prov.makeComment = !prov.makeComment" ng-hide="prov.oncomment">cancel</button>
+                <button class="btn btn-info btn-sm" ng-click="comment($index)" ng-hide="prov.oncomment">comment</button>
+                <span ng-show="prov.oncomment"><img src="{{spinner}}"/> saving comment...</span>
+            </div>
+        </div>
     </div>
 
 

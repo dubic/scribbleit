@@ -20,13 +20,13 @@
 
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor">
-        <property name="defaultPersistenceUnitName" value="scribbleitPU" />
+        <property name="defaultPersistenceUnitName" value="selfcarePU" />
     </bean>
 
 
 
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="scribbleitPU" />
+        <property name="persistenceUnitName" value="selfcarePU" />
         <property name="dataSource" ref="dataSource" />
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
@@ -70,7 +70,7 @@
         <property name="timeBetweenEvictionRunsMillis" value="5000"/>
         <property name="minEvictableIdleTimeMillis" value="5000"/>
         <property name="validationInterval" value="1800000"/>
-        <property name="validationQuery" value="SELECT 1"/>
+        <!--<property name="validationQuery" value="SELECT 1"/>-->
     </bean>
     <bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
         <property name="poolProperties" ref="poolProperties"/>

@@ -21,6 +21,7 @@ import com.google.gson.JsonPrimitive;
 import java.util.Date;
 import java.util.List;
 import javax.inject.Named;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,8 +94,21 @@ public class PostService {
         return p;
     }
 
-    public Comment saveComment(String comment, Long postId) throws PersistenceException, PostException {
-        throw new UnsupportedOperationException("not yet implemented");
+    public Comment saveComment(String comment, Long postId) throws PersistenceException, EntityNotFoundException, PostException {
+        log.debug(String.format("saveComment(%s,%d)", comment, postId));
+        User user = idmService.getUserLoggedIn();
+        if (user == null) {
+            throw new PostException("please log in to continue");
+        }
+        //get post
+        Post post = db.find(Post.class, postId);
+        //add comment to post
+        Comment c = new Comment(post);
+        c.setText(comment);
+        c.setUser(user);
+        db.persist(c);
+        log.info(String.format("Comment saved by [%s]", user.getScreenName()));
+        return c;
     }
 
 //    public List<Comment> getComments(Long postId) throws PersistenceException, PostException;
@@ -126,8 +140,22 @@ public class PostService {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-    public List<Object[]> getComments(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public JsonArray getComments(Long id) {
+        String sql = "select c.id,c.posted,c.text,u.screen_name,u.picture from comments c,users u \n"
+                + "where c.user_id=u.id and c.post_id='%d'\n"
+                + "order by c.posted desc";
+        List<Object[]> resultList = db.createNativeQuery(String.format(sql, id)).getResultList();
+        JsonArray array = new JsonArray();
+        for (Object[] o : resultList) {
+            JsonObject job = new JsonObject();
+            job.addProperty("id", (Long)o[0]);
+            job.addProperty("text", (String)o[2]);
+            job.addProperty("poster", (String)o[3]);
+            job.addProperty("imageURL", (String)o[4]);
+            job.addProperty("duration", IdmUtils.formatDate((Date)o[1]));
+            array.add(job);
+        }
+        return array;
     }
 
 }

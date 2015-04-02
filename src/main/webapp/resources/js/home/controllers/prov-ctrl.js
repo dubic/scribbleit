@@ -46,20 +46,22 @@ ctrls.controller('provCtrl', function($scope, $http, services, $rootScope, $time
         if (angular.isUndefined(proverb.myComment))
             return;
         proverb.oncomment = true;
-        $timeout(function() {
+        $http.post(postsPath+'/comment/'+proverb.id,JSON.stringify(proverb.myComment)).success(function(resp) {
+            if(resp.code === 403) {
+                services.notify("Login to continue", $rootScope);
+                $rootScope.route('login');
+                return;
+            }
+            
             proverb.oncomment = false;
-            var c = {
-                text: proverb.myComment,
-                poster: 'jack bauer',
-                duration: '3 jan 2015',
-                imageURL: '/scribbleit/posts/img/male.jpg'
-            };
-            proverb.comments.push(c);
-            proverb.commentsLength++;
+            proverb.comments = resp.comments;
+            proverb.commentsLength = resp.comments.length;
             proverb.myComment = '';
             proverb.showComments = true;
             proverb.makeComment = !proverb.makeComment;
-        }, 1000);
+        }).error(function(r){
+            proverb.oncomment = false;
+        });
     };
 
 

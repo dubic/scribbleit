@@ -50,7 +50,7 @@
         <div ng-cloak ng-show="quote.showComments">
             <div class="row comment" ng-repeat="comment in quote.comments">
                 <div class="col-md-1">
-                    <img src="{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
+                    <img src="{{imagePath}}/{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
                 </div>
                 <div class="col-md-9">
                     <div class="row">

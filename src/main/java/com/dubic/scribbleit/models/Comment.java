@@ -57,6 +57,14 @@ public class Comment implements Serializable {
     private Post post;
     
 //    =================================================
+    
+    public Comment() {
+        
+    }
+    public Comment(Post p) {
+        this.post = p;
+    }
+    
     public Long getId() {
         return id;
     }
