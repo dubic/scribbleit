@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div class="modal fade"  id="socAcctModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog" style="min-width: 40%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close dlg-close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" id="myModalLabel">{{soc.account_type}} Account</h4>
+            </div>
+
+            <form name="socfrm">
+                <div class="modal-body">
+                    <div ng-repeat="a in socAlerts" class="alert {{a.class}}">{{a.msg}}</div>
+                    <img ng-src="{{soc.pix}}" width="100" height="100"/>
+                    <h5>Please choose a username</h5>
+
+                    <div class="form-group">
+                        <span class="error-msg" ng-show="socfrm.name.$dirty && socfrm.name.$error.required">A Username is required</span>
+                        <span class="error-msg" ng-show="socfrm.name.$dirty && socfrm.name.$error.minlength">Must be more than 3 characters</span>
+                        <span class="error-msg" ng-show="socfrm.name.$dirty && socfrm.name.$error.maxlength">Must not be more than 20 characters</span>
+                        <span class="error-msg" ng-show="socfrm.name.$dirty && socfrm.name.$error.ngRemoteValidate">Screen name already used</span>
+                        <span class="error-msg" ng-show="socfrm.name.$dirty && socfrm.name.$error.pattern">Alphanumeric characters only</span>
+                        <input class="form-control" ng-class="{'spinner':socfrm.name.$pending}" name="name" placeholder="Username" type="text" ng-pattern="/^[a-z0-9]+$/i"
+                               ng-model="soc.username" required ng-minlength="4" ng-maxlength="20" ng-remote-validate="/scribbleit/users/name-unique" ng-remote-throttle="1000"/>
+                    </div>
+                    
+                    <p ng-if="soc.hasEmail">No email address was found in your {{soc.account_type}} account. Your account email will be <b>{{soc.email}}</b> which you are required to change in your profile settings </p>
+
+                </div>
+                <div class="modal-footer">
+                    
+                    <button class="btn btn-info btn-sm" ng-disabled="socfrm.$invalid || creating" ng-click="createSocialAccount()">
+                        <span ng-hide="creating">Create Account</span>
+                        <span ng-show="creating">Creating...</span>
+                    </button>
+                    <button type="button" class="btn btn-warning btn-sm dlg-close" data-dismiss="modal">cancel</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>

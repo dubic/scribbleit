@@ -24,12 +24,6 @@ public class HomeController {
     public String welcome() {
         return "app";
     }
-
-    @RequestMapping("/home")
-    public String home() {
-        return "home";
-    }
-    
     
 
     @RequestMapping("/angular")

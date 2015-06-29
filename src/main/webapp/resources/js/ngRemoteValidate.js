@@ -113,6 +113,7 @@
                                 l = options.urls.length,
                                 toValidate = { value: value },
                                 httpOpts = { method: options.ngRemoteMethod };
+                                httpOpts.headers= {'Content-Type': 'application/json'};
                             
                             if ( scope[ el[0].name + 'SetArgs' ] ) {
                                 toValidate = scope[el[0].name + 'SetArgs'](value, el, attrs, ngModel);

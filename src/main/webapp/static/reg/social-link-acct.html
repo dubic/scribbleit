@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div class="modal fade"  id="linkAcctModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog" style="min-width: 40%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close dlg-close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" id="myModalLabel">{{sl.account_type}} Account</h4>
+            </div>
+            <div class="modal-body">
+                <div ng-repeat="a in slAlerts" class="alert {{a.class}}">{{a.msg}}</div>
+
+                <h5>An account with <b ng-bind="sl.email"></b> already exists. Enter your credentials to link this account to your {{sl.account_type}} account</h5>
+                <form name="slfrm">
+
+                    <div class="form-group">
+                        <input class="form-control" disabled ng-model="sl.email"/>
+                    </div>
+                    <div class="form-group">
+                        <span class="error-msg" ng-show="slfrm.pword.$dirty && slfrm.pword.$error.required">Password is required</span>
+                        <input class="form-control" name="pword" placeholder="Password" type="password" ng-model="sl.password" required/>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info btn-sm" ng-disabled="socfrm.$invalid || linking" ng-click="linkAccount()">
+                    <span ng-hide="linking">Link Account</span>
+                    <span ng-show="linking">saving...</span>
+                </button>
+                <button type="button" class="btn btn-warning btn-sm dlg-close" data-dismiss="modal">cancel</button>
+            </div>
+
+        </div>
+    </div>
+</div>

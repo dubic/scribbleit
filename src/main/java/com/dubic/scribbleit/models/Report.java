@@ -19,7 +19,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  *
@@ -31,8 +30,7 @@ public class Report implements Serializable {
 
     private Long id;
     private Long postId;
-    private String postClass;
-    private String reasons;//comma separated
+    private boolean offensive, sexual, violent, hateful, harmful, childAbuse, spam = false;
     private User reporter;
     private Date createDate = new Date();
     private Date handledDate;
@@ -41,7 +39,7 @@ public class Report implements Serializable {
 
     public enum Action {
 
-        IGNORED, BLOCKED
+        IGNORED, BLOCKED, NEW
     }
 
     @Id
@@ -65,29 +63,73 @@ public class Report implements Serializable {
         this.postId = postId;
     }
 
-    @NotEmpty(message = "reported post class must not be null or empty string")
-    @Column(name = "post_class", nullable = false)
-    public String getPostClass() {
-        return postClass;
-    }
-
-    public void setPostClass(String postClass) {
-        this.postClass = postClass;
-    }
-
-    @Column(name = "reasons")
-    public String getReasons() {
-        return reasons;
-    }
-
-    public void setReasons(String reasons) {
-        this.reasons = reasons;
-    }
-
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = true)
     public User getReporter() {
         return reporter;
+    }
+
+    @Column(name = "offensive")
+    public boolean isOffensive() {
+        return offensive;
+    }
+
+    public void setOffensive(boolean offensive) {
+        this.offensive = offensive;
+    }
+
+    @Column(name = "sexual")
+    public boolean isSexual() {
+        return sexual;
+    }
+
+    public void setSexual(boolean sexual) {
+        this.sexual = sexual;
+    }
+
+    @Column(name = "violent")
+    public boolean isViolent() {
+        return violent;
+    }
+
+    public void setViolent(boolean violent) {
+        this.violent = violent;
+    }
+
+    @Column(name = "hateful")
+    public boolean isHateful() {
+        return hateful;
+    }
+
+    public void setHateful(boolean hateful) {
+        this.hateful = hateful;
+    }
+
+    @Column(name = "harmful")
+    public boolean isHarmful() {
+        return harmful;
+    }
+
+    public void setHarmful(boolean harmful) {
+        this.harmful = harmful;
+    }
+
+    @Column(name = "childAbuse")
+    public boolean isChildAbuse() {
+        return childAbuse;
+    }
+
+    public void setChildAbuse(boolean childAbuse) {
+        this.childAbuse = childAbuse;
+    }
+
+    @Column(name = "spam")
+    public boolean isSpam() {
+        return spam;
+    }
+
+    public void setSpam(boolean spam) {
+        this.spam = spam;
     }
 
     public void setReporter(User reporter) {
@@ -125,7 +167,7 @@ public class Report implements Serializable {
         this.action = action;
     }
 
-    @Column(name = "ip",length = 20)
+    @Column(name = "ip", length = 20)
     public String getIp() {
         return ip;
     }

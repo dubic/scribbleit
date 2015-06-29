@@ -63,7 +63,10 @@ public class User implements UserDetails, Serializable {
     private String picture;
     private Date lastLoginDate;
     private boolean activated;
+    private boolean locked = false;
     private String phone;
+    private String facebookId;
+    private String googleId;
     private Date createDate = new Date();
     private Date modifiedDate = new Date();
     private Profile profile;
@@ -157,6 +160,15 @@ public class User implements UserDetails, Serializable {
         this.activated = activated;
     }
 
+    @Column(name = "locked")
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
     @Column(unique = true, name = "phone", length = 25)
     public String getPhone() {
         return phone;
@@ -166,11 +178,31 @@ public class User implements UserDetails, Serializable {
         this.phone = phone;
     }
 
+    @Column(unique = true, name = "fb_id")
+    public String getFacebookId() {
+        return facebookId;
+    }
+
+    public void setFacebookId(String facebookId) {
+        this.facebookId = facebookId;
+    }
+
+    @Column(unique = true, name = "gg_id")
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
+    }
+
     @OneToMany
     @JoinTable(
-      name="user_roles",
-      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
-      inverseJoinColumns={@JoinColumn(name="role_id", referencedColumnName="id")})
+            name = "user_roles",
+            joinColumns = {
+                @JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {
+                @JoinColumn(name = "role_id", referencedColumnName = "id")})
     public List<Role> getRoles() {
         return roles;
     }
@@ -216,7 +248,6 @@ public class User implements UserDetails, Serializable {
     }
 
     @Size(min = 6, max = 255, message = "password must be between 6 - 255 chars")
-    @NotEmpty(message = "User must have a password")
     @Column(name = "password")
     @Override
     public String getPassword() {
@@ -255,6 +286,27 @@ public class User implements UserDetails, Serializable {
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final User other = (User) obj;
+        if (this.id != other.id && (this.id == null || !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
     }
 
     public static void main(String[] agggh) {

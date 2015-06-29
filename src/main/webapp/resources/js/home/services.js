@@ -3,28 +3,44 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-app.factory('services', function($http,$timeout) {
+app.factory('services', function ($http, $timeout, $rootScope) {
     var factory = {};
-    factory.openDialog = function(id){
-        $('#'+id).modal({backdrop : "static"});
+    factory.openDialog = function (id) {
+        $('#' + id).modal({backdrop: "static"});
     };
-    factory.closeDialog = function(id){
-        $('#'+id).modal('hide');
+    factory.closeDialog = function (id) {
+//        $timeout(function () {
+        $('#' + id).modal('hide');
+//        }, 1000);
     };
-    
-    
-    var views = ['jokes', 'quotes', 'proverbs'];
-    
-    
-    factory.notify = function(msg,scope) {
-        scope.notif = msg;
-        $timeout(function() {
-                scope.notif = undefined;
-            },2000);
+
+    factory.openModal = function (id) {
+        $('#' + id).css('display', 'block').addClass('in');
+        $('body').addClass('modal-open').append('<div class="modal-backdrop fade in"></div>');
+        $('#' + id).find('.dlg-close').click(function () {
+            $('#' + id).css('display', 'none').removeClass('in');
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+        });
     };
-    factory.buildAlerts = function(msgs) {
+
+    factory.closeModal = function (id) {
+        $('#' + id).css('display', 'none').removeClass('in');
+        $('body').removeClass('modal-open');
+        $('.modal-backdrop').remove();
+    };
+
+
+
+    factory.notify = function (msg) {
+        $rootScope.notif = msg;
+        $timeout(function () {
+            $rootScope.notif = undefined;
+        }, 2000);
+    };
+    factory.buildAlerts = function (msgs) {
         var a = [];
-        $.each(msgs, function(i, m) {
+        $.each(msgs, function (i, m) {
             if (m.code === 0)
                 a.push({class: 'alert-success', msg: m.msg});
             else if (m.code !== 0)
@@ -32,11 +48,11 @@ app.factory('services', function($http,$timeout) {
         });
         return a;
     };
-    
-    factory.isAuthenticated = false;
-    
 
-    factory.table = function(callback) {
+    factory.isAuthenticated = false;
+
+
+    factory.table = function (callback) {
         var table = {
             pending: false,
             pages: [10, 25, 50, 100],
@@ -48,12 +64,12 @@ app.factory('services', function($http,$timeout) {
             fetched: 0,
             filter: '',
             asearch: [],
-            loadCall: function() {
+            loadCall: function () {
                 this.pending = true;
                 callback();
             },
-            init: function() {
-                $.each(this.columns, function(i, col) {
+            init: function () {
+                $.each(this.columns, function (i, col) {
                     if (col.sorting === true) {
                         col.class = 'sorting';
                         if (col.sort === 'asc' || col.sort === 'desc') {
@@ -66,12 +82,12 @@ app.factory('services', function($http,$timeout) {
                 });
                 this.loadCall();
             },
-            update: function(total, rows) {
+            update: function (total, rows) {
                 this.total = total;
                 this.fetched = rows;
 //                    this.asearch = [];
             },
-            sort: function(col) {
+            sort: function (col) {
                 if (!this.columns[col].sorting)
                     return;
                 if (this.sortcol === col)
@@ -84,11 +100,11 @@ app.factory('services', function($http,$timeout) {
                 this.sortclass(col);
                 this.loadCall();
             },
-            unsortclass: function(col) {
+            unsortclass: function (col) {
                 this.columns[col].class = 'sorting';
                 this.columns[col].sort = '';
             },
-            sortclass: function(col) {
+            sortclass: function (col) {
                 if (this.columns[col].sort === 'asc') {
                     this.columns[col].sort = 'desc';
                     this.columns[col].class = 'sorting_desc';
@@ -97,9 +113,9 @@ app.factory('services', function($http,$timeout) {
                     this.columns[col].class = 'sorting_asc';
                 }
             },
-            search: function(searches) {
+            search: function (searches) {
                 var s = [];
-                $.each(searches, function(i, search) {
+                $.each(searches, function (i, search) {
                     if (search.value !== undefined && search.value !== '')
                         s.push(search);
                 });
@@ -107,13 +123,13 @@ app.factory('services', function($http,$timeout) {
                 console.log(this.asearch);
                 this.loadCall();
             },
-            clearSearch: function(searches) {
-                $.each(searches, function(i, search) {
+            clearSearch: function (searches) {
+                $.each(searches, function (i, search) {
                     search.value = '';
                 });
                 this.asearch = [];
             },
-            pageChanged: function() {
+            pageChanged: function () {
                 table.start = (table.page - 1) * table.size;
                 this.loadCall();
             }

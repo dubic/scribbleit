@@ -1,0 +1,86 @@
+<div>
+    <div class="middle-page-2">
+        <div class="loading-screen" ng-show="loadingProfile"></div>
+
+        <div style="padding:20px" ng-hide="profileExists || loadingProfile">
+            <div class="no-profile"><h3>No profile found!</h3></div>
+        </div>
+        <div class="page-container profile" style="padding:20px" ng-show="profileExists && !loadingProfile">
+            <div id="top-profile" class="row margin-bottom-10">
+                <div class="col-md-3">
+                    <div><img ng-src="{{usersPath}}/img/{{Profile.picture}}" width="180" height="200"/></div>
+                    <form enctype="multipart/form-data">
+                        <div ng-if="Profile.isMe">
+                            <div style="width: 180px; margin-top: 10px">
+                                <div style="width:100%;border-radius: 0" class="btn btn-primary" ng-disabled="uploading" ng-file-select ng-file-change="upload($files)">Upload new picture</div>
+
+                                <div style="width: 100%;height: 5px;background: #ddd" ng-show="uploading">
+                                    <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{progressPercentage}}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-9">
+                    <div><h4 ng-bind="Profile.name"></h4></div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="dashboard-stat blue">
+                                <div class="visual"></div>
+                                <div class="details">
+                                    <div class="number">{{Profile.jokes| number}}</div>
+                                    <div class="desc">Jokes</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="dashboard-stat blue">
+                                <div class="visual">
+                                    <!--                                    <i class="icon-comments"></i>-->
+                                </div>
+                                <div class="details">
+                                    <div class="number">{{Profile.proverbs| number}}</div>
+                                    <div class="desc">Proverbs</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="dashboard-stat blue">
+                                <div class="visual"></div>
+                                <div class="details">
+                                    <div class="number">{{Profile.quotes| number}}</div>
+                                    <div class="desc">Quotes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <hr>
+            <!--PROFILE BODY-->
+            <div id="body-profile" class="row">
+                <!--TAB LINKS COLUMN-->
+                <div id="about_div" class="col-md-3">
+                    <ul class="ver-inline-menu tabbable margin-bottom-10">
+                        <li class="active">
+                            <a data-toggle="tab" href="" ng-click="navigate('profile.activity')"><i class="icon-cog"></i> Activity</a> 
+                            <span class="after"></span>                                    
+                        </li>
+                        <li class=""><a data-toggle="tab" href="" ng-click="navigate('profile.account')"><i class="icon-picture"></i> Account</a></li>
+                        <!--<div ng-if="Profile.isMe">-->
+                            <li class="" ng-if="Profile.isMe"><a data-toggle="tab" href="" ng-click="navigate('profile.pword')"><i class="icon-lock"></i> Change Password</a></li>
+                            <li class="" ng-if="Profile.isMe"><a data-toggle="tab" href="" ng-click="navigate('profile.email')"><i class="icon-envelope"></i> Change Email</a></li>
+                        <!--</div>-->
+                    </ul>
+                </div>
+                <!--TAB CONTENTS-->
+                <div class="col-md-9">
+                    <ui-view></ui-view>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

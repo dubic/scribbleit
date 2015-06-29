@@ -5,26 +5,32 @@
  */
 package com.dubic.scribbleit.posts;
 
+import com.dubic.scribbleit.application.CronFactory;
 import com.dubic.scribbleit.db.Database;
 import com.dubic.scribbleit.dto.PostData;
 import com.dubic.scribbleit.idm.spi.IdentityService;
 import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.models.Comment;
+import com.dubic.scribbleit.models.MediaItem;
 import com.dubic.scribbleit.models.Post;
 import com.dubic.scribbleit.models.Profile;
+import com.dubic.scribbleit.models.Report;
 import com.dubic.scribbleit.models.Tag;
+import com.dubic.scribbleit.utils.HClient;
 import com.dubic.scribbleit.utils.IdmUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.inject.Named;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -39,13 +45,25 @@ public class PostService {
     @Autowired
     private Database db;
     @Autowired
+    private CronFactory cronFactory;
+    @Autowired
     private IdentityService idmService;
+    @Value("${bucket.url.add}")
+    private String s3url;
 
-    public JsonArray queryLatestPosts(String type, int start, int size) throws PersistenceException {
+    @PostConstruct
+    public void started() {
+        log.info(String.format("%s CREATED", getClass().getSimpleName()));
+        log.info(String.format("bucket.url.add = %s", s3url));
+    }
+
+    public JsonObject queryLatestPosts(String type, int start, int size, Long id) throws PersistenceException {
         log.debug(String.format("queryLatestPosts(%s,%d,%d)", type, start, size));
-        String sql = "select p.id,p.title,p.post,p.source,p.tags,p.posted_date,u.screen_name,u.picture,count(l.id),count(c.id) \n"
+        JsonObject resp = new JsonObject();
+        String mark = id == 0 ? "" : " and p.id <= " + id;
+        String sql = "select p.id,p.title,p.post,p.source,p.tags,p.posted_date,u.screen_name,u.picture,count(l.id),count(c.id),p.media_id\n"
                 + "from posts p LEFT JOIN users u on p.user_id=u.id LEFT JOIN likes l on p.id=l.post_id LEFT JOIN comments c on p.id=c.post_id\n"
-                + "where p.type='%s'\n"
+                + "where p.type='%s' and p.blocked=false "+mark+"\n"
                 + "group by p.id\n"
                 + "order by p.posted_date desc";
         List<Object[]> resultList = db.createNativeQuery(String.format(sql, type)).setFirstResult(start).setMaxResults(size).getResultList();
@@ -56,20 +74,24 @@ public class PostService {
             job.addProperty("title", (String) object[1]);
             job.addProperty("post", (String) object[2]);
             job.addProperty("source", (String) object[3]);
-            job.add("tags", new Gson().toJsonTree(((String) object[4]).split(",")));
+            String tags = ((String) object[4]);
+            job.add("tags", new Gson().toJsonTree((tags == null ? "" : tags).split(",")));
             job.addProperty("duration", IdmUtils.formatDate((Date) object[5]));
             job.addProperty("poster", (String) object[6]);
             job.addProperty("imageURL", (String) object[7]);
             job.addProperty("likes", (Long) object[8]);
             job.addProperty("commentsLength", (Long) object[9]);
             job.add("comments", new Gson().toJsonTree(new Object[]{}));
+            job.addProperty("image", (String) object[10]);
             array.add(job);
         }
-        return array;
+        resp.add("posts", array);
+        resp.addProperty("total", db.countNative("select count(p.id) from posts p where p.type='"+type+"' and p.blocked=false "+mark));
+        return resp;
     }
 
     @Transactional
-    public Post savePost(PostData data, String type) throws PersistenceException, PostException {
+    public Post savePost(PostData data, String type) throws PersistenceException, PostException, IOException, Exception {
         log.debug(String.format("savePost(%s,%s)", new Gson().toJson(data), type));
         User user = idmService.getUserLoggedIn();
         if (user == null) {
@@ -78,7 +100,29 @@ public class PostService {
         Post p = new Post(data);
         p.setType(Post.Type.valueOf(type));
         p.setUser(user);
+
+        //save media item
+        if (data.getFile() != null) {
+            MediaItem m = new MediaItem();
+            m.setFilesize(data.getFile().getSize());
+            m.setMimeType(data.getFile().getContentType());
+            //post to bucket
+            String title = new HClient().post(data.getFile().getBytes(), s3url);
+            log.info("Posted image to S3 server");
+            p.setMedia(title);
+
+            m.setTitle(title);
+            try {
+                db.persist(m);
+            } catch (Exception e) {
+                cronFactory.deleteImage(title);
+                throw e;
+            }
+        }
+        //save Post
         db.persist(p);
+
+        //update profile
         Profile profile = user.getProfile();
         if (p.getType().equals(Post.Type.JOKE)) {
             profile.setJokes(profile.getJokes() + 1);
@@ -120,8 +164,14 @@ public class PostService {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-    public void reportPost(Long postId, String reasons, String ip) throws PersistenceException {
-        throw new UnsupportedOperationException("not yet implemented");
+    public void reportPost(Report r, String ip) throws PersistenceException {
+        //create a report and save it
+        log.debug(String.format("reportPost(%d,%s", r.getPostId(), ip));
+        r.setAction(Report.Action.NEW);
+        r.setIp(ip);
+        r.setReporter(idmService.getUserLoggedIn());
+        db.persist(r);
+        log.info(String.format("Post Reported %d", r.getPostId()));
     }
 
     public void watchTag(User user, Tag tag) throws PersistenceException {
@@ -148,14 +198,85 @@ public class PostService {
         JsonArray array = new JsonArray();
         for (Object[] o : resultList) {
             JsonObject job = new JsonObject();
-            job.addProperty("id", (Long)o[0]);
-            job.addProperty("text", (String)o[2]);
-            job.addProperty("poster", (String)o[3]);
-            job.addProperty("imageURL", (String)o[4]);
-            job.addProperty("duration", IdmUtils.formatDate((Date)o[1]));
+            job.addProperty("id", (Long) o[0]);
+            job.addProperty("text", (String) o[2]);
+            job.addProperty("poster", (String) o[3]);
+            job.addProperty("imageURL", (String) o[4]);
+            job.addProperty("duration", IdmUtils.formatDate((Date) o[1]));
             array.add(job);
         }
         return array;
+    }
+
+    public JsonArray getLatestsUserPosts(String username, int start, int size) {
+        log.debug(String.format("getLatestsUserPosts(%s,%d,%d)", username, start, size));
+        String sql = "select p.id,p.title,p.post,p.source,p.posted_date,p.type,p.media_id from posts p,users u \n"
+                + "where p.user_id=u.id and u.screen_name='%s' and p.blocked=false\n"
+                + "order by p.posted_date desc";
+        List<Object[]> resultList = db.createNativeQuery(String.format(sql, username)).setFirstResult(start).setMaxResults(size).getResultList();
+        JsonArray array = new JsonArray();
+        for (Object[] object : resultList) {
+            JsonObject job = new JsonObject();
+            job.addProperty("id", (Long) object[0]);
+            job.addProperty("title", (String) object[1]);
+            String text = (String) object[2];
+
+            job.addProperty("source", (String) object[3]);
+            job.addProperty("date", ((Date) object[4]).getTime());
+            job.addProperty("type", (String) object[5]);
+            job.addProperty("image", (String) object[6]);
+            if (text.length() > 200) {
+                job.addProperty("readMore", true);
+                job.addProperty("text", text.substring(0, 199));
+            } else {
+                job.addProperty("readMore", false);
+                job.addProperty("text", text);
+            }
+            array.add(job);
+        }
+        return array;
+    }
+
+    public static void main(String[] args) {
+        String t = "The CPI Communications interface can converse with applications on any system\n"
+                + "that provides an APPC API. This includes applications on CICS platforms. You\n"
+                + "may use APPC API commands on one end of a conversation and CPI\n"
+                + "Communications commands on the other. CPI Communications requires specific\n"
+                + "information (side information) to begin a conversation with a partner program.\n"
+                + "CICS implementation of side information is achieved using the partner resource\n"
+                + "which your system programmer is responsible for maintaining.";
+        System.out.println("len - " + t.length());
+    }
+
+    public JsonArray getPost(Long id) {
+        log.debug(String.format("getPost(%d)", id));
+        String sql = "select p.id,p.title,p.post,p.source,p.tags,p.posted_date,u.screen_name,u.picture,count(l.id),count(c.id),p.media_id\n"
+                + "from posts p LEFT JOIN users u on p.user_id=u.id LEFT JOIN likes l on p.id=l.post_id LEFT JOIN comments c on p.id=c.post_id\n"
+                + "where p.id=%d and p.blocked=false";
+        List<Object[]> resultList = db.createNativeQuery(String.format(sql, id)).getResultList();
+        JsonArray array = new JsonArray();
+        for (Object[] object : resultList) {
+            JsonObject job = new JsonObject();
+            job.addProperty("id", (Long) object[0]);
+            job.addProperty("title", (String) object[1]);
+            job.addProperty("post", (String) object[2]);
+            job.addProperty("source", (String) object[3]);
+            job.add("tags", new Gson().toJsonTree(((String) object[4]).split(",")));
+            job.addProperty("duration", IdmUtils.formatDate((Date) object[5]));
+            job.addProperty("poster", (String) object[6]);
+            job.addProperty("imageURL", (String) object[7]);
+            job.addProperty("likes", (Long) object[8]);
+            job.addProperty("commentsLength", (Long) object[9]);
+            job.add("comments", new Gson().toJsonTree(new Object[]{}));
+            job.addProperty("title", (String) object[10]);
+            array.add(job);
+        }
+        return array;
+
+    }
+
+    public MediaItem findMediaItem(String title) {
+        return IdmUtils.getFirstOrNull(db.createQuery("SELECT m FROM MediaItem m WHERE m.title = :title", MediaItem.class).setParameter("title", title).getResultList());
     }
 
 }

@@ -5,36 +5,52 @@
 package com.dubic.scribbleit.idm.spi;
 
 import com.dubic.scribbleit.db.Database;
+import com.dubic.scribbleit.dto.FBMe;
 import com.dubic.scribbleit.dto.UserData;
 import com.dubic.scribbleit.email.MailServiceImpl;
-import com.dubic.scribbleit.email.SimpleMailEvent;
 import com.dubic.scribbleit.models.Role;
 import com.dubic.scribbleit.models.Token;
 import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.models.Profile;
 import com.dubic.scribbleit.utils.IdmCrypt;
 import com.dubic.scribbleit.utils.IdmUtils;
+import com.dubic.scribbleit.utils.InvalidException;
 import com.google.gson.Gson;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
 import javax.inject.Named;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
+import javax.persistence.TypedQuery;
 import javax.validation.ConstraintViolationException;
 import javax.xml.bind.JAXB;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.ProviderNotFoundException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * performs all identity management ops.
@@ -56,13 +72,20 @@ public class IdentityServiceImpl implements IdentityService, UserDetailsService 
 
     @Value("${default.profile.picture}")
     private String avatar;
-    @Value("${activation.url}")
-    private String activationURL;
+//    @Value("${activation.url}")
+//    private String activationURL;
+    @Value("${picture.location}")
+    private String picturePath;
+    @Value("${fb.api}")
+    private String fburl;
+    @Value("${gg.api}")
+    private String gapiurl;
 
     @PostConstruct
     public void inited() {
-        log.debug("AVATAR >>>>>>>>>> " + avatar);
-//        db.createQuery("SELECT c FROM JKComment c").getResultList();
+        log.info(String.format("%s CREATED", getClass().getSimpleName()));
+        log.info(String.format("default.profile.picture = %s", avatar));
+        log.info(String.format("picture.location = %s", picturePath));
     }
 
     /**
@@ -166,8 +189,8 @@ public class IdentityServiceImpl implements IdentityService, UserDetailsService 
     }
 
     @Override
-    public void changePassword(String tokenStr, String password) throws InvalidTokenException, LinkExpiredException {
-        log.info("changePassword(****)");
+    public void resetPassword(String tokenStr, String password) throws InvalidTokenException, LinkExpiredException {
+        log.info("resetPassword(****)");
         //GET TOKEN FROM DB
         Token token = getActiveToken(tokenStr);
         if (token == null) {
@@ -182,6 +205,22 @@ public class IdentityServiceImpl implements IdentityService, UserDetailsService 
         //FLAG TOKEN AS USED
         useToken(token);
         db.merge(user, token);
+        log.info(String.format("[%s] password changed", user.getEmail()));
+    }
+
+    @Override
+    public void changePassword(String current, String newpword) throws InvalidException {
+        User user = getUserLoggedIn();
+        if (!StringUtils.isEmpty(user.getPassword())) {
+            String current_enc_password = encodePassword(user.getEmail(), current);
+//        String new_enc_password = Crypto.encodeMD5(reg.getConfirmPassword().trim(), current.getMdn());
+            if (!user.getPassword().equals(current_enc_password)) {
+                throw new InvalidException("Your current password is wrong");
+            }
+        }
+
+        user.setPassword(encodePassword(user.getEmail(), newpword));
+        updateUser(user);
         log.info(String.format("[%s] password changed", user.getEmail()));
     }
 
@@ -345,9 +384,140 @@ public class IdentityServiceImpl implements IdentityService, UserDetailsService 
     }
 
     @Override
+    public String encodePassword(String email, String password) {
+        return IdmCrypt.encodeMD5(password.trim(), email.trim().toLowerCase());
+    }
+
+    @Override
     public void resetPassword(User user) {
         user.setPassword(encodePassword(user));
+        user.setActivated(true);
         user.setModifiedDate(new Date());
         db.merge(user);
+    }
+
+    @Override
+    public String changePicture(InputStream inputStream) throws IOException, FileNotFoundException, URISyntaxException {
+        //current user
+        User user = getUserLoggedIn();
+        //hold picture
+        String currentPicture = user.getPicture();
+
+        //delete picture 
+        File f = new File(this.picturePath + currentPicture);
+        if (currentPicture != null) {
+            if (!f.isDirectory() && !currentPicture.contains(this.avatar)) {
+                boolean deleted = f.delete();
+                if (deleted) {
+                    log.info("Profile picture deleted for : " + user.getId());
+                } else {
+                    log.warn("PROFILE PICTURE NOT DELETED : " + currentPicture);
+                }
+            }
+        }
+//        create MD5 hash of user id
+        String newPicture = IdmCrypt.encodeMD5(String.valueOf(System.currentTimeMillis()), "pix") + "_" + user.getId();
+        FileOutputStream fileOutputStream = new FileOutputStream(this.picturePath + newPicture);
+        //resize image to reduce memory footprint
+        BufferedImage image = ImageIO.read(inputStream);
+        ImageIO.write(IdmUtils.resizeImage(380, 500, image), "jpg", fileOutputStream);
+        IOUtils.closeQuietly(fileOutputStream);
+        //update user model with picture
+        user.setPicture(newPicture);
+        user.setModifiedDate(new Date());
+        db.merge(user);
+        return user.getPicture();
+    }
+
+    @Override
+    public void changeEmail(String newEmail, String password) throws InvalidException {
+        //VALIDATE PASSWORD
+        User user = getUserLoggedIn();
+        if (!user.getPassword().equals(IdmCrypt.encodeMD5(password.trim(), user.getEmail().trim().toLowerCase()))) {
+            throw new InvalidException("Incorrect password entered");
+        }
+        String oldEmail = user.getEmail();
+        user.setEmail(newEmail);
+        user.setPassword(password);
+        user.setPassword(encodePassword(user));
+        user.setActivated(true);
+        updateUser(user);
+        Authentication auth = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), user.getRoles());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        log.info(String.format("Email updated from [%s] to [%s]", oldEmail, newEmail));
+    }
+
+    @Override
+    public User getFacebookUser(String id, String email) throws PersistenceException {
+        TypedQuery<User> q;
+        if (IdmUtils.isEmpty(email)) {
+            q = db.createQuery("SELECT u FROM User u WHERE u.facebookId = :id", User.class).setParameter("id", id);
+        } else {
+            q = db.createQuery("SELECT u FROM User u WHERE u.facebookId = :id OR u.email = :email", User.class).setParameter("id", id).setParameter("email", email);
+        }
+        return IdmUtils.getFirstOrNull(q.getResultList());
+    }
+
+    @Override
+    public User getGoogleUser(String id, String email) throws PersistenceException {
+        TypedQuery<User> q;
+        if (IdmUtils.isEmpty(email)) {
+            q = db.createQuery("SELECT u FROM User u WHERE u.googleId = :id", User.class).setParameter("id", id);
+        } else {
+            q = db.createQuery("SELECT u FROM User u WHERE u.googleId = :id OR u.email = :email", User.class).setParameter("id", id).setParameter("email", email);
+        }
+        return IdmUtils.getFirstOrNull(q.getResultList());
+    }
+
+    /**downloads a user profile picture from FB or Google and creates picture string.
+     * picture is saved in default picture location. current picture is first deleted to ensure user has only one picture in folder
+     *
+     * @param user
+     * @param token
+     * @param acctType
+     * @param picurl
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public String addSocialPix(User user, String token, String acctType,String picurl) throws IOException{
+        RestTemplate rt = new RestTemplate();
+        byte[] data;
+        if (acctType.equals("FB")) {
+            UriComponentsBuilder url = UriComponentsBuilder.fromHttpUrl(fburl);
+            url.path("/me").path("/picture").queryParam("width", 180).queryParam("height", 200).queryParam("access_token", token);
+            String u = url.build().toString();
+            log.info(String.format("retreiving picture from : %s", u));
+            ResponseEntity<byte[]> entity = rt.getForEntity(u, byte[].class);
+            data = entity.getBody();
+            
+        } else {
+            UriComponentsBuilder url = UriComponentsBuilder.fromHttpUrl(picurl);
+            String u = url.build().toString();
+            log.info(String.format("retreiving picture from : %s", u));
+            ResponseEntity<byte[]> entity = rt.getForEntity(u, byte[].class);
+            data = entity.getBody();
+        }
+                //hold picture
+                String currentPicture = user.getPicture();
+
+                //delete picture 
+                File f = new File(this.picturePath + currentPicture);
+                if (currentPicture != null) {
+                    if (!f.isDirectory() && !currentPicture.contains(this.avatar)) {
+                        boolean deleted = f.delete();
+                        if (deleted) {
+                            log.info("Profile picture deleted for : " + user.getId());
+                        } else {
+                            log.warn("PROFILE PICTURE NOT DELETED : " + currentPicture);
+                        }
+                    }
+                }
+//        create MD5 hash of user id
+                String newPicture = IdmCrypt.encodeMD5(String.valueOf(System.currentTimeMillis()), "pix") + "_" + user.getId();
+                FileOutputStream fileOutputStream = new FileOutputStream(this.picturePath + newPicture);
+                IOUtils.write(data, fileOutputStream);
+                IOUtils.closeQuietly(fileOutputStream);
+                return newPicture;
     }
 }

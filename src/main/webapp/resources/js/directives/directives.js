@@ -119,4 +119,19 @@ angular.module('Scribbles', [])
                     });
                 }
             };
+        })
+        .directive('dClick', function() {
+            'use strict';
+            return {
+                restrict: 'A',
+                priority: -1,
+                scope: {
+                    dClick: '='
+                },
+                link: function(scope, element, attr, ngModel) {
+                    element.click(function(){
+                        element.parent().find('.'+scope.dClick).slideDown();
+                    });
+                }
+            };
         });

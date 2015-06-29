@@ -7,6 +7,26 @@ and open the template in the editor.
     Created on : Apr 1, 2014, 9:20:04 PM
     Author     : dubem
 */
+a,a:hover{
+    text-decoration: none;
+}
+.loading-screen{
+    background-image: url(../img/input-spinner.gif);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    height: 30px;
+}
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+}
+
+.emailimg{
+    background: url(../img/email2.jpg) no-repeat;
+    width:28px;
+    height:28px;
+    background-size: 28px 28px;
+    background-position:0 0 !important;
+}
 
 .span-block{
     color: #fff;
@@ -163,6 +183,7 @@ and open the template in the editor.
     left:auto;
     top:auto;
     z-index:10001;
+    display: none;
 
 }
 .dpopover:after{

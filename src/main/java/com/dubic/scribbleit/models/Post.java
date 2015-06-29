@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.dubic.scribbleit.models;
 
 import com.dubic.scribbleit.dto.PostData;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -19,12 +21,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.util.StringUtils;
 
 /**
  *
@@ -32,60 +33,69 @@ import org.springframework.util.StringUtils;
  */
 @Entity
 @Table(name = "posts")
-public class Post implements Serializable{
-    public enum Type{
-        JOKE,PROVERB,QUOTE
+public class Post implements Serializable {
+
+    public enum Type {
+
+        JOKE, PROVERB, QUOTE
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    
+
     @Column(name = "title")
     private String title;
-    
+
     @Column(name = "source")
     private String source;
-    
-    @NotEmpty(message = "posted message is empty")
+
     @Lob
-    @Column(name = "post", nullable = false)
+    @Column(name = "post")
     private String text;
-    
+
     @Column(name = "tags")
     private String tags;//comma separated list
-    
+
     @NotNull(message = "you must be logged in to post a joke")
     @JoinColumn(name = "user_id")
     @OneToOne(fetch = FetchType.LAZY)
     private User user;
-    
+
     @NotNull(message = "posted date must be set")
     @Column(name = "posted_date")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Calendar postedDate = Calendar.getInstance();
-    
+
     @Column(name = "blocked")
     private boolean blocked;
-    
+
     @NotNull(message = "Post type must be specified")
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private Type type;
     
+    @Column(name = "media_id",nullable = true)
+    private String media;
+
+//    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<MediaItem> files = new ArrayList<MediaItem>();
+
 //    ======================================================================
-    
     public Post() {
     }
 
     public Post(PostData d) {
         this.text = d.getPost();
         this.source = d.getSource();
-        this.tags = StringUtils.arrayToCommaDelimitedString(d.getTags());
+        if (d.getTags() == null) {
+            this.tags = "";
+        } else {
+            this.tags = d.getTags();
+        }
         this.title = d.getTitle();
     }
-    
-    
+
     public Long getId() {
         return id;
     }
@@ -157,6 +167,15 @@ public class Post implements Serializable{
     public void setType(Type type) {
         this.type = type;
     }
-    
-    
+
+    public String getMedia() {
+        return media;
+    }
+
+    public void setMedia(String media) {
+        this.media = media;
+    }
+
+
+
 }

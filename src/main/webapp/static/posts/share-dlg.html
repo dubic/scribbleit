@@ -1,0 +1,40 @@
+<script type="text/ng-template" id="shareTypeTemplate.html">
+    <a>
+    <span bind-html-unsafe="match.label | typeaheadHighlight:query"></span>&nbsp;:
+    <span bind-html-unsafe="match.model.email | typeaheadHighlight:query"></span>
+    </a>
+</script>
+<!--LOGIN MODAL BOX-->
+<div class="modal fade"  id="shareModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog" style="min-width: 40%">
+        <div class="modal-content">
+            <!--<span class="tooltip in tip" ng-show="tipErrMsg.length > 0" ng-bind="tipErrMsg"></span>-->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" id="myModalLabel">Share by Email</h4>
+            </div>
+            <div class="modal-body">
+                <div ng-repeat="a in shareAlerts" class="alert {{a.class}}">{{a.msg}}</div>
+
+                <h5 ng-bind="sharetitle"></h5>
+
+                <form class="share-form" name="shareform">
+                    <span class="error-msg" ng-show="shareform.email.$dirty && shareform.email.$error.required">Email is required</span>
+                    <span class="error-msg" ng-show="shareform.email.$dirty && shareform.email.$error.email">Email is not valid</span>
+                    <input type="email" name="email" class="form-control" placeholder="Email" ng-model="share.email" required/>
+                    <textarea ng-show="share.email" ng-model="share.msg" placeholder="Add a message"></textarea>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal">cancel</button>
+                <button class="btn btn-info btn-sm" ng-disabled="shareform.$invalid" ng-click="share()">
+                    <span ng-hide="sharing">share</span>
+                    <span ng-show="sharing">processing...</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!--END OF LOGIN MODAL BOX-->

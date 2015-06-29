@@ -6,36 +6,26 @@
 package com.dubic.scribbleit.controllers;
 
 import com.dubic.scribbleit.dto.PostData;
-import com.dubic.scribbleit.models.Comment;
 import com.dubic.scribbleit.models.Post;
+import com.dubic.scribbleit.models.Report;
 import com.dubic.scribbleit.models.User;
-import com.dubic.scribbleit.posts.JokeService;
 import com.dubic.scribbleit.posts.PostException;
 import com.dubic.scribbleit.posts.PostService;
 import com.dubic.scribbleit.utils.IdmUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
+import javax.validation.ConstraintViolationException;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * usr/share/apache-tomcat-7.0.54/webapps/scribbleit/WEB-INF/classes/com/dubic/scribbleit/controllers
@@ -56,50 +47,38 @@ public class PostController {
     private final Logger log = Logger.getLogger(getClass());
     @Autowired
     private PostService postService;
-    @Value("${picture.location}")
-    private String picturePath;
-
-    @RequestMapping("/view")
-    public String loadjokes(@RequestParam("page") String page) {
-        return "posts/" + page;
-    }
-
-    @RequestMapping(value = {"/img/{pic}"})
-    public void processImage(HttpServletRequest request, HttpServletResponse response, @PathVariable("pic") String picId) {
-        ServletOutputStream responseStream = null;
-        try {
-            response.setContentType("image/jpeg");
-            responseStream = response.getOutputStream();
-
-            if (!picId.equalsIgnoreCase("male")) {
-                IOUtils.copy(new FileInputStream(picturePath + picId), responseStream);
-            } else {
-                //send avatar
-                IOUtils.copy(new FileInputStream(picturePath + "male.jpg"), responseStream);
-            }
-        } catch (Exception e) {
-            log.warn(e.getMessage(), e);
-        } finally {
-            try {
-                responseStream.close();
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(PostController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
 
     @RequestMapping("/new/{type}")
-    public @ResponseBody
-    JsonObject newpost(@RequestBody PostData postData, @PathVariable("type") String type) {
+    @ResponseBody
+    public JsonObject newpost(
+                    @PathVariable("type") String type,
+                    @RequestParam(value = "file",required = false) MultipartFile file,
+                    @RequestParam(value = "title",required = false) String title,
+                    @RequestParam(value = "post",required = false) String text,
+                    @RequestParam(value = "source",required = false) String source,
+                    @RequestParam(value = "tags",required = false) String tags
+            ) {
         JsonObject resp = new JsonObject();
         try {
-            Post p = postService.savePost(postData, type);
+//            System.out.println("File: "+file.getSize());
+//            System.out.println("File: "+file.getContentType());
+//            System.out.println("File: "+file.getOriginalFilename());
+//            throw new Exception("just testing");
+            
+            PostData pd = new PostData();
+            pd.setPost(text);
+            pd.setSource(source);
+            pd.setTags(tags);
+            pd.setTitle(title);
+            pd.setFile(file);
+            
+            Post p = postService.savePost(pd, type);
             JsonObject job = new JsonObject();
             job.addProperty("id", p.getId());
             job.addProperty("title", p.getTitle());
             job.addProperty("post", p.getText());
             job.addProperty("source", p.getSource());
-            job.add("tags", new Gson().toJsonTree(p.getTags().split(",")));
+            job.add("tags", new Gson().toJsonTree((p.getTags()==null?"":p.getTags()).split(",")));
             job.addProperty("duration", IdmUtils.formatDate(p.getPostedDate().getTime()));
             job.addProperty("poster", p.getUser().getScreenName());
             job.addProperty("imageURL", p.getUser().getPicture());
@@ -125,10 +104,17 @@ public class PostController {
 
     @RequestMapping("/load/{type}")
     public @ResponseBody
-    JsonArray loadPostsByType(@PathVariable("type") String type,
+    JsonObject loadPostsByType(@PathVariable("type") String type,
             @RequestParam(value = "start", defaultValue = "0") int start,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        return postService.queryLatestPosts(type, start, size);
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "id", defaultValue = "0") Long id) {
+        return postService.queryLatestPosts(type, start, size,id);
+    }
+
+    @RequestMapping("/load/{type}/{id}")
+    public @ResponseBody
+    JsonArray loadPostsById(@PathVariable("type") String type, @PathVariable("id") Long id) {
+        return postService.getPost(id);
     }
 
 //    @RequestMapping("/jokes/like/{id}")
@@ -150,10 +136,10 @@ public class PostController {
 //        }
 //        return ob;
 //    }
-    @RequestMapping(value = "/comments/{id}",method = RequestMethod.GET)
+    @RequestMapping(value = "/comments/{id}", method = RequestMethod.GET)
     public @ResponseBody
     JsonArray loadComments(@PathVariable("id") Long id) {
-       return postService.getComments(id);
+        return postService.getComments(id);
     }
 
     @RequestMapping("/comment/{id}")
@@ -175,18 +161,24 @@ public class PostController {
         return resp;
     }
 
-    @RequestMapping("/jokes/report/{id}")
+    @RequestMapping("/report")
     public @ResponseBody
-    ArrayNode report(@PathVariable("id") Long id, @RequestBody String[] faults) {
+    JsonObject report(@RequestBody Report report, HttpServletRequest req) {
+        JsonObject resp = new JsonObject();
         try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            log.warn(ex.getMessage());
+            IdmUtils.validate(report);
+            postService.reportPost(report, req.getRemoteAddr());
+            resp.addProperty("code", 0);
+        } catch (ConstraintViolationException cve) {
+            List<String> msgs = IdmUtils.listValidationMsgs(cve.getConstraintViolations());
+            resp.addProperty("code", 501);
+            resp.add("msgs", new Gson().toJsonTree(msgs));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            resp.addProperty("code", 500);
         }
-        ArrayNode arr = new ObjectMapper().createArrayNode();
 
-        log.debug("posted faults >> " + Arrays.toString(faults));
-        return arr;
+        return resp;
     }
 
     private void createCommentsArray(List<Object[]> comments, ArrayNode arr) {

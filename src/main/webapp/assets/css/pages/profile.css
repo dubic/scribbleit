@@ -1,6 +1,12 @@
 /***
 Profile Page
 ***/
+
+.no-profile{
+    margin: auto;
+    width: 60%;
+}
+
 .profile {
   position:relative;
 }
@@ -16,6 +22,7 @@ Profile Page
 
 .profile label {
   margin-top:10px;
+  font-weight: bold; 
 }
 
 .profile label:first-child {

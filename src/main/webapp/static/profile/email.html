@@ -1,0 +1,38 @@
+<div class="account">
+    <div class="row">
+        <div class="col-md-12"><div ng-repeat="a in emailalerts" class="alert {{a.class}}">{{a.msg}}</div></div>
+    </div>
+    <div class="margin-top-20">
+        <p class="info">
+            <i class="icon-info-sign"></i> Your new email will be validated with a passcode so make sure it is valid.</p>
+        <form name="newfrm" class="">
+            <span class="error-msg" ng-show="newfrm.email.$dirty && newfrm.email.$error.email">invalid email</span>
+            <span class="error-msg" ng-show="newfrm.email.$dirty && newfrm.email.$error.required">email is required</span>
+            <div class="form-group">
+                <input type="email" name="email" ng-model="newEmail" class="form-control input-large inline" required placeholder="new email"/>
+            </div>
+            <button class="btn btn-primary" ng-click="sendPasscode()" ng-disabled="newfrm.$invalid || validating">
+                <span ng-show="!validating">Submit</span><span ng-show="validating">Processing...</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="margin-top-20" collapse="saveEmail">
+        <p class="info">
+            <i class="icon-info-sign"></i> 
+            A passcode has been sent to <strong ng-bind="newEmail"></strong>. Use it to reset your email</p>
+        <form name="codefrm">
+            <div class="form-group">
+                <span class="error-msg" ng-show="codefrm.passcode.$dirty && codefrm.passcode.$error.required">Passcode is required</span>
+                <input type="text" ng-model="passcode" class="form-control input-large" placeholder="passcode" required name="passcode"/>
+            </div>
+            <div class="form-group">
+                <span class="error-msg" ng-show="codefrm.password.$dirty && codefrm.password.$error.required">email is required</span>
+                <input type="password" ng-model="password" class="form-control input-large" name="password" placeholder="your password" required/>
+            </div>
+            <button class="btn btn-primary" ng-click="updateEmail()" ng-disabled="codefrm.$invalid || saving">
+                <span ng-show="!saving">Save</span><span ng-show="saving">saving...</span>
+            </button>
+        </form>
+    </div>
+</div>

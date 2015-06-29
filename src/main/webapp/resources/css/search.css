@@ -1,0 +1,34 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 28-Apr-2015, 22:21:40
+    Author     : Dubic
+*/
+
+.search{
+    padding: 15px 0px 500px 0px;
+    background-color: #fefefe;
+
+}
+header{
+    border-bottom: 1px solid #ddd;
+}
+/*.middle-page-2{
+    width: 50%;
+}*/
+.results{
+    width: 90%;
+}
+.search .result{
+    margin-bottom: 20px;
+}
+.search .result h4{
+    display: inline;
+}
+.search .result i{
+    color: #8D8D8D;
+    font-size: 18px;
+}

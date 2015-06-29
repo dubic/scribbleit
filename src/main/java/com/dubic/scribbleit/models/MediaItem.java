@@ -6,18 +6,14 @@
 package com.dubic.scribbleit.models;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
 
 /**
  * depicting uploaded media items in the posts
@@ -31,16 +27,10 @@ public class MediaItem implements Serializable {
     private Long id;
     private String title;
     private String duration;
-    private Post post;
-    private String filesize;
-    private MediaItem.MIME_TYPE mimeType;
-    private int views;
-    private Date lastUpdated = new Date();
-
-    public enum MIME_TYPE {
-
-        IMAGE, VIDEO
-    }
+    private Long filesize;
+    private String mimeType;
+//    private int views;
+//    private Date lastUpdated = new Date();
 
     public MediaItem() {
     }
@@ -75,52 +65,39 @@ public class MediaItem implements Serializable {
     }
 
     @Column(name = "file_size")
-    public String getFilesize() {
+    public Long getFilesize() {
         return filesize;
     }
 
-    public void setFilesize(String filesize) {
+    public void setFilesize(Long filesize) {
         this.filesize = filesize;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "post_id",nullable = false)
-    public Post getPost() {
-        return post;
-    }
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
-
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "mime_type")
-    public MIME_TYPE getMimeType() {
+    @Column(name = "mime_type",nullable = false)
+    public String getMimeType() {
         return mimeType;
     }
 
-    public void setMimeType(MIME_TYPE mimeType) {
+    public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
     }
 
-    @Column(name = "views")
-    public int getViews() {
-        return views;
-    }
-
-    public void setViews(int views) {
-        this.views = views;
-    }
-
-    @Column(name = "updated")
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    public Date getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public void setLastUpdated(Date lastUpdated) {
-        this.lastUpdated = lastUpdated;
-    }
-
+//    @Column(name = "views")
+//    public int getViews() {
+//        return views;
+//    }
+//
+//    public void setViews(int views) {
+//        this.views = views;
+//    }
+//
+//    @Column(name = "updated")
+//    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+//    public Date getLastUpdated() {
+//        return lastUpdated;
+//    }
+//
+//    public void setLastUpdated(Date lastUpdated) {
+//        this.lastUpdated = lastUpdated;
+//    }
 }

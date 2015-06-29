@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<link href="resources/css/search.css" rel="stylesheet" type="text/css"/>
+<div class="search">
+    <section class="intro_section">
+        <div class="middle-page-2">
+            <h3>Search Results for "{{keyword}}"</h3>
+            <div class="results">
+                <div class="Jokes">
+                    <h4><strong ng-bind="jokecount"></strong> Jokes found</h4>
+                    <div class="result" ng-repeat="s in jokes">
+                        <a href="#/home/jokes?id={{s.id}}" class="no-decoration"><i class="icon-file-alt margin-right-10"></i><h4 ng-bind="s.text"></h4></a>
+                    </div>
+                    <div id="adminTable_paginate" class="dataTables_paginate paging_two_button" ng-hide="jokesearching">
+                        <pagination max-size="5" boundary-links="true" total-items="jokecount" ng-model="jokepage" items-per-page="jokesize" ng-change="searchJokes()" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+                    </div>
+                </div>
+                
+                <div class="Proverbs">
+                    <h4><strong ng-bind="provcount"></strong> Proverbs found</h4>
+                    <div class="result" ng-repeat="p in proverbs">
+                        <a href="#/home/proverbs?id={{p.id}}" class="no-decoration"><i class="icon-file-alt margin-right-10"></i><h4 ng-bind="p.text"></h4></a>
+                    </div>
+                    <div id="adminTable_paginate" class="dataTables_paginate paging_two_button" ng-hide="provsearching">
+                        <pagination max-size="5" boundary-links="true" total-items="provcount" ng-model="provpage" items-per-page="provsize" ng-change="searchProverbs()" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+                    </div>
+                </div>
+                
+                <div class="Quotes">
+                    <h4><strong ng-bind="quotecount"></strong> Quotes found</h4>
+                    <div class="result" ng-repeat="q in quotes">
+                        <a href="#/home/quotes?id={{q.id}}" class="no-decoration"><i class="icon-file-alt margin-right-10"></i><h4 ng-bind="q.text"></h4></a>
+                    </div>
+                    <div id="adminTable_paginate" class="dataTables_paginate paging_two_button" ng-hide="qsearching">
+                        <pagination max-size="5" boundary-links="true" total-items="quotecount" ng-model="quotepage" items-per-page="quotesize" ng-change="searchQuotes()" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+                    </div>
+                </div>
+                
+                <div class="users">
+                    <h4><strong ng-bind="userscount"></strong> Persons found</h4>
+                    <div class="result" ng-repeat="p in persons">
+                        <a href="#/profile/{{p.id}}" class="no-decoration"><i class="icon-user margin-right-10"></i><h4 ng-bind="p.text"></h4></a>
+                        <!--<p class="desc" ng-bind="p.text"></p>-->
+                    </div>
+                    <div id="adminTable_paginate" class="dataTables_paginate paging_two_button" ng-hide="usersearching">
+                        <pagination max-size="5" boundary-links="true" total-items="userscount" ng-model="userspage" items-per-page="userssize" ng-change="searchUsers()" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

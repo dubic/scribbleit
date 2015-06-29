@@ -5,8 +5,8 @@
  */
 
 
-ctrls.controller('quotesCtrl', function($scope, $http, services, $rootScope, $timeout, spinner,postsPath) {
-    $scope.$on('newPostBroadcast', function(e, j) {
+ctrls.controller('quotesCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams) {
+    $scope.$on('newPostBroadcast', function (e, j) {
 //        console.log(j);
         $scope.quotes.unshift(j);
     });
@@ -14,20 +14,20 @@ ctrls.controller('quotesCtrl', function($scope, $http, services, $rootScope, $ti
     $scope.spinner = spinner;
     $scope.quotes = [];
 
-    $scope.like = function(index) {
+    $scope.like = function (index) {
         var quote = $scope.quotes[index];
         quote.liking = true;
-        $timeout(function() {
+        $timeout(function () {
             quote.liked = true;
             quote.likes++;
             quote.liking = false;
         }, 1000);
     };
 
-    $scope.unlike = function(index) {
+    $scope.unlike = function (index) {
         var quote = $scope.quotes[index];
         quote.liking = true;
-        $timeout(function() {
+        $timeout(function () {
             quote.liked = false;
             quote.likes--;
             quote.liking = false;
@@ -35,20 +35,20 @@ ctrls.controller('quotesCtrl', function($scope, $http, services, $rootScope, $ti
     };
 
 
-    $scope.loadComments = function(index) {
+    $scope.loadComments = function (index) {
         var quote = $scope.quotes[index];
         quote.showComments = true;
     };
-    $scope.hideComments = function(index) {
+    $scope.hideComments = function (index) {
         var quote = $scope.quotes[index];
         quote.showComments = false;
     };
-    $scope.comment = function(index) {
+    $scope.comment = function (index) {
         var quote = $scope.quotes[index];
         if (angular.isUndefined(quote.myComment))
             return;
         quote.oncomment = true;
-        $timeout(function() {
+        $timeout(function () {
             quote.oncomment = false;
             var c = {
                 text: quote.myComment,
@@ -66,41 +66,66 @@ ctrls.controller('quotesCtrl', function($scope, $http, services, $rootScope, $ti
 
 
     $scope.reports = {};
-    $scope.report = function() {
-        console.log($scope.reports);
-        $scope.selectedQuote.reporting = true;
-        $timeout(function() {
-            $scope.selectedQuote.reported = true;
-            $scope.selectedQuote.reporting = false;
-            $scope.reports = {};
-            services.closeDialog('reportModal');
-            services.notify("post reported successfully", $rootScope);
-
-        }, 1000);
+    $scope.report = function () {
+        $scope.selectedPost.reporting = true;
+        $scope.reports.postId = $scope.selectedPost.id;
+        $http.post(postsPath + '/report', $scope.reports).success(function (resp) {
+            $scope.selectedPost.reporting = false;
+            if (resp.code === 0) {
+                $scope.reports = {};
+                $scope.repActive = false;
+                services.closeDialog('reportModal');
+                services.notify("post reported successfully");
+            } else if (resp.code === 501) {
+                for (var i = 0; i < resp.msgs.length; i++) {
+                    $scope.reportAlerts.push({class: 'alert-danger', msg: resp.msgs[i]});
+                }
+            } else {
+                $scope.reportAlerts.push({class: 'alert-danger', msg: 'Unexpected server error'});
+                services.notify("Unexpected server error");
+            }
+        }).error(function (data, status) {
+            $scope.selectedPost.reporting = false;
+            $scope.reportAlerts.push({class: 'alert-danger', msg: 'Unexpected server error'});
+            services.notify("Unexpected server error occurred");
+        });
     };
 
 
-
     ///////INIT FUNCTIONS///////////
-    loadPosts();
+    if (!angular.isUndefined($stateParams.id) && $stateParams.id !== '' && $stateParams.id !== null) {
+        loadById($stateParams.id);
+    } else {
+        loadPosts();
+    }
 ///////////////////////////
-    function loadPosts() {
+    function loadById(id) {
         $rootScope.loading = true;
-        $rootScope.loading = true;
-        $http.get(postsPath + '/load/quote?start=0&size=10').success(function(resp) {
+        $http.get(postsPath + '/load/quote/' + id).success(function (resp) {
             $rootScope.loading = false;//hide loading..
             $scope.quotes = resp;//display jokes
 
-        }).error(function(r) {
+        }).error(function (data, status) {
             $rootScope.loading = false;
         });
     }
 
-    $scope.openReport = function(index) {
+    function loadPosts() {
+        $rootScope.loading = true;
+        $rootScope.loading = true;
+        $http.get(postsPath + '/load/quote?start=0&size=10').success(function (resp) {
+            $rootScope.loading = false;//hide loading..
+            $scope.quotes = resp;//display jokes
 
-        $scope.selectedQuote = $scope.quotes[index];
+        }).error(function (r) {
+            $rootScope.loading = false;
+        });
+    }
+
+    $scope.openReport = function (post) {
+        $scope.reports = {};
+        $scope.selectedPost = post;
         $scope.reportAlerts = [];
-//            $scope.selectedJoke
         services.openDialog('reportModal');
     };
 

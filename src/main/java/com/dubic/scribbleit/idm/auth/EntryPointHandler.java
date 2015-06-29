@@ -21,9 +21,10 @@ import org.springframework.stereotype.Component;
 @Component("entryPointRef")
 public class EntryPointHandler implements AuthenticationEntryPoint{
 
-    @Override
-    public void commence(HttpServletRequest hsr, HttpServletResponse hsr1, AuthenticationException ae) throws IOException, ServletException {
-        System.out.println("EntryPointHandler called...");
+     @Override
+    public void commence(HttpServletRequest req, HttpServletResponse resp, AuthenticationException ae) throws IOException, ServletException {
+        System.out.println("EntryPointHandler called..."+req.getRequestURI()+"?"+req.getQueryString());
+        resp.sendError(403, "this url is forbidden");
     }
     
 }

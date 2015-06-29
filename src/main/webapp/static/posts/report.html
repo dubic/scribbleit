@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!--LOGIN MODAL BOX-->
+<div class="modal fade"  id="reportModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog" style="min-width: 40%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title" id="myModalLabel">Report inappropriate content </h4>
+            </div>
+            <div class="modal-body">
+                <div ng-repeat="a in reportAlerts" class="alert {{a.class}}">{{a.msg}}</div>
+                <div class="well well-sm" ng-bind="selectedPost.post"></div>
+                <ul class="list-unstyled rep-checklist">
+                    <li><input type="checkbox" ng-change="repActive = true" jq-uniform ng-model="reports.offensive"/>Offensive</li>
+                    <li><input type="checkbox" ng-change="repActive = true" jq-uniform ng-model="reports.sexual"/>Sexual Content</li>
+                    <li><input type="checkbox" ng-change="repActive = true" jq-uniform ng-model="reports.violent"/>Violent or Repulsive Content</li>
+                    <li><input type="checkbox" ng-change="repActive = true" jq-uniform ng-model="reports.hateful"/>Hateful or Abusive Content</li>
+                    <li><input type="checkbox" ng-change="repActive = true" jq-uniform ng-model="reports.harmful"/>Harmful Dangerous Acts</li>
+                    <li><input type="checkbox" ng-change="repActive = true" jq-uniform ng-model="reports.childAbuse"/>Child Abuse</li>
+                    <li><input type="checkbox" ng-change="repActive = true" jq-uniform ng-model="reports.spam"/>Spam or Misleading</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning btn-sm" data-dismiss="modal">cancel</button>
+                <button class="btn btn-info btn-sm" ng-disabled="selectedPost.reporting || repActive === false" ng-click="report()">
+                    <span ng-hide="selectedPost.reporting">submit</span>
+                    <span ng-show="selectedPost.reporting">saving</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!--END OF LOGIN MODAL BOX-->

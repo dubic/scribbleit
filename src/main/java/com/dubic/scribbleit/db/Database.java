@@ -202,5 +202,9 @@ public class Database {
     public Long count(String query) {
         return (Long) em.createQuery(query).getSingleResult();
     }
+    
+    public Long countNative(String query) {
+        return (Long) em.createNativeQuery(query).getSingleResult();
+    }
 
 }

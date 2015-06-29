@@ -6,6 +6,10 @@ package com.dubic.scribbleit.utils;
 
 import com.dubic.scribbleit.models.Role;
 import com.dubic.scribbleit.models.User;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,6 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * performs all idm utilities
@@ -93,6 +98,26 @@ public class IdmUtils {
         return buf.toString();
     }
 
+    public static List<String> listValidationMsgs(Set<ConstraintViolation<?>> constraintViolations) {
+        List<String> msgs = new ArrayList<String>(constraintViolations.size());
+        for (ConstraintViolation<?> cv : constraintViolations) {
+            msgs.add(cv.getMessage());
+        }
+        return msgs;
+    }
+
+    public static RenderedImage resizeImage(int width, int height, BufferedImage image) {
+       Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+       int w = scaledImage.getWidth(null);
+        int h = scaledImage.getHeight(null);
+        int type = BufferedImage.TYPE_INT_RGB;  // other options
+        BufferedImage dest = new BufferedImage(w, h, type);
+        Graphics2D g2 = dest.createGraphics();
+        g2.drawImage(scaledImage, 0, 0, null);
+        g2.dispose();
+        return dest;
+    }
+
     private final Logger log = Logger.getLogger(getClass());
     public static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -117,14 +142,14 @@ public class IdmUtils {
         return new DecimalFormat("###,###,###,###.00").format(amt);
     }
 
-    public static Collection<? extends GrantedAuthority> getGrantedAuthorities(User user) {
-        List<GrantedAuthority> grantedAuths = new ArrayList<GrantedAuthority>();
-        for (Role role : user.getRoles()) {
-            grantedAuths.add(new SimpleGrantedAuthority(role.getName()));
-        }
-        
-        return grantedAuths;
-    }
+//    public static Collection<? extends GrantedAuthority> getGrantedAuthorities(User user) {
+//        List<GrantedAuthority> grantedAuths = new ArrayList<GrantedAuthority>();
+//        for (Role role : user.getRoles()) {
+//            grantedAuths.add(new SimpleGrantedAuthority(role.getName()));
+//        }
+//        
+//        return grantedAuths;
+//    }
 
     public static String getUserEmailLoggedIn() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -204,6 +229,7 @@ public class IdmUtils {
         }
     }
     
+    
     public static String join(String[] sa){
         String joined = Arrays.toString(sa);
         return joined.substring(1, joined.lastIndexOf("]"));
@@ -213,7 +239,10 @@ public class IdmUtils {
         return new Validate(test);
     }
     public static void main(String[] arrrgh) {
-        System.out.println(generateTimeToken());
+        UriComponentsBuilder url = UriComponentsBuilder.fromHttpUrl("http://10.10.210.72:8088/ccbsproxy");
+        url.queryParam("appid", "imanager").queryParam("action", "queryocs").queryParam("msisdn", "07045687509").queryParam("type", 0);
+        
+        System.out.println(url.build().toString());
 //        try {
 //            System.out.println("token - " + generateTimeToken());
 //            Thread.sleep(1000);

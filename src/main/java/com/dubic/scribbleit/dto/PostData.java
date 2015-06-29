@@ -6,13 +6,15 @@
 
 package com.dubic.scribbleit.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 /**
  *
  * @author dubem
  */
 public class PostData {
-    private String title,post,source;
-    private String[] tags;
+    private String title,post,source,tags;
+    private MultipartFile file;
 
     public String getTitle() {
         return title;
@@ -30,11 +32,11 @@ public class PostData {
         this.post = post;
     }
 
-    public String[] getTags() {
+    public String getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(String tags) {
         this.tags = tags;
     }
 
@@ -44,6 +46,14 @@ public class PostData {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    public void setFile(MultipartFile file) {
+        this.file = file;
     }
     
     

@@ -12,7 +12,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <jsp:include page="include/head.jsp"/>
     </head>
-    <body>
+    <body ng-cloak>
         <jsp:include page="include/new-header.jsp"/>
 
         <div id="page-notif" style="top:142px" >
@@ -45,12 +45,13 @@
     </footer>
     <script>
                     $(document).mouseup(function(e) {
-                        var container = $(".pop-container");
+//                        var container = $(".pop-container .dpopover");
+                        var container = $(".dpopover");
 
                         if (!container.is(e.target) // if the target of the click isn't the container...
                                 && container.has(e.target).length === 0) // ... nor a descendant of the container
                         {
-                            $(".pop").slideUp();
+                            $(".dpopover").slideUp();
                         }
                     });
     </script>
