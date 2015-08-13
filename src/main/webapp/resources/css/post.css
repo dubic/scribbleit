@@ -127,6 +127,11 @@ textarea{
     font-family: "Open Sans",Calibri,Candara,Arial,sans-serif;
     color: #515151;
 }
+.post-text{
+    text-align:justify;
+    font-family: "Open Sans",Calibri,Candara,Arial,sans-serif;
+    color: #515151;
+}
 .date-grey{
     color:#999;
     font-size: 11px;

@@ -7,6 +7,9 @@ and open the template in the editor.
     Created on : Apr 1, 2014, 9:20:04 PM
     Author     : dubem
 */
+.border-bottom{
+    border-bottom: 1px solid #eee;
+}
 a,a:hover{
     text-decoration: none;
 }
@@ -269,7 +272,7 @@ textarea.ng-invalid.ng-dirty{
 #page-notif{
     pointer-events: none;
     width: 100%;
-    z-index: 1111;
+    z-index: 11111;
     position: fixed;
 }
 .post-bar{

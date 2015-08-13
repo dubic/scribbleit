@@ -23,9 +23,11 @@ http://www.springframework.org/schema/context
 
     <!--<context:component-scan base-package="com.dubic.module.el"/>-->
     <context:component-scan base-package="com.dubic.scribbleit"/>
-   <mvc:annotation-driven>
+    
+    <bean id="gsonMessageConverter" class="com.dubic.scribbleit.application.GsonMessageConverter"/>
+    <mvc:annotation-driven>
         <mvc:message-converters>
-            <bean class="com.dubic.scribbleit.application.GsonMessageConverter"/>
+            <ref bean="gsonMessageConverter"/>
         </mvc:message-converters>
     </mvc:annotation-driven>
     
@@ -57,11 +59,12 @@ http://www.springframework.org/schema/context
     and rejection-policy values. The id becomes the default thread name prefix -->
     <task:executor id="springExecutorService"
                    pool-size="5-25"
-                   queue-capacity="100"/>
+                   queue-capacity="100"
+                   rejection-policy="CALLER_RUNS"/>
    
     <!-- Defines a ThreadPoolTaskScheduler instance with configurable pool size.
     The id becomes the default thread name prefix. -->             
-    <task:scheduler id="taskScheduler" pool-size="1"/> 
+    <task:scheduler id="taskScheduler" pool-size="10"/> 
   
     <context:property-placeholder location="file:///C:/usr/share/dubic/scribbles/conf.properties" />
     <!--<context:property-placeholder location="file:////usr/share/dubic/scribbles/conf.properties" />-->
@@ -83,13 +86,15 @@ http://www.springframework.org/schema/context
             </value>
         </property>
     </bean>
+    <bean id="basicEncryptor" class="org.jasypt.util.text.BasicTextEncryptor">
+        <property name="password">
+            <value>jasypt</value>
+        </property>
+    </bean>
     
     <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF/jsp/" />
-        <property name="suffix" value=".jsp" />
-    </bean>
+    
     <!--//////////////////////////////////////////////////////////////////////////////-->
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor">
         <property name="defaultPersistenceUnitName" value="scribbleitPU" />
@@ -164,7 +169,7 @@ http://www.springframework.org/schema/context
     </bean>
    
     
-<!--    <bean id="mailListener" class="com.dubic.scribbleit.jms.Listener" />
+    <!--    <bean id="mailListener" class="com.dubic.scribbleit.jms.Listener" />
     <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="connectionFactory" />
         <property name="destinationName" value="mail.queue" />

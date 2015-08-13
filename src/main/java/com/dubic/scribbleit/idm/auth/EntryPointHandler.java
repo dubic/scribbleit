@@ -10,6 +10,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -23,8 +24,8 @@ public class EntryPointHandler implements AuthenticationEntryPoint{
 
      @Override
     public void commence(HttpServletRequest req, HttpServletResponse resp, AuthenticationException ae) throws IOException, ServletException {
-        System.out.println("EntryPointHandler called..."+req.getRequestURI()+"?"+req.getQueryString());
-        resp.sendError(403, "this url is forbidden");
+//        System.out.println("EntryPointHandler called..."+req.getRequestURI()+"?"+req.getQueryString());
+        resp.sendError(HttpStatus.PROXY_AUTHENTICATION_REQUIRED.value(), "this url is forbidden");//407
     }
     
 }

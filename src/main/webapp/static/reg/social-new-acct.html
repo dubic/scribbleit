@@ -25,7 +25,7 @@ and open the template in the editor.
                         <span class="error-msg" ng-show="socfrm.name.$dirty && socfrm.name.$error.ngRemoteValidate">Screen name already used</span>
                         <span class="error-msg" ng-show="socfrm.name.$dirty && socfrm.name.$error.pattern">Alphanumeric characters only</span>
                         <input class="form-control" ng-class="{'spinner':socfrm.name.$pending}" name="name" placeholder="Username" type="text" ng-pattern="/^[a-z0-9]+$/i"
-                               ng-model="soc.username" required ng-minlength="4" ng-maxlength="20" ng-remote-validate="/scribbleit/users/name-unique" ng-remote-throttle="1000"/>
+                               ng-model="soc.username" required ng-minlength="4" ng-maxlength="20" ng-remote-validate="users/name-unique" ng-remote-throttle="1000"/>
                     </div>
                     
                     <p ng-if="soc.hasEmail">No email address was found in your {{soc.account_type}} account. Your account email will be <b>{{soc.email}}</b> which you are required to change in your profile settings </p>

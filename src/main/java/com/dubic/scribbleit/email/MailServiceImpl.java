@@ -52,9 +52,9 @@ public class MailServiceImpl {
 
     @PostConstruct
     public void inited() {
-        log.debug("sslOnConnect = " + sslOnConnect);
-        log.debug("sslCheckServer = " + sslCheckServer);
-        log.debug("startTlsEnabled = " + startTlsEnabled);
+//        log.debug("sslOnConnect = " + sslOnConnect);
+//        log.debug("sslCheckServer = " + sslCheckServer);
+//        log.debug("startTlsEnabled = " + startTlsEnabled);
     }
 
     @Async
@@ -174,13 +174,13 @@ public class MailServiceImpl {
             HtmlEmail email = new HtmlEmail();
             email.setHostName(this.host);
             email.setSmtpPort(this.port);
+            email.setStartTLSEnabled(true);
 //            email.setSslSmtpPort("25");
             log.debug("port is - " + email.getSmtpPort());
             email.setAuthenticator(new DefaultAuthenticator(this.username, "dcamic4602{}"));
 //            email.setSSLOnConnect(false);
             email.setFrom(this.sender,this.senderName);
             email.setSubject(mail.getSubject());
-//            email.setHtmlMsg("This is a test mail from my application");
             if (template != null) {
                 String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, templatePath + template, "UTF-8", model);
                 System.out.println(text);
@@ -192,6 +192,7 @@ public class MailServiceImpl {
                 email.addTo(rec);
             }
             email.send();
+            log.info("mail sent to : "+mail.getTo());
         } catch (EmailException e) {
             log.error(e.getMessage(), e);
         }

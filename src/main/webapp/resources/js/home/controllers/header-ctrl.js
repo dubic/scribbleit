@@ -5,7 +5,7 @@
  */
 
 
-ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, searchPath, $q,facebookService,gapiService) {
+ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, searchPath, $q,facebookService,gapiService,services) {
     $scope.fullname = 'dubic uzuegbu';
     $scope.pop = false;
     $scope.insearch = false;
@@ -17,7 +17,8 @@ ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, se
 
     $scope.logout = function () {
         $http.get('logout').success(function () {
-            $rootScope.getCurrentUser();
+            $rootScope.loggedOut();
+            services.notify('you have logged out successfully');
             gapiService.logout();
             $timeout(function(){
                 facebookService.logout.then(function(response){

@@ -9,8 +9,6 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,12 +33,7 @@ public class Report implements Serializable {
     private Date createDate = new Date();
     private Date handledDate;
     private String ip;
-    private Action action;
-
-    public enum Action {
-
-        IGNORED, BLOCKED, NEW
-    }
+    private String action;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -114,7 +107,7 @@ public class Report implements Serializable {
         this.harmful = harmful;
     }
 
-    @Column(name = "childAbuse")
+    @Column(name = "child_abuse")
     public boolean isChildAbuse() {
         return childAbuse;
     }
@@ -158,12 +151,11 @@ public class Report implements Serializable {
     }
 
     @Column(name = "action_taken")
-    @Enumerated(EnumType.STRING)
-    public Action getAction() {
+    public String getAction() {
         return action;
     }
 
-    public void setAction(Action action) {
+    public void setAction(String action) {
         this.action = action;
     }
 

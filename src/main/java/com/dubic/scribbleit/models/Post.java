@@ -89,7 +89,7 @@ public class Post implements Serializable {
         this.text = d.getPost();
         this.source = d.getSource();
         if (d.getTags() == null) {
-            this.tags = "";
+            this.tags = "";//split method will be called to avoid null pointer exception
         } else {
             this.tags = d.getTags();
         }

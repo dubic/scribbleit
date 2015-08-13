@@ -9,25 +9,30 @@ ctrls.controller('mainCtrl', function ($scope, $http, $rootScope, $timeout, serv
     $scope.fileReaderSupported = window.FileReader !== null && (window.FileAPI === null || FileAPI.html5 !== false);
 //    console.log('file reader supported : ' + $scope.fileReaderSupported);
 
-    $scope.dialog = function () {
+    $scope.test = function () {
 //            alert('ok');
         BootstrapDialog.alert('I want banana!');
     };
 
     $scope.startNewPost = function () {
-        if ($rootScope.isAuthenticated)
-            $scope.openpost = !$scope.openpost;
-        else
-            $rootScope.route('login');
+        $scope.openpost = !$scope.openpost;
     };
 
     $scope.Post = {};
     $scope.newtag = false;
-    $scope.tagcloud = ['akpos', 'politics', 'football'];
-
+    $scope.tagcloud = [];
+    $scope.tagcloud = $rootScope.tagcloud;
+//    $timeout(function () {
+//        $scope.tagcloud = [{id: 'akpos', text: 'akpos'}, {id: 'politics', text: 'politics'}, {id: 'football', text: 'football'}];
+//    }, 5000);
+    
 
     $scope.newpost = function () {
-        if (angular.isUndefined($scope.Post.msg))
+//        if (!$rootScope.isAuthenticated) {
+//            services.popLogin();
+//            return;
+//        } 
+        if (angular.isUndefined($scope.Post.msg) && angular.isUndefined($scope.file))
             return;
 
         $scope.newposting = true;
@@ -60,35 +65,18 @@ ctrls.controller('mainCtrl', function ($scope, $http, $rootScope, $timeout, serv
                 $scope.openpost = !$scope.openpost;
             }
             else if (resp.code === 500)
-                services.notify("Unexpected Error", $rootScope);
+                services.notify("Unexpected Error");
             else if (resp.code === 403) {
-                services.notify("Login to continue", $rootScope);
-                $rootScope.route('login');
+                services.notify("Unexpected Error");
             }
         }).error(function (data, status) {
             $scope.newposting = false;
-            services.notify("Service unavailable");
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                services.popLogin();
+            } else
+                services.notify("Service unavailable");
         });
-
-
-//        $http.post(postsPath + '/new/' + TYPE, $.param(p)).success(function (resp) {
-//            $scope.newposting = false;
-//            if (resp.code === 0) {
-//                services.notify("post saved successfully");
-//                $rootScope.$broadcast('newPostBroadcast', resp.post);
-//                $scope.Post = {};
-//                $scope.openpost = !$scope.openpost;
-//            }
-//            else if (resp.code === 500)
-//                services.notify("Unexpected Error", $rootScope);
-//            else if (resp.code === 403) {
-//                services.notify("Login to continue", $rootScope);
-//                $rootScope.route('login');
-//            }
-//        }).error(function (data, status) {
-//            $scope.newposting = false;
-//            services.notify("Service unavailable");
-//        });
     };
 
     $scope.ustage = 0;

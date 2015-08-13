@@ -19,6 +19,13 @@
 
     <http use-expressions="true" entry-point-ref="entryPointRef">
         
+        <intercept-url pattern="/posts/new/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/posts/comment/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/profile/update-account" access="isAuthenticated()"/>
+        <intercept-url pattern="/profile/change-password" access="isAuthenticated()"/>
+        <intercept-url pattern="/profile/validate-email" access="isAuthenticated()"/>
+        <intercept-url pattern="/profile/change-email" access="isAuthenticated()"/>
+        <intercept-url pattern="/users/picture/upload" access="isAuthenticated()"/>
         <intercept-url pattern="/**" access="permitAll" />
         
 <!--        <intercept-url pattern="/home.jsf" access="permitAll" />

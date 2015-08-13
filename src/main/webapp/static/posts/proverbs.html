@@ -1,9 +1,9 @@
 <section class="post-container" ng-repeat="prov in proverbs">
-    <div class="row">
-        <div class="col-md-1">
+    <div class="media">
+        <div class="pull-left">
             <img src="{{usersPath}}/img/{{prov.imageURL}}" class="poster-img" width="60" height="60"/>
         </div>
-        <div  class="col-md-10">
+        <div  class="media-body">
             <div><a href="#/profile/{{prov.poster}}" class="person" ng-bind="prov.poster"></a></div>
             <div><span class="date-grey">{{prov.duration}}</span></div>
             <div class="stats">
@@ -20,16 +20,15 @@
     <!--ACTION BAR-->
     <div class="action-bar">
         <ul class="list-inline">
-<!--            <li><a href="" ng-hide="prov.liking || prov.liked" ng-click="like(prov)">Like</a>
-            <li><a href="" ng-hide="prov.liking || !prov.liked" ng-click="unlike(prov)">Unlike</a>
-                <img ng-show="prov.liking" src="{{spinner}}"/>
-            </li>-->
             <li><a href="" ng-click="prov.makeComment = !prov.makeComment">Comment</a></li>
             <li>
-                <a href="#">Share</a>
+                <a href="" ng-click="openReport(prov)">Report</a>
             </li>
             <li>
-                <a href="" ng-click="openReport(prov)">Report</a>
+                <button class="btn btn-xs btn-default" ng-click="share(0, prov)" title="share on facebook">facebook</button>
+                <button class="btn btn-xs btn-default" ng-click="share(1, prov)" title="share on twitter">twitter</button>
+                <button class="btn btn-xs btn-default" ng-click="share(2, prov)" title="share on gmail">gmail</button>
+                <button class="btn btn-xs btn-default" ng-click="share(3, prov)" title="share on google+">g+</button>
             </li>
         </ul>
     </div>
@@ -47,7 +46,7 @@
                 </div>
                 <div class="col-md-9">
                     <div class="row">
-                        <a href="#" class="person">{{comment.poster}}</a>
+                        <a href="#/profile/{{comment.poster}}" class="person">{{comment.poster}}</a>
                         <span class="date-grey" style="margin:0px 10px">{{comment.duration}}</span>
                     </div>
                     <div class="row post">

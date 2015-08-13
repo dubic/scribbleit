@@ -5,7 +5,7 @@
  */
 
 
-ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams) {
+ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams,$window) {
     $scope.$on('newPostBroadcast', function (e, j) {
         console.log(j);
         $scope.jokes.unshift(j);
@@ -13,24 +13,19 @@ ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $ti
     console.log($stateParams);
     $scope.spinner = spinner;
     $scope.jokes = [];
-    $scope.like = function (joke) {
-        joke.liking = true;
-        $timeout(function () {
-            joke.liked = true;
-            joke.likes++;
-            joke.liking = false;
-        }, 1000);
+
+    $scope.share = function (i,joke) {
+        var u = '/p/j/';
+        var shareurls=[
+            'http://www.facebook.com/share.php?'+$.param({u:$rootScope.endpoint+u+joke.id,t:joke.post}),
+            'https://twitter.com/intent/tweet?'+$.param({url:$rootScope.endpoint+u+joke.id,text:joke.post}),
+            'https://mail.google.com/mail/?'+$.param({view:'cm',fs:1,su:'share a joke',body:joke.post+'['+$rootScope.endpoint+u+joke.id+']'}),
+            'https://plus.google.com/share?'+$.param({url:$rootScope.endpoint+u+joke.id})
+        ];
+        $window.open(shareurls[i], "MsgWindow", "width=700, height=600");
     };
-    $scope.unlike = function (joke) {
-        joke.liking = true;
-        $timeout(function () {
-            joke.liked = false;
-            joke.likes--;
-            joke.liking = false;
-        }, 1000);
-    };
-    $scope.loadComments = function (index) {
-        var joke = $scope.jokes[index];
+
+    $scope.loadComments = function (joke) {
         joke.loadingComments = true;
         $http.get(postsPath + '/comments/' + joke.id).success(function (comments) {
             joke.loadingComments = false;
@@ -41,8 +36,7 @@ ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $ti
         });
         joke.showComments = true;
     };
-    $scope.hideComments = function (index) {
-        var joke = $scope.jokes[index];
+    $scope.hideComments = function (joke) {
         joke.showComments = false;
     };
     $scope.comment = function (index) {
@@ -63,8 +57,13 @@ ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $ti
             joke.myComment = '';
             joke.showComments = true;
             joke.makeComment = !joke.makeComment;
-        }).error(function (r) {
+        }).error(function (data, status) {
             joke.oncomment = false;
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                services.popLogin();
+            } else
+                services.notify("Service unavailable");
         });
     };
     $scope.reports = {};
@@ -95,12 +94,12 @@ ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $ti
 
 ///////////////////////////
     function loadById(id) {
-        $rootScope.loading = true;
+        services.showMsg('Loading joke...');
         $http.get(postsPath + '/load/joke/' + id).success(function (resp) {
-            $rootScope.loading = false; //hide loading..
+            services.hideMsg(); //hide loading..
             $scope.jokes = resp; //display jokes
         }).error(function (data, status) {
-            $rootScope.loading = false;
+            services.hideMsg();
         });
     }
 
@@ -112,24 +111,23 @@ ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $ti
         id: 0
     };
     $scope.loadPosts = function () {
-        $rootScope.loading = true;
+        services.showMsg('Loading Jokes...');
 
         var p = {
             start: ($scope.query.page - 1) * $scope.query.size, size: $scope.query.size, id: $scope.query.id
         };
         $http.get(postsPath + '/load/joke?' + $.param(p)).success(function (resp) {
-            $rootScope.loading = false; //hide loading..
+            services.hideMsg(); //hide loading..
             $scope.jokes = resp.posts; //display jokes
             $scope.totalPosts = resp.total;
-            if($scope.query.id === 0){
+            if ($scope.query.id === 0) {
                 $scope.query.id = resp.posts[0].id;
             }
 //            if((p.start*p.size) >= resp.total){
 //                $scope.moreJokes = false;
 //            }
-            console.log(p);
         }).error(function (data, status) {
-            $rootScope.loading = false;
+            services.hideMsg();
         });
     };
 
@@ -145,18 +143,29 @@ ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $ti
         $scope.share = {};
         services.openDialog('shareModal');
     };
-    
-    $scope.shareByEmail = function () {
-        $http.post(postsPath + '/share/email/' + $scope.selectedPost.id, $scope.share).success(function () {
 
-        }).error(function (data, status) {
-
-        });
-    };
-    
-    $scope.nextPage = function(){
+    $scope.nextPage = function () {
         $scope.query.page++;
         $scope.loadPosts();
+    };
+    $scope.forTags = function (t) {
+        $scope.query = {
+            page: 1,
+            size: 5,
+            id: 0
+        };
+        var p = {
+            start: ($scope.query.page - 1) * $scope.query.size, size: $scope.query.size, id: $scope.query.id
+        };
+        services.showMsg('Loading jokes on ' + t);
+        $http.get(postsPath + '/load/joke/tag/' + t + '?' + $.param(p)).success(function (resp) {
+            services.hideMsg(); //hide loading..
+            $scope.jokes = resp.posts; //display jokes
+            $scope.totalPosts = resp.total;
+            if ($scope.query.id === 0) {
+                $scope.query.id = resp.posts[0].id;
+            }
+        });
     };
 
     ///////INIT FUNCTIONS///////////

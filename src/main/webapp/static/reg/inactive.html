@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div style="background: #F9F9F9;background-repeat: repeat-y">
+    <div class="middle-page">
+        <div class="row">
+            <div class="col-md-12 margin-top-10">
+                <div class="note note-danger">
+                    your account has not been activated. We need to verify your email address
+                </div>
+                <form name="frm" class="form-inline">
+                    <input class="form-control input-large" disabled name="email" placeholder="email" type="email" ng-model="email" required/>
+                    <button class="btn btn-info" ajax-button="resending" ajax-text="Processing..." ng-disabled="frm.$invalid || resending" ng-click="resend()">Resend Activation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

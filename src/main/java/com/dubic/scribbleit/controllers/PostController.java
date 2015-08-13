@@ -8,25 +8,23 @@ package com.dubic.scribbleit.controllers;
 import com.dubic.scribbleit.dto.PostData;
 import com.dubic.scribbleit.models.Post;
 import com.dubic.scribbleit.models.Report;
-import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.posts.PostException;
 import com.dubic.scribbleit.posts.PostService;
+import com.dubic.scribbleit.posts.TagService;
 import com.dubic.scribbleit.utils.IdmUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.util.Calendar;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +45,10 @@ public class PostController {
     private final Logger log = Logger.getLogger(getClass());
     @Autowired
     private PostService postService;
+    @Value("${bucket.url}")
+    private String bucketUrl;
+    @Autowired
+    private TagService tagService;
 
     @RequestMapping("/new/{type}")
     @ResponseBody
@@ -85,12 +87,15 @@ public class PostController {
             job.addProperty("likes", 0);
             job.addProperty("commentsLength", 0);
             job.add("comments", new Gson().toJsonTree(new Object[]{}));
+            if (!StringUtils.isEmpty(p.getMedia())) {
+                job.addProperty("image", bucketUrl.concat(p.getMedia()));
+            }
 
             resp.addProperty("code", 0);
             resp.add("post", job);
 
         } catch (PersistenceException ex) {
-            log.fatal(ex);
+            log.fatal(ex.getMessage(),ex);
             resp.addProperty("code", 500);
         } catch (PostException ex) {
             log.warn(ex.getMessage());
@@ -115,6 +120,14 @@ public class PostController {
     public @ResponseBody
     JsonArray loadPostsById(@PathVariable("type") String type, @PathVariable("id") Long id) {
         return postService.getPost(id);
+    }
+    
+    @RequestMapping("/load/{type}/tag/{tag}")
+    public @ResponseBody
+    JsonObject loadPostsByTag(@PathVariable("type") String type, @PathVariable("tag") String tag,
+            @RequestParam(value = "start", defaultValue = "0") int start,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return postService.getPostByTag(type,tag,start,size);
     }
 
 //    @RequestMapping("/jokes/like/{id}")
@@ -173,26 +186,21 @@ public class PostController {
             List<String> msgs = IdmUtils.listValidationMsgs(cve.getConstraintViolations());
             resp.addProperty("code", 501);
             resp.add("msgs", new Gson().toJsonTree(msgs));
+            log.warn(new Gson().toJson(msgs));
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.fatal(e.getMessage(), e);
             resp.addProperty("code", 500);
         }
 
         return resp;
     }
-
-    private void createCommentsArray(List<Object[]> comments, ArrayNode arr) {
-        for (Object[] res : comments) {
-            ObjectNode ob = new ObjectNode(JsonNodeFactory.instance);
-
-            ob.put("id", (Long) res[0]);
-            ob.put("text", (String) res[2]);
-            ob.put("duration", IdmUtils.convertPostedTime(((Calendar) res[1]).getTimeInMillis()));
-            User u = (User) res[3];
-            ob.put("imageURL", "/scribbleit/posts/img/" + u.getPicture());
-            ob.put("poster", u.getScreenName());
-            arr.add(ob);
-        }
+    
+    @RequestMapping("/tags")
+    public @ResponseBody
+    List<Object[]> tags() {
+        return tagService.getTags();
     }
+
+    
 
 }

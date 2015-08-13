@@ -8,7 +8,7 @@
 ctrls.controller('RegController', ['$scope', '$http', function($scope, $http) {
         $scope.register = function() {
             $scope.reg.posting = true;
-            $http.post('/scribbleit/users/register', $scope.user).success(function(resp) {
+            $http.post('users/register', $scope.user).success(function(resp) {
                 $scope.reg.posting = false;
                 console.log(resp);
                 $scope.reg.build(resp);

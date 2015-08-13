@@ -5,9 +5,23 @@
  */
 
 
-ctrls.controller('loginCtrl', function ($scope, $http, $rootScope, services, regPath, facebookService, gapiService, $window) {
+ctrls.controller('lgmodalCtrl', function ($scope, $http, $rootScope, services, regPath, facebookService, gapiService, $window) {
     //TEST
     /////
+    $scope.$on('login.modal.shown', function () {
+        $scope.loginAlerts = [];
+        $scope.user = {};
+    });
+
+    $scope.forgotPassword = function () {
+        services.closeModal('loginModal');
+        $rootScope.route('forgot-password');
+    };
+    $scope.toSignup = function () {
+        services.closeModal('loginModal');
+        $rootScope.route('signup');
+    };
+
     $scope.fblogin = function () {
         services.showMsg('Facebook Authentication...');
         facebookService.checkLoginState().then(function (response) {
@@ -50,16 +64,19 @@ ctrls.controller('loginCtrl', function ($scope, $http, $rootScope, services, reg
                 $scope.soc = resp;
 
                 $scope.socAlerts = [];
+                services.closeModal('loginModal');
                 services.openModal('socAcctModal');
             } else if (resp.code === 201) {
                 $scope.loginSuccess();
             }
             else if (resp.code === 202) {
                 $scope.sl = resp;
+                console.log('before closed');
+                services.closeModal('loginModal');
+//                alert('closed');
                 services.openModal('linkAcctModal');
-            }else if (resp.code === 190) {
-                services.notify('Facebook session expired. Refresh page and try again');
-            }else{
+//                alert('opened');
+            }else {
                 services.notify('Unexpected error occurred!');
             }
         }).error(function (data, status) {
@@ -79,14 +96,16 @@ ctrls.controller('loginCtrl', function ($scope, $http, $rootScope, services, reg
                 $scope.soc.username = resp.name;
                 $scope.soc = resp;
                 $scope.socAlerts = [];
+                services.closeModal('loginModal');
                 services.openModal('socAcctModal');
             } else if (resp.code === 201) {
                 $scope.loginSuccess();
             }
             else if (resp.code === 202) {
                 $scope.sl = resp;
+                services.closeModal('loginModal');
                 services.openModal('linkAcctModal');
-            }else{
+            }else {
                 services.notify('Unexpected error occurred!');
             }
         }).error(function (data, status) {
@@ -97,20 +116,18 @@ ctrls.controller('loginCtrl', function ($scope, $http, $rootScope, services, reg
 
     $scope.gglogin = function () {
         services.showMsg('Google Authentication...');
-//        if (gapiService.checkLoginState()) {
-//            console.log('already logged in to google');
-//            gapiService.myDetails()
-//                    .then(function (response) {
-//                        console.log(response);
-//                        $scope.sendGGtoken(response.getAuthResponse().access_token);
-//                    });
-//        } else {
-            
+        if (gapiService.checkLoginState()) {
+            console.log('already logged in to google');
+            gapiService.myDetails()
+                    .then(function (response) {
+                        $scope.sendGGtoken(response.currentUser.B.B.access_token);
+                    });
+        } else {
+            services.hideMsg();
             gapiService.login().then(function (response) {
-                services.hideMsg();
                 $scope.sendGGtoken(response.getAuthResponse().access_token);
             });
-//        }
+        }
     };
 
     $scope.gglogout = function () {
@@ -159,102 +176,18 @@ ctrls.controller('loginCtrl', function ($scope, $http, $rootScope, services, reg
             $scope.loginSuccess();
         }).error(function (resp, e) {
             services.hideMsg();
-//            console.log(e);
+            console.log(e);
             services.isAuthenticated = false;
             if (e === 404)
-                $scope.alerts = services.buildAlerts([{code: e, msg: 'email or password wrong'}]);
+                $scope.loginAlerts = services.buildAlerts([{code: e, msg: 'email or password wrong'}]);
             else if (e === 501)
                 $rootScope.navigate('inactive', {email: $scope.user.email});
-            else if (e === 401)
-                $scope.alerts = services.buildAlerts([{code: e, msg: 'Your account has been locked'}]);
         });
     };
 
     $scope.loginSuccess = function () {
-//            $rootScope.isAuthenticated = true;
-        if (angular.isUndefined($rootScope.previous) || $rootScope.previous === '') {
-            $rootScope.route('home.jokes');
-//                else $rootScope.route($rootScope.previous);
-//                $rootScope.route('home.jokes');
-        }
-        else {
-            console.log($rootScope.previous);
-            if (['login', 'signup', 'signup-complete', 'activate', 'forgot-password', 'home', 'profile.activity', 'inactive'].indexOf($rootScope.previous) !== -1) {
-                $rootScope.route('home.jokes');
-            }
-            else
-                $rootScope.route($rootScope.previous);
-        }
         $rootScope.getCurrentUser();
+        services.closeModal('loginModal');
     };
 
-    $scope.signup = function () {
-        services.showMsg('Creating Account...');
-        $scope.loading = true;
-        $http.post(regPath + '/signup', $scope.user).success(function (resp) {
-            $scope.alerts = services.buildAlerts([{code: resp.code, msg: resp.msg}]);
-            services.hideMsg();
-            if (resp.code === 0) {
-                $rootScope.navigate('signup-complete');
-            }
-        });
-    };
-})
-
-        .controller('signupCtrl', function ($scope, $http, regPath, services, $rootScope) {
-
-        })
-
-        .controller('fpasswordCtrl', function ($scope, $http, usersPath, services, regPath) {
-            $scope.isCollapsed = true;
-            $scope.loading = false;
-
-            $scope.forgetToken = function () {
-                $scope.loading = true;
-                $http.get(regPath + '/password/forgot?email=' + $scope.User.email).success(function (resp) {
-                    $scope.alerts = services.buildAlerts([{code: resp.code, msg: resp.msg}]);
-                    $scope.loading = false;
-
-                    if (resp.code === 0) {
-                        $scope.isCollapsed = false;
-                    }
-                });
-            };
-
-            $scope.resetPassword = function () {
-                if (confirm('reset password?') === false)
-                    return;
-                $scope.loading = true;
-                $http.post(regPath + '/password/reset', $scope.User).success(function (resp) {
-                    $scope.loading = false;
-                    $scope.alerts = services.buildAlerts([{code: resp.code, msg: resp.msg}]);
-                    if (resp.code === 0)
-                        $scope.isCollapsed = true;
-                });
-            };
-        })
-        .controller('actvCtrl', function ($scope, $http, services, regPath, $stateParams) {
-            services.showMsg('Please Wait...');
-//            console.log($stateParams);
-            $http.get(regPath + '/activate?t=' + encodeURIComponent($stateParams.t)).success(function (resp) {
-                $scope.msg = resp.msg;
-                services.hideMsg();
-            });
-        })
-        .controller('inactvCtrl', function ($scope, $http, services, regPath, $stateParams, $timeout, $rootScope) {
-            $scope.email = $stateParams.email;
-
-            $scope.resend = function () {
-                $scope.resending = true;
-//                $timeout(function(){
-//                    $scope.resending = false;
-//                },3000);
-                $http.get(regPath + '/resend?email=' + $scope.email).success(function (resp) {
-                    $scope.resending = false;
-                    services.notify(resp.msg, 3000);
-                    if (resp.code !== 500)
-                        $rootScope.navigate('login');
-                });
-            };
-
-        });
+});

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams) {
+ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams,$window) {
     $scope.$on('newPostBroadcast', function (e, j) {
 //        console.log(j);
         $scope.proverbs.unshift(j);
@@ -22,13 +22,15 @@ ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $tim
         }, 1000);
     };
 
-    $scope.unlike = function (proverb) {
-        proverb.liking = true;
-        $timeout(function () {
-            proverb.liked = false;
-            proverb.likes--;
-            proverb.liking = false;
-        }, 1000);
+    $scope.share = function (i,prov) {
+        var u = '/p/p/';
+        var shareurls=[
+            'http://www.facebook.com/share.php?'+$.param({u:$rootScope.endpoint+u+prov.id,t:prov.post}),
+            'https://twitter.com/intent/tweet?'+$.param({url:$rootScope.endpoint+u+prov.id,text:prov.post}),
+            'https://mail.google.com/mail/?'+$.param({view:'cm',fs:1,su:'share a proverb',body:prov.post+'['+$rootScope.endpoint+u+prov.id+']'}),
+            'https://plus.google.com/share?'+$.param({url:$rootScope.endpoint+u+prov.id})
+        ];
+        $window.open(shareurls[i], "MsgWindow", "width=700, height=600");
     };
 
     $scope.loadComments = function (proverb) {
@@ -63,8 +65,13 @@ ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $tim
             proverb.myComment = '';
             proverb.showComments = true;
             proverb.makeComment = !proverb.makeComment;
-        }).error(function (r) {
+        }).error(function (data, status) {
             proverb.oncomment = false;
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                services.popLogin();
+            } else
+                services.notify("Service unavailable");
         });
     };
 
@@ -105,24 +112,24 @@ ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $tim
     }
 ///////////////////////////
     function loadById(id) {
-        $rootScope.loading = true;
+        services.showMsg('Loading...');
         $http.get(postsPath + '/load/proverb/' + id).success(function (resp) {
-            $rootScope.loading = false;//hide loading..
+            services.hideMsg();//hide loading..
             $scope.proverbs = resp;//display jokes
 
         }).error(function (data, status) {
-            $rootScope.loading = false;
+            services.hideMsg();
         });
     }
 
     function loadPosts() {
-        $rootScope.loading = true;
+        services.showMsg('Loading Proverbs...');
         $http.get(postsPath + '/load/proverb?start=0&size=10').success(function (resp) {
-            $rootScope.loading = false;//hide loading..
-            $scope.proverbs = resp;//display jokes
+            services.hideMsg();//hide loading..
+            $scope.proverbs = resp.posts;//display jokes
 
         }).error(function (r) {
-            $rootScope.loading = false;
+            services.hideMsg();
         });
     }
 

@@ -1,10 +1,10 @@
 <section class="post-container" ng-repeat="quote in quotes">
-    <div class="row">
-        <div class="col-md-1">
+    <div class="media">
+        <div class="pull-left">
             <img src="{{usersPath}}/img/{{quote.imageURL}}" class="poster-img" width="60" height="60"/>
         </div>
-        <div  class="col-md-11">
-            
+        <div  class="media-body">
+
             <blockquote>
                 <div class="quote-person"><a href="#/profile/{{quote.poster}}" class="person" ng-bind="quote.poster"></a>
                     on <span class="date-grey" ng-bind="quote.duration"></span>
@@ -21,53 +21,60 @@
     <!--ACTION BAR-->
     <div class="action-bar">
         <ul class="list-inline">
-<!--            <li><a href="" ng-hide="quote.liking || quote.liked" ng-click="like(quote)">Like</a>
-            <li><a href="" ng-hide="quote.liking || !quote.liked" ng-click="unlike(quote)">Unlike</a>
-                <img ng-show="quote.liking" src="{{spinner}}"/>
-            </li>-->
+            <!--            <li><a href="" ng-hide="quote.liking || quote.liked" ng-click="like(quote)">Like</a>
+                        <li><a href="" ng-hide="quote.liking || !quote.liked" ng-click="unlike(quote)">Unlike</a>
+                            <img ng-show="quote.liking" src="{{spinner}}"/>
+                        </li>-->
             <li><a href="" ng-click="quote.makeComment = !quote.makeComment">Comment</a></li>
             <li>
-                <a href="#">Share</a>
+                <a href="" ng-click="openReport(quote)">Report</a>
             </li>
             <li>
-                <a href="" ng-click="openReport(quote)">Report</a>
+                <button class="btn btn-xs btn-default" ng-click="share(0, quote)" title="share on facebook">facebook</button>
+                <button class="btn btn-xs btn-default" ng-click="share(1, quote)" title="share on twitter">twitter</button>
+                <button class="btn btn-xs btn-default" ng-click="share(2, quote)" title="share on gmail">gmail</button>
+                <button class="btn btn-xs btn-default" ng-click="share(3, quote)" title="share on google+">g+</button>
             </li>
         </ul>
     </div>
     <!--COMMENTS-->
     <div class="row comments">
         <span class="pull-right" style="position: relative" ng-hide="quote.oncomment || quote.commentsLength === 0">
-            <a href="" ng-click="loadComments($index)" ng-hide="quote.showComments">show comments</a>
-            <a href="" ng-click="hideComments($index)" ng-hide="!quote.showComments">hide comments</a>
+            <a href="" ng-click="loadComments(quote)" ng-hide="quote.showComments">show comments</a>
+            <a href="" ng-click="hideComments(quote)" ng-hide="!quote.showComments">hide comments</a>
             <img ng-show="quote.loadingComments" ng-src="{{spinner}}"/>
         </span>
-        <div ng-cloak ng-show="quote.showComments">
-            <div class="row comment" ng-repeat="comment in quote.comments">
-                <div class="col-md-1">
-                    <img ng-src="{{usersPath}}/img/{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
-                </div>
-                <div class="col-md-9">
-                    <div class="row">
-                        <a href="#" class="person">{{comment.poster}}</a>
-                        <span class="date-grey" style="margin:0px 10px">{{comment.duration}}</span>
+        <div class="col-md-10 col-lg-offset-1" ng-cloak ng-show="quote.showComments">
+                <div class="row comment" ng-repeat="comment in quote.comments">
+                    <div class="col-md-1">
+                        <img ng-src="{{usersPath}}/img/{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
                     </div>
-                    <div class="row post">
-                        <p>{{comment.text}}</p>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <a href="#/profile/{{comment.poster}}" class="person">{{comment.poster}}</a>
+                            <span class="date-grey" style="margin:0px 10px">{{comment.duration}}</span>
+                        </div>
+                        <div class="row post">
+                            <p>{{comment.text}}</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
     </div>
     <!--COMMENT TEXT BLOCK-->
     <div class="my-comment" collapse="!quote.makeComment">
-        <div class="row"><div class="col-md-12"><textarea ng-model="quote.myComment" style="width: 100%" placeholder="comment on this joke"></textarea></div></div>
-        <div class="pull-right margin-top-10">
-            <button class="btn btn-warning btn-sm" ng-click="quote.makeComment = !quote.makeComment" ng-hide="quote.oncomment">cancel</button>
-            <button class="btn btn-info btn-sm" ng-click="comment($index)" ng-hide="quote.oncomment">comment</button>
-            <span ng-show="quote.oncomment"><img ng-src="{{spinner}}"/> saving comment...</span>
-        </div>
-        <div class="clearfix"></div>
+        <div class="row">
+                <div class="col-md-10 col-lg-offset-1"><textarea ng-model="quote.myComment" style="width: 100%" placeholder="comment on this"></textarea></div>
+            </div>
+            <div class="row">
+                <div class="col-md-10 col-lg-offset-1 margin-top-10">
+                    <button class="btn btn-warning btn-sm" ng-click="quote.makeComment = !quote.makeComment" ng-hide="quote.oncomment">cancel</button>
+                    <button class="btn btn-info btn-sm" ng-click="comment($index)" ng-hide="quote.oncomment">comment</button>
+                    <span ng-show="quote.oncomment"><img ng-src="{{spinner}}"/> saving comment...</span>
+                </div>
+            </div>
     </div>
 
 </section>
+<pager total-items="totalPosts" ng-model="query.page" ng-change="loadPosts()" items-per-page="query.size"></pager>
 <div ng-include="'static/posts/report.html'"></div>

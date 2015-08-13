@@ -6,7 +6,6 @@
 package com.dubic.scribbleit.controllers;
 
 import com.dubic.scribbleit.db.Database;
-import com.dubic.scribbleit.idm.spi.IdentityService;
 import com.dubic.scribbleit.utils.IdmUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -28,8 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class SearchController {
 
     private final Logger log = Logger.getLogger(getClass());
-    @Autowired
-    private IdentityService idmService;
     @Autowired
     private Database db;
 

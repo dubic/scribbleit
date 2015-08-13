@@ -4,8 +4,8 @@
  */
 package com.dubic.scribbleit.idm.auth;
 
-import com.dubic.scribbleit.idm.spi.IdentityService;
-import javax.inject.Inject;
+import com.dubic.scribbleit.idm.spi.IdentityServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,8 +17,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Inject
-    private IdentityService userService;
+    @Autowired
+    private IdentityServiceImpl userService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

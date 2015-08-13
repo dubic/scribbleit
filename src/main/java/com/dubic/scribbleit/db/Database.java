@@ -43,13 +43,12 @@ public class Database {
     public <T> void merge(T... entities) throws PersistenceException {
         for (T t : entities) {
             em.merge(t);
-            log.debug(String.format("merged [%s]", t));
+//            log.debug(String.format("merged [%s]", t));
         }
     }
 
     @Transactional("dbtrans")
     public <T> void delete(T t) throws PersistenceException {
-        log.debug("delete {}");
         em.remove(t);
         log.debug("delete completed...");
     }

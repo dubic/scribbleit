@@ -5,35 +5,29 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 
-<!--<div
-  class="fb-like"
-  data-share="true"
-  data-width="450"
-  data-show-faces="true">
-</div>-->
 <div>
     <section class="post-container" ng-repeat="joke in jokes">
         <div class="row title">
             <span ng-bind="joke.title"></span>
         </div>
-        <div class="row">
-            <div class="col-md-1">
+        <div class="media">
+            <div class="pull-left">
                 <img ng-src="{{usersPath}}/img/{{joke.imageURL}}" class="poster-img" width="60" height="60"/>
             </div>
-            <div  class="col-md-10">
+            <div  class="media-body">
                 <div><a href="#/profile/{{joke.poster}}" class="person" ng-bind="joke.poster"></a></div>
                 <div><span class="date-grey">{{joke.duration}}</span></div>
                 <div class="stats">
                     <!--<i class="icon-thumbs-up"> <span class="likes" ng-bind="joke.likes"></span></i>-->
                     <i class="icon-comment"> <span ng-bind="joke.commentsLength"></span></i>
-                    <i class="icon-tags"><span ng-repeat="t in joke.tags"> <a href="#/jokes/tags/{{t}}">&num;{{t}}</a></span></i>
+                    <i class="icon-tags"><span ng-repeat="t in joke.tags"> <a href="" ng-click="forTags(t)">&num;{{t}}</a></span></i>
                 </div>
             </div>
         </div>
         <!--MAIN POST MESSAGE-->
         <div class="post">
             <p ng-bind="joke.post"></p>
-            <div class="center" style="width: 500px" ng-show="joke.image"><img width="350" height="450" src="http://localhost:7070/services/s3/img?id={{joke.image}}" /></div>
+            <div class="center" style="width: 500px" ng-show="joke.image"><img width="350" height="450" ng-src="{{joke.image}}" /></div>
         </div>
         <!--ACTION BAR-->
         <div class="action-bar">
@@ -44,40 +38,45 @@ and open the template in the editor.
                             </li>-->
                 <li><a href="" ng-click="joke.makeComment = !joke.makeComment">Comment</a></li>
                 <li>
-                    <a href="" onclick="$(this).parent().find('.dpopover').slideDown();">Share</a>
-                    <div class="dpopover">
-                        <ul class="social-icons  social-icons-color">
-                            <li><a href="#" data-original-title="facebook" class="facebook"></a></li>
-                            <li><a href="#" data-original-title="Goole Plus" class="googleplus"></a></li>
-                            <li><a href="#" data-original-title="twitter" class="twitter"></a></li>
-                            <li><a href="" ng-click="openShare(joke)" class="emailimg" style="background-position:0 0 !important"></a></li>
-                        </ul>
-                    </div>
+                    <a href="" ng-click="openReport(joke)">Report</a>
                 </li>
                 <li>
-                    <a href="" ng-click="openReport(joke)">Report</a>
+                    <button class="btn btn-xs btn-default" ng-click="share(0, joke)" title="share on facebook">facebook</button>
+                <button class="btn btn-xs btn-default" ng-click="share(1, joke)" title="share on twitter">twitter</button>
+                <button class="btn btn-xs btn-default" ng-click="share(2, joke)" title="share on gmail">gmail</button>
+                <button class="btn btn-xs btn-default" ng-click="share(3, joke)" title="share on google+">g+</button>
+                    
+                    <!---->
+<!--                    <div data-addthis-toolbox data-url="http://localhost:7070" id="bp-{{joke.id}}" 
+                         class="addthis_toolbox addthis_default_style addthis_16x16_style" data-text="Scribbles joke">
+                        <a class="addthis_button_facebook"></a>
+                        <a class="addthis_button_twitter"></a>
+                        <a class="addthis_button_google_plusone_share"></a>
+                        <a class="addthis_button_email"></a>
+                    </div>-->
+
                 </li>
             </ul>
         </div>
         <!--COMMENTS-->
         <div class="row comments">
             <span class="pull-right" style="position: relative" ng-hide="joke.oncomment || joke.commentsLength === 0">
-                <a href="" ng-click="loadComments($index)" ng-hide="joke.showComments">show comments</a>
-                <a href="" ng-click="hideComments($index)" ng-hide="!joke.showComments">hide comments</a>
+                <a href="" ng-click="loadComments(joke)" ng-hide="joke.showComments">show comments</a>
+                <a href="" ng-click="hideComments(joke)" ng-hide="!joke.showComments">hide comments</a>
                 <img ng-show="joke.loadingComments" ng-src="{{spinner}}"/>
             </span>
             <div class="col-md-10 col-lg-offset-1" ng-cloak ng-show="joke.showComments">
-                <div class="row comment" ng-repeat="comment in joke.comments">
-                    <div class="col-md-1">
+                <div class="media comment" ng-repeat="comment in joke.comments">
+                    <div class="pull-left">
                         <img ng-src="{{usersPath}}/img/{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
                     </div>
-                    <div class="col-md-9">
-                        <div class="row">
-                            <a href="#" class="person">{{comment.poster}}</a>
+                    <div class="media-body">
+                        <div>
+                            <a href="#/profile/{{comment.poster}}" class="person">{{comment.poster}}</a>
                             <span class="date-grey" style="margin:0px 10px">{{comment.duration}}</span>
                         </div>
-                        <div class="row post">
-                            <p>{{comment.text}}</p>
+                        <div class="post-text">
+                           {{comment.text}}
                         </div>
                     </div>
                 </div>
@@ -96,15 +95,10 @@ and open the template in the editor.
                 </div>
             </div>
         </div>
-
-        <!--<div ng-include="report.html"></div>-->
-        <!--    <jsp:include page="report.jsp"/>
-            <jsp:include page="share-dlg.jsp"/>-->
     </section>
-    
+
     <pager total-items="totalPosts" ng-model="query.page" ng-change="loadPosts()" items-per-page="query.size"></pager>
     <!--<button class="btn-block btn btn-default" ng-show="moreJokes || !loading" ng-click="nextPage()">More jokes</button>-->
 
     <div ng-include="'static/posts/report.html'"></div>
-    <div ng-include="'static/posts/share-dlg.html'"></div>
 </div>

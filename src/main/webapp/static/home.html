@@ -5,6 +5,7 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 <link href="resources/css/home.css" rel="stylesheet" type="text/css"/>
+
 <div>
     <div class="middle-page-2" ng-controller="mainCtrl">
         <!--<button class="btn btn-danger" ng-click="dialog()">open</button>-->
@@ -77,10 +78,13 @@ and open the template in the editor.
             </form>
         </div>
 
-        <section class="container">
-            <div ui-view></div>
+        <section class="row container">
+            <div ui-view class="col-md-8"></div>
+            <div class="col-md-4"></div>
 
 
         </section>
+        <div ng-include="'static/reg/login-modal.html'"></div>
     </div>
+    
 </div>

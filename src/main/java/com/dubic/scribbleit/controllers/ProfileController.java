@@ -5,21 +5,22 @@
  */
 package com.dubic.scribbleit.controllers;
 
+import com.dubic.scribbleit.email.MailServiceImpl;
 import com.dubic.scribbleit.email.SimpleMailEvent;
-import com.dubic.scribbleit.idm.spi.IdentityService;
+import com.dubic.scribbleit.idm.spi.IdentityServiceImpl;
 import com.dubic.scribbleit.models.User;
 import com.dubic.scribbleit.posts.PostService;
 import com.dubic.scribbleit.utils.IdmCrypt;
 import com.dubic.scribbleit.utils.IdmUtils;
 import com.dubic.scribbleit.utils.InvalidException;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,9 +39,13 @@ public class ProfileController {
 
     private final Logger log = Logger.getLogger(getClass());
     @Autowired
-    private IdentityService identityService;
+    private IdentityServiceImpl identityService;
     @Autowired
     private PostService postService;
+    @Value("${logo}")
+    private String logo;
+    @Autowired
+    private MailServiceImpl mailService;
 
     @RequestMapping("/details/{name}")
     public @ResponseBody
@@ -51,7 +56,8 @@ public class ProfileController {
             resp.addProperty("exists", false);
             return resp;
         }
-        if (user.equals(identityService.getUserLoggedIn())) {
+        User userInSession = identityService.getUserLoggedIn();
+        if (user.equals(userInSession)) {
             resp.addProperty("isMe", Boolean.TRUE);
         } else {
             resp.addProperty("isMe", Boolean.FALSE);
@@ -68,12 +74,13 @@ public class ProfileController {
         resp.addProperty("proverbs", user.getProfile().getProverbs());
         resp.addProperty("quotes", user.getProfile().getQuotes());
         resp.addProperty("hasPwd", !StringUtils.isEmpty(user.getPassword()));
+        resp.addProperty("session", (userInSession != null));
         return resp;
     }
 
     @RequestMapping("/posts/{name}")
     public @ResponseBody
-    JsonArray profileActivity(@PathVariable("name") String username) {
+    JsonObject profileActivity(@PathVariable("name") String username) {
 //        JsonObject resp = new JsonObject();
         return postService.getLatestsUserPosts(username, 0, 10);
     }
@@ -90,7 +97,7 @@ public class ProfileController {
             user.setFirstname(firstname);
             user.setLastname(lastname);
             this.identityService.updateUser(user);
-
+            log.infof("Account updated [%s]", user.getScreenName());
             resp.addProperty("code", 0);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -103,15 +110,15 @@ public class ProfileController {
     @RequestMapping({"/change-password"})
     @ResponseBody
     public JsonObject changePassword(@RequestBody JsonObject params) {
+        log.debug("changePassword(...)");
         JsonObject resp = new JsonObject();
         try {
-            String current = params.get("current") == null ? null : params.get("current").getAsString();
+            String current = params.get("oldpword") == null ? null : params.get("oldpword").getAsString();
             String newpword = params.get("newpword") == null ? null : params.get("newpword").getAsString();
 
-//            IdmUtils.validate(current).notEmpty("current passsword not supplied");
-            IdmUtils.validate(newpword).notEmpty("new passsword not supplied");
+            IdmUtils.validate(newpword).notEmptyString("new passsword not supplied");
+            IdmUtils.validate(current).notEmptyString("current passsword not supplied");
             this.identityService.changePassword(current, newpword);
-
             resp.addProperty("code", 0);
         } catch (InvalidException e) {
             log.warn(e.getMessage());
@@ -129,9 +136,9 @@ public class ProfileController {
     public @ResponseBody
     JsonObject validateEmail(@RequestParam("p") String email, HttpSession session) {
         JsonObject resp = new JsonObject();
-
+        log.debugf("validateEmail(%s)", email);
         try {
-            IdmUtils.validate(email).notEmpty("email is required");
+            IdmUtils.validate(email).notEmptyString("email is required");
             String passcode = IdmCrypt.generateTimeToken();
             session.setAttribute(passcode, email.trim());
             //send email
@@ -139,12 +146,13 @@ public class ProfileController {
             SimpleMailEvent mail = new SimpleMailEvent(email);
             mail.setSubject("Email Reset");
             Map model = new HashMap();
-//            model.put("logo", logo);
-//            model.put("username", user.getScreenName());
-//            model.put("passcode", passcode);
-//            mailService.sendMail(mail, "email-reset.vm", model);
+            model.put("logo", logo);
+            model.put("username", user.getScreenName());
+            model.put("passcode", passcode);
+            mailService.sendMail(mail, "email-reset.vm", model);
             resp.addProperty("code", 0);
             log.debug("TOKEN : " + passcode);
+            log.infof("Email validation code done...[%s]", user.getScreenName());
         } catch (InvalidException ex) {
             log.warn(ex.getMessage(), ex);
             resp.addProperty("code", 302);
@@ -160,6 +168,7 @@ public class ProfileController {
     @RequestMapping(value = "/change-email")
     public @ResponseBody
     JsonObject updateEmail(@RequestBody JsonObject prms, HttpSession session) {
+        log.debugf("updateEmail(%s)", prms);
         JsonObject resp = new JsonObject();
         System.out.println(new Gson().toJson(prms));
         try {
@@ -168,6 +177,7 @@ public class ProfileController {
             //VALIDATE PASSCODE
             Object newEmail = session.getAttribute(passcode);
             if (newEmail == null) {
+                log.warn("/profile/change-email : newEmail null");
                 throw new InvalidException("your passcode has expired");
             }
 

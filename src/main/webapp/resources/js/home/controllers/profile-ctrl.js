@@ -11,7 +11,7 @@ ctrls.controller('profileCtrl', function ($scope, $http, $rootScope, $timeout, s
 
 
     $scope.loadProfile = function () {
-//        console.log($stateParams);
+        console.log($stateParams);
         if (angular.isUndefined($stateParams.user) || $stateParams.user === '') {
             $rootScope.route('home.jokes');
             return;
@@ -31,6 +31,10 @@ ctrls.controller('profileCtrl', function ($scope, $http, $rootScope, $timeout, s
 
     };
     $scope.loadProfile();
+    
+    $scope.$on('logged.out',function(){
+       $scope.loadProfile();
+    });
 
 
     $scope.upload = function (files) {
@@ -57,8 +61,11 @@ ctrls.controller('profileCtrl', function ($scope, $http, $rootScope, $timeout, s
 //                    console.log('file ' + config.file.name + 'uploaded. Response: ' + data);
                 }).error(function (data, status) {
                     $scope.uploading = false;
-                    if (status === 403)
-                        $rootScope.sessionTimedOut();
+                    if (status === 407) {
+                        $rootScope.sessionTimeout();
+                        $rootScope.route('login');
+                    } else
+                        services.notify("Service unavailable");
                 });
             }
         }
@@ -80,8 +87,12 @@ ctrls.controller('activityCtrl', function ($scope, $http, $rootScope, profPath, 
 
         $rootScope.loadingActivity = false;
         $http.get(profPath + '/posts/' + $stateParams.user).success(function (resp) {
-            $scope.Activity.posts = resp;
+            $scope.Activity.posts = resp.posts;
             $rootScope.loadingActivity = false;
+            if ($scope.session === false) {
+                $rootScope.isAuthenticated = false;
+                $rootScope.$broadcast('session.timeout');
+            }
         }).error(function (data, status) {
             $rootScope.loadingActivity = false;
             services.notify('unexpected server error occurred');
@@ -127,8 +138,11 @@ ctrls.controller('accountCtrl', function ($scope, $http, $rootScope, $timeout, s
             }
         }).error(function (data, status) {
             $scope.saving = false;
-            if (status === 403)
-                $rootScope.sessionTimedOut();
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                services.popLogin();
+            } else
+                services.notify("Service unavailable");
         });
     };
 
@@ -136,12 +150,13 @@ ctrls.controller('accountCtrl', function ($scope, $http, $rootScope, $timeout, s
 
 ctrls.controller('pwordCtrl', function ($scope, $http, $rootScope, $timeout, services, profPath) {
     $scope.Account = $scope.Profile;
+    $scope.P = {};
 
     $scope.savePassword = function () {
         if (confirm('update password?') === false)
             return;
         $scope.saving = true;
-        $http.post(profPath + '/change-password', {current: $scope.current, newpword: $scope.newpword}).success(function (resp) {
+        $http.post(profPath + '/change-password', $scope.P).success(function (resp) {
             $scope.saving = false;
             if (resp.code === 0) {
                 $scope.pwordalerts = [{class: 'alert-success', msg: 'password changed successfully!'}];
@@ -150,8 +165,11 @@ ctrls.controller('pwordCtrl', function ($scope, $http, $rootScope, $timeout, ser
             }
         }).error(function (data, status) {
             $scope.saving = false;
-            if (status === 403)
-                $rootScope.sessionTimedOut();
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                $rootScope.route('login');
+            } else
+                services.notify("Service unavailable");
         });
     };
 
@@ -175,8 +193,11 @@ ctrls.controller('emailCtrl', function ($scope, $http, $rootScope, services, pro
 
         }).error(function (data, status) {
             $scope.validating = false;
-            if (status === 403)
-                $rootScope.sessionTimedOut();
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                $rootScope.route('login');
+            } else
+                services.notify("Service unavailable");
         });
     };
 
@@ -193,8 +214,11 @@ ctrls.controller('emailCtrl', function ($scope, $http, $rootScope, services, pro
 
         }).error(function (data, status) {
             $scope.saving = false;
-            if (status === 403)
-                $rootScope.sessionTimedOut();
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                $rootScope.route('login');
+            } else
+                services.notify("Service unavailable");
         });
     };
 

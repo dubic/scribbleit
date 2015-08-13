@@ -26,6 +26,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FBMe {
     private String id,email,first_name,last_name,name;
+    private FBError error;
 
     public String getId() {
         return id;
@@ -65,6 +66,14 @@ public class FBMe {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public FBError getError() {
+        return error;
+    }
+
+    public void setError(FBError error) {
+        this.error = error;
     }
     
 }

@@ -21,7 +21,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  *
  * @author Dubic
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties
 public class GooggleUser {
     private String sub,name,given_name,family_name,picture,email;
 

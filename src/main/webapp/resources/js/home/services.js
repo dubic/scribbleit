@@ -30,14 +30,27 @@ app.factory('services', function ($http, $timeout, $rootScope) {
         $('.modal-backdrop').remove();
     };
 
+    factory.popLogin = function () {
+        this.openModal('loginModal');
+        $rootScope.$broadcast('login.modal.shown');
+    };
 
 
-    factory.notify = function (msg) {
+
+    factory.notify = function (msg, dur) {
         $rootScope.notif = msg;
+        var d = dur ? dur : 2000;
         $timeout(function () {
             $rootScope.notif = undefined;
-        }, 2000);
+        }, d);
     };
+    factory.showMsg = function (msg) {
+        $rootScope.loadingMsg = msg;
+    };
+    factory.hideMsg = function () {
+        $rootScope.loadingMsg = undefined;
+    };
+
     factory.buildAlerts = function (msgs) {
         var a = [];
         $.each(msgs, function (i, m) {

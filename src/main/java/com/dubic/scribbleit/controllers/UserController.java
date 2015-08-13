@@ -8,7 +8,7 @@ package com.dubic.scribbleit.controllers;
 import com.dubic.scribbleit.dto.UniqueValidation;
 import com.dubic.scribbleit.dto.UserData;
 import com.dubic.scribbleit.email.MailServiceImpl;
-import com.dubic.scribbleit.idm.spi.IdentityService;
+import com.dubic.scribbleit.idm.spi.IdentityServiceImpl;
 import com.dubic.scribbleit.models.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +40,7 @@ public class UserController {
 
     private final Logger log = Logger.getLogger(getClass());
     @Autowired
-    private IdentityService idmService;
+    private IdentityServiceImpl idmService;
     @Autowired
     private MailServiceImpl mailService;
     @Value("${picture.location}")

@@ -15,38 +15,42 @@ public class Validate {
 
     public Validate(Object test) {
         this.test = test;
-        if (test == null) {
-            throw new IllegalArgumentException("No test property");
-        }
+//        if (test == null) {
+//            throw new IllegalArgumentException("No test property");
+//        }
     }
 
-    public Validate notEmpty(String msg) throws InvalidException {
-        if (test instanceof String) {
-            if ((test == null) || (test.toString().trim().length() <= 0)) {
-                throw new InvalidException(msg);
+    public Validate notEmptyString(String msg) throws InvalidException {
+        if (test != null) {
+            if (test.toString().trim().length() > 0) {
+                return this;
             }
-        } else {
-            test = (String) test;
         }
-        return this;
+        throw new InvalidException(msg);
     }
 
     public Validate notLessthan(Number n, String msg) throws InvalidException, ClassCastException {
-
+        nullTest(n, msg);
         if (test instanceof Integer) {
-            if (((Integer) test).intValue() < n.intValue()) {
+            if (((Integer) test) < n.intValue()) {
                 throw new InvalidException(msg);
             }
         } else if (test instanceof Double) {
-            if (((Double) test).doubleValue() < n.doubleValue()) {
+            if (((Double) test) < n.doubleValue()) {
                 throw new InvalidException(msg);
             }
         } else if (test instanceof Long) {
-            if (((Long) test).longValue() < n.longValue()) {
+            if (((Long) test) < n.longValue()) {
                 throw new InvalidException(msg);
             }
         }
         return this;
+    }
+
+    private void nullTest(Object o, String msg) throws InvalidException {
+        if ((test == null) || (test.toString().trim().length() <= 0)) {
+            throw new InvalidException(msg);
+        }
     }
 
 }

@@ -107,7 +107,7 @@ public class IdmUtils {
     }
 
     public static RenderedImage resizeImage(int width, int height, BufferedImage image) {
-       Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+       Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
        int w = scaledImage.getWidth(null);
         int h = scaledImage.getHeight(null);
         int type = BufferedImage.TYPE_INT_RGB;  // other options

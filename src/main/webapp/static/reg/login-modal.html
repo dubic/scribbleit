@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div ng-controller="lgmodalCtrl">
+    <div class="modal fade"  id="loginModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true" >
+        <div class="modal-dialog" style="width: 400px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close dlg-close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title" id="myModalLabel">Login to your account</h4>
+                </div>
+                <div class="login" style="min-width: 40%;margin-top: 42px;">
+                    <aside class="content">
+                        <!--<form>-->
+                        <!--SOCIAL LOGIN-->
+                        <div class="margin-bottom-10">
+                            <a class="btn btn-block btn-social btn-facebook" ng-click="fblogin()"><i class="fa fa-facebook"></i> Sign in with Facebook</a>
+                            <a class="btn btn-block btn-social btn-google-plus" ng-click="gglogin()"><i class="fa fa-google"></i> Sign in with Google</a>
+                        </div>
+                        <!--END OF SOCIAL LOGIN-->
+                        <hr/>
+
+                        <div class="alert {{a.class}}" ng-repeat="a in loginAlerts" ng-click="alerts.splice($index, 1)">{{a.msg}}</div>
+                        <span id="loginLdr" class="ajax-loader pull-right" style="padding: 10px 0px;"><img src="assets/img/loading.gif"/></span>
+                        <div class="form-group">
+                            <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
+                            <label class="control-label visible-ie8 visible-ie9">Username</label>
+                            <div class="input-icon">
+                                <i class="icon-user"></i>
+                                <input type="email" class="form-control" placeholder="email" name="email" ng-model="user.email"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label visible-ie8 visible-ie9">Password</label>
+                            <div class="input-icon">
+                                <i class="icon-lock"></i>
+                                <input type="password" class="form-control" placeholder="password" name="password" ng-model="user.password"/>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <!--                <label class="checkbox">
+                                                <input type="checkbox" name="remember" value="1"/> Remember me
+                                            </label>-->
+                            <input type="submit" class="btn btn-info btn-block" value="Login" ng-click="login()"/>
+
+
+                        </div>
+                        <div class="forget-password">
+                            <h4>Forgot your password ?</h4>
+                            <p>no worries, click <a href="" ng-click="forgotPassword()"  id="forget-password">here</a>
+                                to reset your password.
+                            </p>
+                        </div>
+                        <div class="create-account">
+                            <p>
+                                Don't have an account yet ?&nbsp; 
+                                <a href="" ng-click="toSignup()" id="register-btn">Create an account</a>
+                            </p>
+                        </div>
+
+                        <!--</form>-->
+
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-include="'static/reg/social-new-acct.html'"></div>
+    <div ng-include="'static/reg/social-link-acct.html'"></div>
+</div>
+
+

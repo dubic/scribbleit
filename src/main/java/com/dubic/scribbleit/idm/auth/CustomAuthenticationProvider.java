@@ -6,13 +6,14 @@
 package com.dubic.scribbleit.idm.auth;
 
 import com.dubic.scribbleit.models.User;
-import com.dubic.scribbleit.idm.spi.IdentityService;
+import com.dubic.scribbleit.idm.spi.IdentityServiceImpl;
 import com.dubic.scribbleit.utils.IdmCrypt;
 import com.google.gson.Gson;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.ProviderNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,19 +30,20 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final Logger log = Logger.getLogger(getClass());
     @Autowired
-    private IdentityService userService;
+    private IdentityServiceImpl userService;
 
     @Override
     public Authentication authenticate(Authentication a) throws AuthenticationException {
-        log.info(new Gson().toJson(a));
         log.debug(String.format("authenticating...[%s]", a.getName().toLowerCase()));
         String userId = a.getName().toLowerCase();
         User user = userService.findUserByEmailandPasword(userId, IdmCrypt.encodeMD5(a.getCredentials().toString().trim(), userId.toLowerCase().trim()));
         if (user != null) {
-//            if (!user.isActivated()) {
-//                throw new DisabledException("User account is not activated - " + userId);
-//            }
+            if (!user.isActivated()) {
+                log.warn(String.format("account not active [%s]", userId));
+                throw new DisabledException("User account is not activated - " + userId);
+            }
             if (user.isLocked()) {
+                log.warn(String.format("account locked [%s]", userId));
                 throw new LockedException("User account is locked - " + userId);
             }
 
@@ -56,6 +58,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             }
             return auth;
         } else {
+            log.warn(String.format("Invalid credentials [%s]", userId));
             throw new ProviderNotFoundException("User not found - " + userId);
         }
     }
@@ -65,9 +68,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
 
-    public void socialAuthentication(User user) {
+    public void socialAuthentication(User user,String provider) {
         Authentication auth = new UsernamePasswordAuthenticationToken(user.getEmail(), "no password", user.getRoles());
         SecurityContextHolder.getContext().setAuthentication(auth);
+        log.info(String.format("authentication through %s [%s]",provider, user.getEmail()));
         try {
             //set last login date
             user.setLastLoginDate(new Date());

@@ -5,7 +5,7 @@
  */
 
 
-ctrls.controller('quotesCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams) {
+ctrls.controller('quotesCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams,$window) {
     $scope.$on('newPostBroadcast', function (e, j) {
 //        console.log(j);
         $scope.quotes.unshift(j);
@@ -23,24 +23,31 @@ ctrls.controller('quotesCtrl', function ($scope, $http, services, $rootScope, $t
             quote.liking = false;
         }, 1000);
     };
-
-    $scope.unlike = function (index) {
-        var quote = $scope.quotes[index];
-        quote.liking = true;
-        $timeout(function () {
-            quote.liked = false;
-            quote.likes--;
-            quote.liking = false;
-        }, 1000);
+    
+    $scope.share = function (i,quote) {
+        var u = '/p/q/';
+        var shareurls=[
+            'http://www.facebook.com/share.php?'+$.param({u:$rootScope.endpoint+u+quote.id,t:quote.post}),
+            'https://twitter.com/intent/tweet?'+$.param({url:$rootScope.endpoint+u+quote.id,text:quote.post}),
+            'https://mail.google.com/mail/?'+$.param({view:'cm',fs:1,su:'share a quote',body:quote.post+'['+$rootScope.endpoint+u+quote.id+']'}),
+            'https://plus.google.com/share?'+$.param({url:$rootScope.endpoint+u+quote.id})
+        ];
+        $window.open(shareurls[i], "MsgWindow", "width=700, height=600");
     };
 
 
-    $scope.loadComments = function (index) {
-        var quote = $scope.quotes[index];
+    $scope.loadComments = function (quote) {
+        quote.loadingComments = true;
+        $http.get(postsPath + '/comments/' + quote.id).success(function (comments) {
+            quote.loadingComments = false;
+            quote.comments = comments;
+            quote.commentsLength = comments.length;
+        }).error(function (r) {
+            quote.loadingComments = false;
+        });
         quote.showComments = true;
     };
-    $scope.hideComments = function (index) {
-        var quote = $scope.quotes[index];
+    $scope.hideComments = function (quote) {
         quote.showComments = false;
     };
     $scope.comment = function (index) {
@@ -48,20 +55,27 @@ ctrls.controller('quotesCtrl', function ($scope, $http, services, $rootScope, $t
         if (angular.isUndefined(quote.myComment))
             return;
         quote.oncomment = true;
-        $timeout(function () {
+        $http.post(postsPath + '/comment/' + quote.id, JSON.stringify(quote.myComment)).success(function (resp) {
+            if (resp.code === 403) {
+                services.notify("Login to continue", $rootScope);
+                $rootScope.route('login');
+                return;
+            }
+
             quote.oncomment = false;
-            var c = {
-                text: quote.myComment,
-                poster: 'jack bauer',
-                duration: '3 jan 2015',
-                imageURL: '/scribbleit/posts/img/male.jpg'
-            };
-            quote.comments.push(c);
-            quote.commentsLength++;
+            quote.comments = resp.comments;
+            quote.commentsLength = resp.comments.length;
             quote.myComment = '';
             quote.showComments = true;
             quote.makeComment = !quote.makeComment;
-        }, 1000);
+        }).error(function (data, status) {
+            quote.oncomment = false;
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                services.popLogin();
+            } else
+                services.notify("Service unavailable");
+        });
     };
 
 
@@ -92,35 +106,37 @@ ctrls.controller('quotesCtrl', function ($scope, $http, services, $rootScope, $t
     };
 
 
-    ///////INIT FUNCTIONS///////////
-    if (!angular.isUndefined($stateParams.id) && $stateParams.id !== '' && $stateParams.id !== null) {
-        loadById($stateParams.id);
-    } else {
-        loadPosts();
-    }
+
 ///////////////////////////
-    function loadById(id) {
-        $rootScope.loading = true;
+    $scope.loadById = function (id) {
+        services.showMsg('Loading...');
         $http.get(postsPath + '/load/quote/' + id).success(function (resp) {
-            $rootScope.loading = false;//hide loading..
+            services.hideMsg();//hide loading..
             $scope.quotes = resp;//display jokes
 
         }).error(function (data, status) {
-            $rootScope.loading = false;
+            services.hideMsg();
         });
-    }
+    };
 
-    function loadPosts() {
-        $rootScope.loading = true;
-        $rootScope.loading = true;
-        $http.get(postsPath + '/load/quote?start=0&size=10').success(function (resp) {
-            $rootScope.loading = false;//hide loading..
-            $scope.quotes = resp;//display jokes
+    $scope.query = {
+        page: 1,
+        size: 5,
+        id: 0
+    };
+    $scope.loadPosts = function () {
+        services.showMsg('Loading Quotes...');
+        var p = {
+            start: ($scope.query.page - 1) * $scope.query.size, size: $scope.query.size, id: $scope.query.id
+        };
+        $http.post(postsPath + '/load/quote?start=0&size=10', p).success(function (resp) {
+            services.hideMsg();//hide loading..
+            $scope.quotes = resp.posts;//display jokes
 
         }).error(function (r) {
-            $rootScope.loading = false;
+            services.hideMsg();
         });
-    }
+    };
 
     $scope.openReport = function (post) {
         $scope.reports = {};
@@ -130,5 +146,11 @@ ctrls.controller('quotesCtrl', function ($scope, $http, services, $rootScope, $t
     };
 
 
-
+    ///////INIT FUNCTIONS///////////
+    console.log($stateParams);
+    if (!angular.isUndefined($stateParams.id) && $stateParams.id !== '' && $stateParams.id !== null) {
+        $scope.loadById($stateParams.id);
+    } else {
+        $scope.loadPosts();
+    }
 });

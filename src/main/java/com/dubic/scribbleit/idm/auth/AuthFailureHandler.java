@@ -27,7 +27,7 @@ public class AuthFailureHandler implements AuthenticationFailureHandler {
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest hsr, HttpServletResponse hsr1, AuthenticationException ae) throws IOException, ServletException {
-        log.info("AUTH failed : " + ae.getClass());
+        log.debug("AUTH failed : " + ae.getClass());
         if (ae instanceof ProviderNotFoundException) {
             hsr1.sendError(HttpServletResponse.SC_NOT_FOUND,"provider not found");//404
         } else if (ae instanceof DisabledException) {

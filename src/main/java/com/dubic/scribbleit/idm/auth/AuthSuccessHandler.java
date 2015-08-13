@@ -5,7 +5,7 @@
  */
 package com.dubic.scribbleit.idm.auth;
 
-import com.dubic.scribbleit.idm.spi.IdentityService;
+import com.dubic.scribbleit.idm.spi.IdentityServiceImpl;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class AuthSuccessHandler implements AuthenticationSuccessHandler {
 
     private final Logger log = Logger.getLogger(getClass());
-    @Autowired private IdentityService idmService;
+    @Autowired private IdentityServiceImpl idmService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest hsr, HttpServletResponse hsr1, Authentication a) throws IOException, ServletException {

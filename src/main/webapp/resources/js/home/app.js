@@ -4,14 +4,14 @@
  * and open the template in the editor.
  */
 
-var app = angular.module('AppHome', ['ui.router', 'ngAnimate', 'remoteValidation', 'InputMatch', 'ui.bootstrap', 'controllers', 'Scribbles', 'angularFileUpload', 'scFilters','facebook','google']);
-app.constant("usersPath", "/scribbleit/users");
-app.constant("regPath", "/scribbleit/registration");
-app.constant("spinner", "/scribbleit/resources/images/spinner.gif");
-app.constant("imagePath", "/scribbleit/posts/img");
-app.constant("postsPath", "/scribbleit/posts");
-app.constant("profPath", "/scribbleit/profile");
-app.constant("searchPath", "/scribbleit/search");
+var app = angular.module('AppHome', ['ui.router', 'ngAnimate', 'remoteValidation', 'InputMatch', 'ui.bootstrap', 'controllers', 'Scribbles', 'angularFileUpload', 'scFilters', 'facebook', 'google']);
+app.constant("usersPath", "users");
+app.constant("regPath", "registration");
+app.constant("spinner", "resources/images/spinner.gif");
+app.constant("imagePath", "posts/img");
+app.constant("postsPath", "posts");
+app.constant("profPath", "profile");
+app.constant("searchPath", "search");
 
 var ctrls = angular.module('controllers', []);
 //app.controller('headerCtrl',headerCtrl);
@@ -27,7 +27,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             state('signup', {
                 url: '/signup',
                 templateUrl: 'static/reg/signup.html',
-                controller: 'signupCtrl',
+                controller: 'loginCtrl',
                 data: {displayName: ''}
             }).
             state('signup-complete', {
@@ -97,6 +97,18 @@ app.config(function ($stateProvider, $urlRouterProvider) {
                 templateUrl: 'static/search.html',
                 controller: 'searchCtrl',
                 data: {displayName: ''}
+            }).
+            state('activate', {
+                url: '/activate?t',
+                templateUrl: 'static/reg/activation.html',
+                controller: 'actvCtrl',
+                data: {displayName: ''}
+            }).
+            state('inactive', {
+                url: '/inactive?email',
+                templateUrl: 'static/reg/inactive.html',
+                controller: 'inactvCtrl',
+                data: {displayName: ''}
             });
 
 //    $urlRouterProvider.when('/profile','/home/jokes');
@@ -105,8 +117,9 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 //      $locationProvider.html5Mode(true);
 });
 
-app.run(function ($rootScope, $state, $window, imagePath, $http, usersPath, spinner) {
+app.run(function ($rootScope, $state, $window, imagePath, $http, usersPath, spinner, services,postsPath) {
 //$rootScope.testvar = 300;
+    $rootScope.endpoint = 'http://www.xcribbles.com';
     $rootScope.usersPath = usersPath;
     $rootScope.spinner = spinner;
     $rootScope.imagePath = imagePath;
@@ -123,14 +136,13 @@ app.run(function ($rootScope, $state, $window, imagePath, $http, usersPath, spin
 
     $rootScope.alerts = [];
     $rootScope.$on('$stateChangeStart', function (e, to) {
-        $rootScope.loading = true;
         $rootScope.loadingMsg = 'Loading ' + to.data.displayName + '...';
         $rootScope.previous = $state.current.name;
 //        console.log();
 
     });
     $rootScope.$on('$stateChangeSuccess', function (e, to) {
-        $rootScope.loading = false;
+        $rootScope.loadingMsg = undefined;
         $rootScope.activePage = to.name;
     });
 
@@ -150,6 +162,20 @@ app.run(function ($rootScope, $state, $window, imagePath, $http, usersPath, spin
     $rootScope.profilePixChanged = function (pic) {
         $rootScope.$broadcast('profile.pix.changed', pic);
     };
+    $rootScope.sessionTimeout = function () {
+        $rootScope.isAuthenticated = false;
+        $rootScope.$broadcast('session.timeout');
+        services.notify("Login to continue");
+//        $rootScope.route('login');
+    };
+    $rootScope.loggedOut = function () {
+        $rootScope.isAuthenticated = false;
+        $rootScope.$broadcast('logged.out');
+    };
+    
+    $http.get(postsPath + '/tags').success(function (resp) {
+        $rootScope.tagcloud = resp;
+    });
 });
 
 console.log("angular configured");

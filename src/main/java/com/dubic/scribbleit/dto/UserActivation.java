@@ -4,9 +4,11 @@
  */
 package com.dubic.scribbleit.dto;
 
+import java.util.Calendar;
 import java.util.Date;
 
-/**DTO class for user activation parameters
+/**
+ * DTO class for user activation parameters
  *
  * @author dubic
  * @since idm 1.0.0
@@ -14,14 +16,17 @@ import java.util.Date;
 public class UserActivation {
 
     private Long id;
-    private String email;
-    private Long created;
-    static final long MINUTES = 60*1000;
+    private Date expDate;
 
-    public UserActivation(Long id, String email, Long created) {
+    public UserActivation() {
+    }
+
+    
+    public UserActivation(Long id) {
         this.id = id;
-        this.email = email;
-        this.created = created;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        this.expDate = cal.getTime();
     }
 
     public Long getId() {
@@ -32,31 +37,22 @@ public class UserActivation {
         this.id = id;
     }
 
-    public Long getCreated() {
-        return created;
+    public Date getExpDate() {
+        return expDate;
     }
 
-    public void setCreated(Long created) {
-        this.created = created;
+    public void setExpDate(Date expDate) {
+        this.expDate = expDate;
     }
 
-    public String getEmail() {
-        return email;
+    public boolean expired() {
+        return new Date().after(expDate);
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    @Override
+    public String toString() {
+        return "UserActivation{" + "id=" + id + ", expDate=" + expDate + '}';
     }
-
     
-    public UserActivation() {
-    }
-
-    public boolean linkExpired(int expirationPeriod) {
-        Long duration = new Date().getTime() - created;// duration in millis of time past
-        if(duration > expirationPeriod*MINUTES){
-            return true;
-        }
-        return false;
-    }
+    
 }
