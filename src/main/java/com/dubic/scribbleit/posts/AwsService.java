@@ -42,6 +42,10 @@ public class AwsService {
     private Database db;
     @Value("${bucket.name}")
     private String bucket;
+    @Value("${aws.key.id}")
+    private String awsKeyId;
+    @Value("${aws.key.secret}")
+    private String awsKeySecret;
     private AWSCredentials credentials;
 
     @PostConstruct
@@ -49,12 +53,12 @@ public class AwsService {
         credentials = new AWSCredentials() {
             @Override
             public String getAWSAccessKeyId() {
-                return "AKIAJP7GQALSE6PH3UZA";
+                return AwsService.this.awsKeyId;
             }
 
             @Override
             public String getAWSSecretKey() {
-                return "d2gTCJd3we6R7Nn+lNTL+F72rJgoXO2CWhLjnlvG";
+                return AwsService.this.awsKeySecret;
             }
         };
     }

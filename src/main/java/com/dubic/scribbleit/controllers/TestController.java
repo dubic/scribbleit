@@ -58,6 +58,10 @@ public class TestController {
     private boolean tls;
     @Value("${mail.template.path}")
     private String templatePath;
+    @Value("${aws.key.id}")
+    private String awsKeyId;
+    @Value("${aws.key.secret}")
+    private String awsKeySecret;
 
     @RequestMapping("/simple-mail")
     public @ResponseBody
@@ -137,12 +141,12 @@ public class TestController {
 
             @Override
             public String getAWSAccessKeyId() {
-                return "AKIAJP7GQALSE6PH3UZA";
+                return TestController.this.awsKeyId;
             }
 
             @Override
             public String getAWSSecretKey() {
-                return "d2gTCJd3we6R7Nn+lNTL+F72rJgoXO2CWhLjnlvG";
+                return TestController.this.awsKeySecret;
             }
         };
         AmazonS3Client s3Client = new AmazonS3Client(credentials);
