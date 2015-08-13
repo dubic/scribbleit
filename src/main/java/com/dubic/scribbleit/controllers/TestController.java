@@ -74,7 +74,7 @@ public class TestController {
             email.setSmtpPort(25);
 //            email.setSslSmtpPort("25");
             System.out.println("port is - " + email.getSmtpPort());
-            email.setAuthenticator(new DefaultAuthenticator("AKIAIMEB2GZTOW2JRY2Q", "AvF22hhPBzYhVlndehTB4p1KIXm0XEO5X6kpbU3czG2L"));
+            email.setAuthenticator(new DefaultAuthenticator("", ""));
 //            email.setSSLOnConnect(true);
             email.setFrom("udubic@gmail.com");
             email.setSubject("A test mail");
