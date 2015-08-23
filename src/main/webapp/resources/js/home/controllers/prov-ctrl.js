@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams,$window) {
+ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $timeout, spinner, postsPath, $stateParams, $window) {
     $scope.$on('newPostBroadcast', function (e, j) {
 //        console.log(j);
         $scope.proverbs.unshift(j);
@@ -22,13 +22,13 @@ ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $tim
         }, 1000);
     };
 
-    $scope.share = function (i,prov) {
+    $scope.share = function (i, prov) {
         var u = '/p/p/';
-        var shareurls=[
-            'http://www.facebook.com/share.php?'+$.param({u:$rootScope.endpoint+u+prov.id,t:prov.post}),
-            'https://twitter.com/intent/tweet?'+$.param({url:$rootScope.endpoint+u+prov.id,text:prov.post}),
-            'https://mail.google.com/mail/?'+$.param({view:'cm',fs:1,su:'share a proverb',body:prov.post+'['+$rootScope.endpoint+u+prov.id+']'}),
-            'https://plus.google.com/share?'+$.param({url:$rootScope.endpoint+u+prov.id})
+        var shareurls = [
+            'http://www.facebook.com/share.php?' + $.param({u: $rootScope.endpoint + u + prov.id, t: prov.post}),
+            'https://twitter.com/intent/tweet?' + $.param({url: $rootScope.endpoint + u + prov.id, text: prov.post}),
+            'https://mail.google.com/mail/?' + $.param({view: 'cm', fs: 1, su: 'share a proverb', body: prov.post + '[' + $rootScope.endpoint + u + prov.id + ']'}),
+            'https://plus.google.com/share?' + $.param({url: $rootScope.endpoint + u + prov.id})
         ];
         $window.open(shareurls[i], "MsgWindow", "width=700, height=600");
     };
@@ -103,15 +103,7 @@ ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $tim
     };
 
 
-
-    ///////INIT FUNCTIONS///////////
-    if (!angular.isUndefined($stateParams.id) && $stateParams.id !== '' && $stateParams.id !== null) {
-        loadById($stateParams.id);
-    } else {
-        loadPosts();
-    }
-///////////////////////////
-    function loadById(id) {
+    $scope.loadById = function (id) {
         services.showMsg('Loading...');
         $http.get(postsPath + '/load/proverb/' + id).success(function (resp) {
             services.hideMsg();//hide loading..
@@ -120,10 +112,18 @@ ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $tim
         }).error(function (data, status) {
             services.hideMsg();
         });
-    }
+    };
 
-    function loadPosts() {
+    $scope.query = {
+        page: 1,
+        size: 5,
+        id: 0
+    };
+    $scope.loadPosts = function () {
         services.showMsg('Loading Proverbs...');
+        var p = {
+            start: ($scope.query.page - 1) * $scope.query.size, size: $scope.query.size, id: $scope.query.id
+        };
         $http.get(postsPath + '/load/proverb?start=0&size=10').success(function (resp) {
             services.hideMsg();//hide loading..
             $scope.proverbs = resp.posts;//display jokes
@@ -131,7 +131,7 @@ ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $tim
         }).error(function (r) {
             services.hideMsg();
         });
-    }
+    };
 
     $scope.openReport = function (post) {
         $scope.reports = {};
@@ -140,6 +140,12 @@ ctrls.controller('provCtrl', function ($scope, $http, services, $rootScope, $tim
         services.openDialog('reportModal');
     };
 
-
+    ///////INIT FUNCTIONS///////////
+    if (!angular.isUndefined($stateParams.id) && $stateParams.id !== '' && $stateParams.id !== null) {
+        $scope.loadById($stateParams.id);
+    } else {
+        $scope.loadPosts();
+    }
+///////////////////////////
 
 });

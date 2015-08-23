@@ -66,15 +66,15 @@ http://www.springframework.org/schema/context
     The id becomes the default thread name prefix. -->             
     <task:scheduler id="taskScheduler" pool-size="10"/> 
   
-    <context:property-placeholder location="file:///C:/usr/share/dubic/scribbles/conf.properties" />
-    <!--<context:property-placeholder location="file:////usr/share/dubic/scribbles/conf.properties" />-->
+    <!--<context:property-placeholder location="file:///C:/usr/share/dubic/scribbles/conf.properties" />-->
+    <context:property-placeholder location="file:////usr/share/dubic/scribbles/conf.properties" />
     
     
     <!--    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host" value="smtp.gmail.com" />
         <property name="port" value="465" />
         <property name="username" value="udubic@gmail.com" />
-        <property name="password" value="dcamic4602" />
+        <property name="password" value="" />
     </bean>-->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
     

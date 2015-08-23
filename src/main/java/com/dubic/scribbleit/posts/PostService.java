@@ -18,6 +18,7 @@ import com.dubic.scribbleit.models.Report;
 import com.dubic.scribbleit.models.Tag;
 import com.dubic.scribbleit.utils.IdmCrypt;
 import com.dubic.scribbleit.utils.IdmUtils;
+import com.dubic.scribbleit.utils.InvalidException;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -31,7 +32,6 @@ import javax.persistence.PersistenceException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -78,7 +78,11 @@ public class PostService {
             JsonObject job = new JsonObject();
             job.addProperty("id", (Long) object[0]);
             job.addProperty("title", (String) object[1]);
-            job.addProperty("post", (String) object[2]);
+            String post = (String) object[2];
+            if (post != null) {
+                post = post.trim().replace("â??", "\"");
+            }
+            job.addProperty("post", post);
             job.addProperty("source", (String) object[3]);
             String tags = ((String) object[4]);
             job.add("tags", new Gson().toJsonTree((tags == null ? "" : tags).split(",")));
@@ -108,6 +112,7 @@ public class PostService {
             throw new PostException("please log in to continue");
         }
         Post p = new Post(data);
+
         p.setType(Post.Type.valueOf(type));
         p.setUser(user);
 
@@ -140,10 +145,10 @@ public class PostService {
             profile.setJokes(profile.getJokes() + 1);
         }
         if (p.getType().equals(Post.Type.PROVERB)) {
-            profile.setJokes(profile.getProverbs() + 1);
+            profile.setProverbs(profile.getProverbs() + 1);
         }
         if (p.getType().equals(Post.Type.QUOTE)) {
-            profile.setQuotes(profile.getProverbs() + 1);
+            profile.setQuotes(profile.getQuotes() + 1);
         }
         db.merge(profile);
         log.info(String.format("Post saved [%s] by [%s]", type, user.getScreenName()));
@@ -237,13 +242,17 @@ public class PostService {
             job.addProperty("date", ((Date) object[4]).getTime());
             job.addProperty("type", (String) object[5]);
             job.addProperty("image", (String) object[6]);
-            if (text.length() > 200) {
-                job.addProperty("readMore", true);
-                job.addProperty("text", text.substring(0, 199));
-            } else {
-                job.addProperty("readMore", false);
-                job.addProperty("text", text);
+            if (text != null) {
+                text = text.trim().replace("â??", "\"");
+                if (text.length() > 200) {
+                    job.addProperty("readMore", true);
+                    job.addProperty("text", text.substring(0, 199).concat("..."));
+                } else {
+                    job.addProperty("readMore", false);
+                    job.addProperty("text", text);
+                }
             }
+
             array.add(job);
         }
         resp.add("posts", array);
@@ -252,14 +261,9 @@ public class PostService {
     }
 
     public static void main(String[] args) {
-        String t = "The CPI Communications interface can converse with applications on any system\n"
-                + "that provides an APPC API. This includes applications on CICS platforms. You\n"
-                + "may use APPC API commands on one end of a conversation and CPI\n"
-                + "Communications commands on the other. CPI Communications requires specific\n"
-                + "information (side information) to begin a conversation with a partner program.\n"
-                + "CICS implementation of side information is achieved using the partner resource\n"
-                + "which your system programmer is responsible for maintaining.";
-        System.out.println("len - " + t.length());
+        String t = "Recently, a friend took me to the jewel-in-the-crown of the Redeemed Christian Church of God, a glitzy parish called â??City of Davidâ?? in Victoria Island, Lagos. Displayed resplendently on a wall in";
+        System.out.println(t);
+        System.out.println("".replace("â??", "\""));
     }
 
     public JsonArray getPost(Long id) {
@@ -321,6 +325,31 @@ public class PostService {
 
     public MediaItem findMediaItem(String title) {
         return IdmUtils.getFirstOrNull(db.createQuery("SELECT m FROM MediaItem m WHERE m.title = :title", MediaItem.class).setParameter("title", title).getResultList());
+    }
+
+    @Transactional
+    public void deletePost(Long postId) throws InvalidException {
+        Post post = db.find(Post.class, postId);
+        User userLoggedIn = idmService.getUserLoggedIn();
+        if (!post.getUser().getId().equals(userLoggedIn.getId())) {
+            throw new InvalidException("Not authorized for this action");
+        }
+        //delete post dependecies
+        log.info(String.format("deleted %d comments", db.createNativeQuery("delete from comments where post_id = " + postId).executeUpdate()));
+        log.info(String.format("deleted %d reports", db.createNativeQuery("delete from report where post_id = " + postId).executeUpdate()));
+        log.info(String.format("deleted %d media items", db.createNativeQuery("delete from media where title = " + post.getMedia()).executeUpdate()));
+        //proceed and delete post
+        db.delete(post);
+        //update profile
+        Profile profile = userLoggedIn.getProfile();
+        if (post.getType().equals(Post.Type.JOKE)) {
+            profile.setJokes(profile.getJokes() - 1);
+        } if (post.getType().equals(Post.Type.QUOTE)) {
+            profile.setQuotes(profile.getQuotes() - 1);
+        }if(post.getType().equals(Post.Type.PROVERB)) {
+            profile.setProverbs(profile.getProverbs() - 1);
+        }
+        log.info(String.format("deleted post [%d] by [%s]", postId, userLoggedIn.getScreenName()));
     }
 
 }

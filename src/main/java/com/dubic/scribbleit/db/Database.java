@@ -110,6 +110,12 @@ public class Database {
         return em.createQuery("SELECT t FROM " + tClass.getSimpleName() + " t", tClass)
                 .getResultList();
     }
+    
+//    public <T> List<T> deleteDependencies(Class<T> tClass) {
+//        
+//        return em.createQuery("DELETE FROM Comment c WHERE c.post.id" + tClass.getSimpleName() + " ", tClass)
+//                .getResultList();
+//    }
 
     /**
      * creates a named query from the query string and type class.abstracts

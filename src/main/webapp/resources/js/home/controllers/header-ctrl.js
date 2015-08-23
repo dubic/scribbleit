@@ -5,7 +5,7 @@
  */
 
 
-ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, searchPath, $q,facebookService,gapiService,services) {
+ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, searchPath, $q, facebookService, gapiService, services) {
     $scope.fullname = 'dubic uzuegbu';
     $scope.pop = false;
     $scope.insearch = false;
@@ -20,12 +20,12 @@ ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, se
             $rootScope.loggedOut();
             services.notify('you have logged out successfully');
             gapiService.logout();
-            $timeout(function(){
-                facebookService.logout.then(function(response){
-                   console.log('User is now logged out of facebook'); 
-                   console.log(response); 
+            $timeout(function () {
+                facebookService.logout.then(function (response) {
+                    console.log('User is now logged out of facebook');
+                    console.log(response);
                 });
-            },10000);
+            }, 10000);
         });
     };
 
@@ -49,7 +49,8 @@ ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, se
     };
 
     $scope.searchCalls = [];
-
+    
+    
     $scope.$on('profile.pix.changed', function (evt, pic) {
 //        $rootScope.userDetails.picture = pic;
         $rootScope.userDetails.picture = pic;
@@ -71,7 +72,7 @@ ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, se
         });
         return r;
     };
-    
+
     $scope.searchJokes = function () {
         var r = $http.post(searchPath + '/results/posts/JOKE?q=' + $scope.Search.keyword + '&size=5');
         $scope.searchCalls.push(r);
@@ -125,7 +126,7 @@ ctrls.controller('headerCtrl', function ($scope, $http, $timeout, $rootScope, se
                         $scope.Results.splice(i, 1);
             }
     };
-    
+
     $scope.runSearch = function () {
         $(".pop").slideUp();
         $rootScope.route('search', {q: $scope.Search.keyword});

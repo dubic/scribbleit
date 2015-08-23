@@ -1,14 +1,15 @@
-<div>
-    <div style="padding:20px;background:#CCC">
+<div style="border:solid 1px #999">
+    <div style="padding:20px;">
         <img src="${logo}"/>
     </div>
     <div style="padding:20px">
-    	<h2 style="font-family:"Open Sans",sans-serif">Welcome to Scribbles</h2>
+    	<h2 style="font-family:"Open Sans",sans-serif">Welcome to Xcribbles</h2>
         
         <p><strong>Hello ${username},</strong></p>
         <p>Your account has been successfully created.  your login details are your email <strong>${email}</strong> and password.</p>
         
         <p>To activate your account we need to verify your email. Kindly click the link below.</p>
+        <p>This link expires 24 hours after your original signup or confirmation request.</p>
         
         <p><a href="${activationURL}">Activate here</a></p>
         

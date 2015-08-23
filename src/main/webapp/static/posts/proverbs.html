@@ -39,21 +39,21 @@
             <a href="" ng-click="hideComments(prov)" ng-hide="!prov.showComments">hide comments</a>
             <img ng-show="prov.loadingComments" ng-src="{{spinner}}"/>
         </span>
-        <div class="col-md-10 col-lg-offset-1" ng-cloak ng-show="prov.showComments">
-            <div class="row comment" ng-repeat="comment in prov.comments">
-                <div class="col-md-1">
-                    <img ng-src="{{usersPath}}/img/{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
-                </div>
-                <div class="col-md-9">
-                    <div class="row">
-                        <a href="#/profile/{{comment.poster}}" class="person">{{comment.poster}}</a>
-                        <span class="date-grey" style="margin:0px 10px">{{comment.duration}}</span>
+        <div class="col-md-10 margin-top-10 col-lg-offset-1" ng-cloak ng-show="prov.showComments">
+            <div class="media comment" ng-repeat="comment in prov.comments">
+                    <div class="pull-left">
+                        <img ng-src="{{usersPath}}/img/{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
                     </div>
-                    <div class="row post">
-                        <p>{{comment.text}}</p>
+                    <div class="media-body">
+                        <div>
+                            <a href="#/profile/{{comment.poster}}" class="person">{{comment.poster}}</a>
+                            <span class="date-grey" style="margin:0px 10px">{{comment.duration}}</span>
+                        </div>
+                        <div class="post-text">
+                           {{comment.text}}
+                        </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
     <!--COMMENT TEXT BLOCK-->
@@ -62,7 +62,7 @@
             <div class="col-md-10 col-lg-offset-1"><textarea ng-model="prov.myComment" style="width: 100%" placeholder="comment on this joke"></textarea></div>
         </div>
         <div class="row">
-            <div class="col-md-10 col-lg-offset-1 margin-top-10">
+            <div class="col-md-10 margin-top-10 col-lg-offset-1">
                 <button class="btn btn-warning btn-sm" ng-click="prov.makeComment = !prov.makeComment" ng-hide="prov.oncomment">cancel</button>
                 <button class="btn btn-info btn-sm" ng-click="comment($index)" ng-hide="prov.oncomment">comment</button>
                 <span ng-show="prov.oncomment"><img ng-src="{{spinner}}"/> saving comment...</span>
@@ -70,5 +70,7 @@
         </div>
     </div>
 </section>
+
+<pager total-items="totalPosts" ng-model="query.page" ng-change="loadPosts()" items-per-page="query.size"></pager>
 
 <div ng-include="'static/posts/report.html'"></div>

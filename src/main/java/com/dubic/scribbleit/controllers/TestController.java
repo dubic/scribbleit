@@ -136,7 +136,7 @@ public class TestController {
     
     @RequestMapping("/s3/save")
     @ResponseBody
-    public String saveS3(@RequestParam("page") String page) {
+    public String saveS3(@RequestParam("name") String name,@RequestParam("file") String file) {
         AWSCredentials credentials = new AWSCredentials() {
 
             @Override
@@ -150,7 +150,7 @@ public class TestController {
             }
         };
         AmazonS3Client s3Client = new AmazonS3Client(credentials);
-        PutObjectRequest request = new PutObjectRequest("scribblespost", "sniplogo.png", new File("C:\\usr\\share\\dubic\\scribbles\\pics\\male.jpg"));
+        PutObjectRequest request = new PutObjectRequest("scribblespost", name, new File(file));
         request.setCannedAcl(CannedAccessControlList.PublicRead);
         PutObjectResult res = s3Client.putObject(request);
         return res.getETag();

@@ -183,7 +183,7 @@ public class MailServiceImpl {
             email.setSubject(mail.getSubject());
             if (template != null) {
                 String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, templatePath + template, "UTF-8", model);
-                System.out.println(text);
+                log.debug(text);
                 email.setHtmlMsg(text);
             } else {
                 email.setMsg(mail.getMessage());

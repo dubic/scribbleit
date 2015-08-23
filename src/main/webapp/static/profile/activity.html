@@ -1,13 +1,16 @@
 <div class="loading-screen" ng-show="loadingActivity"></div>
 <div class="activity" ng-hide="loadingActivity">
     <h4>Posts Activity</h4>
-    <div class="posts">
+    <div class="posts" blockui="deleting">
         <div class="row" ng-repeat="p in Activity.posts">
             <div class="col-md-12 well well-sm">
-                <div style="border-bottom: 1px #c0c0c0 solid" class="margin-bottom-10"><span class="date bold margin-right-10" ng-bind="p.date | date:'medium'"></span>
-                    <span class="title" ng-bind="p.title">one bright summer morning</span></div>
-                <a href="{{p.type | postype}}{{p.id}}"><div class="text" ng-bind="p.text"></div></a>
-                <a href="{{p.type | postype}}{{p.id}}" class="btn btn-success btn-xs" ng-show="p.readMore">Read More</a>
+                <div style="border-bottom: 1px #c0c0c0 solid" class="margin-bottom-10">
+                    <span class="date bold margin-right-10" ng-bind="p.date | date:'medium'"></span>
+                    <span class="title" ng-bind="p.title"></span>
+                    <button style="z-index: 10" class="btn btn-danger btn-xs pull-right" ng-if="Profile.isMe" ng-click="deletePost(p)">delete</button>
+                </div>
+                <a href="{{p.type| postype}}{{p.id}}"><div class="text" ng-bind="p.text"></div></a>
+                <a href="{{p.type| postype}}{{p.id}}" class="btn btn-success btn-xs" ng-show="p.readMore">Read More</a>
             </div>
         </div>
     </div>

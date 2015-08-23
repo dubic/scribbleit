@@ -22,6 +22,10 @@ ctrls.controller('profileCtrl', function ($scope, $http, $rootScope, $timeout, s
             $scope.Profile = resp;
             $rootScope.loadingProfile = false;
             $scope.profileExists = resp.exists;
+            if (!resp.session) {
+                $rootScope.isAuthenticated = false;
+                $rootScope.$broadcast('session.timeout');
+            }
             $rootScope.navigate('profile.activity');
         }).error(function (data, status) {
             $rootScope.loadingProfile = false;
@@ -31,9 +35,9 @@ ctrls.controller('profileCtrl', function ($scope, $http, $rootScope, $timeout, s
 
     };
     $scope.loadProfile();
-    
-    $scope.$on('logged.out',function(){
-       $scope.loadProfile();
+
+    $scope.$on('logged.out', function () {
+        $scope.loadProfile();
     });
 
 
@@ -77,7 +81,7 @@ ctrls.controller('profileCtrl', function ($scope, $http, $rootScope, $timeout, s
 });
 
 ctrls.controller('activityCtrl', function ($scope, $http, $rootScope, profPath, services, $stateParams) {
-    $scope.Profile = {};
+//    $scope.Profile = {};
     $scope.Activity = {};
 
 
@@ -97,8 +101,31 @@ ctrls.controller('activityCtrl', function ($scope, $http, $rootScope, profPath, 
             $rootScope.loadingActivity = false;
             services.notify('unexpected server error occurred');
         });
+    };
 
-
+    $scope.deletePost = function (post) {
+        var title = post.title || post.id + '';
+        if (!confirm('delete post : ' + title + '?'))
+            return;
+        
+        $scope.deleting = true;
+        $http.get(profPath + '/posts/delete/'+post.id).success(function (resp) {
+            $scope.deleting = false;
+            if (resp.code === 0) {
+                $scope.load();
+                services.notify('Post deleted successfully');
+                $scope.loadProfile();
+            } else {
+                services.notify(resp.msg);
+            }
+        }).error(function (data, status) {
+            $scope.deleting = false;
+            if (status === 407) {
+                $rootScope.sessionTimeout();
+                services.popLogin();
+            } else
+                services.notify("Service unavailable");
+        });
     };
     $scope.load();
 

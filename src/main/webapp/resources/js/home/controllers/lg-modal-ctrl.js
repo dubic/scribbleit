@@ -71,11 +71,10 @@ ctrls.controller('lgmodalCtrl', function ($scope, $http, $rootScope, services, r
             }
             else if (resp.code === 202) {
                 $scope.sl = resp;
-                console.log('before closed');
                 services.closeModal('loginModal');
-//                alert('closed');
                 services.openModal('linkAcctModal');
-//                alert('opened');
+            }else if (resp.code === 190) {
+                services.notify('Facebook session expired. Refresh page and try again');
             }else {
                 services.notify('Unexpected error occurred!');
             }
@@ -116,18 +115,20 @@ ctrls.controller('lgmodalCtrl', function ($scope, $http, $rootScope, services, r
 
     $scope.gglogin = function () {
         services.showMsg('Google Authentication...');
-        if (gapiService.checkLoginState()) {
-            console.log('already logged in to google');
-            gapiService.myDetails()
-                    .then(function (response) {
-                        $scope.sendGGtoken(response.currentUser.B.B.access_token);
-                    });
-        } else {
-            services.hideMsg();
+//        if (gapiService.checkLoginState()) {
+//            console.log('already logged in to google');
+//            gapiService.myDetails()
+//                    .then(function (response) {
+//                        console.log(response);
+//                        $scope.sendGGtoken(response.getAuthResponse().access_token);
+//                    });
+//        } else {
+            
             gapiService.login().then(function (response) {
+                services.hideMsg();
                 $scope.sendGGtoken(response.getAuthResponse().access_token);
             });
-        }
+//        }
     };
 
     $scope.gglogout = function () {
@@ -188,6 +189,7 @@ ctrls.controller('lgmodalCtrl', function ($scope, $http, $rootScope, services, r
     $scope.loginSuccess = function () {
         $rootScope.getCurrentUser();
         services.closeModal('loginModal');
+        services.notify('Login sucessful');
     };
 
 });

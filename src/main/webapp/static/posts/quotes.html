@@ -44,18 +44,18 @@
             <a href="" ng-click="hideComments(quote)" ng-hide="!quote.showComments">hide comments</a>
             <img ng-show="quote.loadingComments" ng-src="{{spinner}}"/>
         </span>
-        <div class="col-md-10 col-lg-offset-1" ng-cloak ng-show="quote.showComments">
-                <div class="row comment" ng-repeat="comment in quote.comments">
-                    <div class="col-md-1">
+        <div class="col-md-10 margin-top-10 col-lg-offset-1" ng-cloak ng-show="quote.showComments">
+                <div class="media comment" ng-repeat="comment in quote.comments">
+                    <div class="pull-left">
                         <img ng-src="{{usersPath}}/img/{{comment.imageURL}}" class="poster-img" width="40" height="40"/>
                     </div>
-                    <div class="col-md-9">
-                        <div class="row">
+                    <div class="media-body">
+                        <div>
                             <a href="#/profile/{{comment.poster}}" class="person">{{comment.poster}}</a>
                             <span class="date-grey" style="margin:0px 10px">{{comment.duration}}</span>
                         </div>
-                        <div class="row post">
-                            <p>{{comment.text}}</p>
+                        <div class="post-text">
+                           {{comment.text}}
                         </div>
                     </div>
                 </div>

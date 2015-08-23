@@ -5,8 +5,8 @@
  */
 package com.dubic.scribbleit.controllers;
 
-import java.util.Date;
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +20,8 @@ import org.springframework.web.servlet.ModelAndView;
 public class HomeController {
 
     private final Logger log = Logger.getLogger(getClass());
+    @Value("${domain}")
+    private String domain;
 
     public HomeController() {
     }
@@ -38,15 +40,15 @@ public class HomeController {
      */
     @RequestMapping("/p/{type}/{id}")
     public String postsPublic(@PathVariable("type") String type, @PathVariable("id") Long id) {
-        String url = "redirect:/#/home/jokes";
+        String url = "redirect:#/home/jokes";
         if ("j".equalsIgnoreCase(type)) {
-            url = "redirect:/#/home/jokes?id=" + id;
+            url = "redirect:" + domain + "/#/home/jokes?id=" + id;
         } else if ("p".equalsIgnoreCase(type)) {
-            url = "redirect:/#/home/proverbs?id=" + id;
+            url = "redirect:" + domain + "/#/home/proverbs?id=" + id;
         } else if ("q".equalsIgnoreCase(type)) {
-            url = "redirect:/#/home/quotes?id=" + id;
+            url = "redirect:" + domain + "/#/home/quotes?id=" + id;
         }
-        log.infof("shared posts type[%s] id[%d]", type,id);
+        log.infof("shared posts type[%s] id[%d]", type, id);
         return url;
     }
 

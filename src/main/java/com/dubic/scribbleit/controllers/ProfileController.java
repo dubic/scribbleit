@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpSession;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +86,30 @@ public class ProfileController {
 //        JsonObject resp = new JsonObject();
         return postService.getLatestsUserPosts(username, 0, 10);
     }
+    
+    @RequestMapping("/posts/delete/{id}")
+    public @ResponseBody
+    JsonObject deletePost(@PathVariable("id") Long postId) {
+       JsonObject resp = new JsonObject();
+        try {
+            //make sure poster is deleter
+            postService.deletePost(postId);
+            resp.addProperty("code", 0);
+        } catch (InvalidException ie) {
+            resp.addProperty("code", 500);
+            resp.addProperty("msg", ie.getMessage());
+            log.warn(ie.getMessage());
+        } catch (EntityNotFoundException ie) {
+            resp.addProperty("code", 501);
+            resp.addProperty("msg", ie.getMessage());
+            log.warn(ie.getMessage());
+        } catch (PersistenceException pe) {
+            resp.addProperty("code", 502);
+            resp.addProperty("msg", "Unexpected error occurred");
+            log.fatal(pe.getMessage(), pe);
+        }
+        return resp;
+    }
 
     @RequestMapping({"/update-account"})
     @ResponseBody
@@ -139,6 +165,9 @@ public class ProfileController {
         log.debugf("validateEmail(%s)", email);
         try {
             IdmUtils.validate(email).notEmptyString("email is required");
+            if (identityService.findUserByEmail(email.trim()) != null) {
+                throw new InvalidException("Email "+email+" already in use");
+            }
             String passcode = IdmCrypt.generateTimeToken();
             session.setAttribute(passcode, email.trim());
             //send email
@@ -154,7 +183,7 @@ public class ProfileController {
             log.debug("TOKEN : " + passcode);
             log.infof("Email validation code done...[%s]", user.getScreenName());
         } catch (InvalidException ex) {
-            log.warn(ex.getMessage(), ex);
+            log.warn(ex.getMessage());
             resp.addProperty("code", 302);
             resp.addProperty("msg", ex.getMessage());
         } catch (Exception ex) {

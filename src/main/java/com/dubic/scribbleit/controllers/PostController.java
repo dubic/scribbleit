@@ -21,6 +21,7 @@ import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import org.apache.log4j.Logger;
+import org.apache.log4j.varia.ExternallyRolledFileAppender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -128,6 +129,12 @@ public class PostController {
             @RequestParam(value = "start", defaultValue = "0") int start,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return postService.getPostByTag(type,tag,start,size);
+    }
+    
+    @RequestMapping("/ping")
+    @ResponseBody
+    public String ping() {
+        return "OK";
     }
 
 //    @RequestMapping("/jokes/like/{id}")

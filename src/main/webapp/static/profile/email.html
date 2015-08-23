@@ -1,3 +1,8 @@
+<style>
+    .info{
+        color: #555;
+    }
+</style>
 <div class="account">
     <div class="row">
         <div class="col-md-12"><div ng-repeat="a in emailalerts" class="alert {{a.class}}">{{a.msg}}</div></div>
@@ -8,8 +13,9 @@
         <form name="newfrm" class="">
             <span class="error-msg" ng-show="newfrm.email.$dirty && newfrm.email.$error.email">invalid email</span>
             <span class="error-msg" ng-show="newfrm.email.$dirty && newfrm.email.$error.required">email is required</span>
+            <span class="error-msg" ng-show="newfrm.email.$dirty && newfrm.email.$error.ngRemoteValidate">Email is already taken</span>
             <div class="form-group">
-                <input type="email" name="email" ng-model="newEmail" class="form-control input-large inline" required placeholder="new email"/>
+                <input type="email" name="email" ng-model="newEmail" ng-class="{'spinner':newfrm.email.$pending}" class="form-control input-large inline" ng-remote-validate="users/email-unique" ng-remote-throttle="1000" required placeholder="new email"/>
             </div>
             <button class="btn btn-primary" ng-click="sendPasscode()" ng-disabled="newfrm.$invalid || validating">
                 <span ng-show="!validating">Submit</span><span ng-show="validating">Processing...</span>

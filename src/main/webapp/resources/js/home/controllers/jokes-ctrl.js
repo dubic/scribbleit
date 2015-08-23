@@ -144,10 +144,7 @@ ctrls.controller('jokesCtrl', function ($scope, $http, services, $rootScope, $ti
         services.openDialog('shareModal');
     };
 
-    $scope.nextPage = function () {
-        $scope.query.page++;
-        $scope.loadPosts();
-    };
+   
     $scope.forTags = function (t) {
         $scope.query = {
             page: 1,
